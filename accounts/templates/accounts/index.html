@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>메인페이지</h1>
+
+<!-- 1. 인증 유저인 경우 -->
+{% if request.user.is_authenticated %} 
+<p>안녕하세요 {{ user.username }}</p>
+
+<!-- POST 요청 -->
+<form action="{% url "accounts:logout" %}" method="POST">
+	{% csrf_token %}
+	<input type="submit" value="로그아웃">
+</form>
+
+<!-- POST 요청 -->
+<form action="{% url "accounts:signout" %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="회원탈퇴">
+</form>
+
+<!-- GET요청 -->
+<a href="{% url "accounts:update" %}">회원정보 수정</a>
+
+
+<!-- 2. 비인증 유저인 경우 -->
+{% else %} 
+
+<!-- GET요청 -->
+<a href="{% url "accounts:login" %}">LOGIN</a>
+
+<!-- GET요청 -->
+<a href="{% url "accounts:signup" %}">SIGNUP</a>
+
+{% endif %}
+
+{% endblock content %}
