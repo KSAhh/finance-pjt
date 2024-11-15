@@ -21,10 +21,10 @@ jobs:
       # 2. PR에서 관련된 이슈 닫기
       - name: Close related issues # 단계 명명
         run: |
-          # 현재 PR의 본문(body)을 JSON형식으로 가져와 body필드만 쿼리하여 추출
-          gh pr view ${{ github.ref_name }} --json body -q ".body" | \
-          grep -Eo "(Fixes|Closes|Resolves) #[0-9]+" | \ # 특정 패턴의 문자열 추출
-          awk '{print $2}' | \                           # #issue_number만 추출
-          xargs -I {} gh issue close {}                  # 추출된 이슈 번호를 사용해 이슈 닫기
+          # 현재 PR의 본문(body)을 JSON 형식으로 가져와 body 필드만 쿼리하여 추출
+          gh pr view ${{ github.event.pull_request.number }} --json body -q ".body" | \
+          grep -Eo "(Fixes|Closes|Resolves) #[0-9]+" | \
+          awk '{print $2}' | \
+          xargs -I {} gh issue close {}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub 인증 토큰
