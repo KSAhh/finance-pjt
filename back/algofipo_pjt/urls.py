@@ -18,9 +18,18 @@ from django.contrib import admin
 from django.urls import path, include
 from accounts import views as accounts_views
 
+# Media files
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    path('api-auth/', include('rest_framework.urls')), # DRF 기본 인증뷰
+
     path('accounts/', include('accounts.urls')),
     path('<int:user_pk>/password/', accounts_views.update_password, name='update_password'), # 유저 비밀번호 변경
-
+    path('api/v1/', include('articles.urls')),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
