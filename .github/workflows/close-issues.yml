@@ -1,0 +1,30 @@
+# 워크플로 이름
+name: Close issues on develop merge
+
+# 트리거 이벤트 실행시점 : develop branch로 push 이벤트 발생 시
+on:
+  push: 
+    branches:
+      - develop 
+
+# 워크플로 작업 : Ubuntu 가상환경에서 이슈닫기 작업 실행
+jobs:
+  close_issues:
+    runs-on: ubuntu-latest
+
+    # 작업 단계
+    steps:
+      # 1. 저장소 코드 체크아웃하여 준비
+      - name: Checkout code # 단계 명명
+        uses: actions/checkout@v3 # GitHub Actions 가상환경에서 checkout 액션 사용
+
+      # 2. PR에서 관련된 이슈 닫기
+      - name: Close related issues # 단계 명명
+        run: |
+          # 현재 PR의 본문(body)을 JSON형식으로 가져와 body필드만 쿼리하여 추출
+          gh pr view ${{ github.ref_name }} --json body -q ".body" | \
+          grep -Eo "(Fixes|Closes|Resolves) #[0-9]+" | \ # 특정 패턴의 문자열 추출
+          awk '{print $2}' | \                           # #issue_number만 추출
+          xargs -I {} gh issue close {}                  # 추출된 이슈 번호를 사용해 이슈 닫기
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub 인증 토큰
