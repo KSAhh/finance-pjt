@@ -1,100 +1,84 @@
-from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
+from rest_framework import status, generics # API View Custom
+from rest_framework.response import Response
+
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
+
+from .serializers import SignupSerializer
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
+temp_nickname_number = 0 # 유저명에 사용되는 임의값
+
 
 class KakaoLogin(SocialLoginView):
     adapter_class = KakaoOAuth2Adapter
 
-#  from django.shortcuts import render, redirect
+    def post(self, request):
+        email = request.data.get("email")
+        nickname = request.data.get("nickname")
+        try:
+            # 기존에 가입된 유저와 쿼리해서 존재하면서, SocialAccount에도 존재하면 로그인
+            user = User.objects.get(email=email)
+            social_user = SocialAccount.objects.filter(user=user).first()
+            # 로그인
+            if social_user:
+                # 이미 존재하는 사용자 -> 토큰 생성 또는 가져오기
+                token, _ = Token.objects.get_or_create(user=user)
+                return Response({'key': token.key, "message": "로그인 성공"}, status=status.HTTP_200_OK)
+            
+            # 동일한 이메일의 유저가 있지만, social계정이 아닐때 
+            if social_user is None:
+                return Response({"message": "동일한 이메일로 가입된 소셜 계정이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 소셜계정이 카카오가 아닌 다른 소셜계정으로 가입했을때
+            if social_user.provider != "kakao":
+                return Response({"message": "동일한 이메일로 타 소셜 계정에 가입되어 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    
+        # 기존에 가입된 유저가 없으면 새로 가입
+        except User.DoesNotExist:
+            
+            # User Table에 게정 생성
+            global temp_nickname_number
+            new_user = User.objects.create(
+                nickname=f"나는유저{temp_nickname_number}",
+                email=email,
+                fullname=nickname,
+            )
+            temp_nickname_number += 1
 
-# # user
-# from django.contrib.auth import login as auth_login
-# from django.contrib.auth import logout as auth_logout
-# from django.contrib.auth import update_session_auth_hash  # 세션 무효화 방지 (선택)
-# from django.contrib.auth.decorators import login_required
-# from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+            # Social Account Table에 계정 생성
+            SocialAccount.objects.create(user_id=new_user.id, provider='kakao')
 
-# from .forms import CustomUserCreationForm  # 유저 생성
-# from .forms import CustomUserChangeForm  # 유저 정보변경
-
-
-# def index(request):
-#     return render(request, "accounts/index.html")
-
-
-# def login(request):
-#     if request.user.is_authenticated:
-#         if request.method == "POST":
-#             form = AuthenticationForm(request, request.POST)
-#             # form = AuthenticationForm(request, data=request.POST)
-#             if form.is_valid():
-#                 auth_login(request, form.get_user())
-#                 return redirect("accounts:index")
-#     else:
-#         form = AuthenticationForm()
-#     context = {
-#         "form": form,
-#     }
-#     return render(request, "accounts/login.html", context)
-
-
-# @login_required
-# def logout(request):
-#     auth_logout(request)
-#     return redirect("accounts:index")
-
-
-# def signup(request):
-#     if request.method == "POST":
-#         form = CustomUserCreationForm(request.POST)
-#         if form.is_valid():
-#             # form.save()               # 회원가입, 로그인 별개 진행
-#             user = form.save()  # 회원가입 후 자동 로그인
-#             auth_login(request, user)  # 회원가입 후 자동 로그인
-#             return redirect("accounts:index")
-#     else:
-#         form = CustomUserCreationForm()
-#     context = {
-#         "form": form,
-#     }
-#     return render(request, "accounts/signup.html", context)
+            # 토큰 생성
+            token = Token.objects.create(user=new_user)
+            return Response({'key': token.key, "message": "회원가입 성공"}, status=status.HTTP_201_CREATED)
 
 
-# @login_required
-# def signout(request):  # 요청하는 유저 정보가 request에 들어있음
-#     request.user.delete()
-#     auth_logout(request)  # 탈퇴 후 session 데이터 삭제
-#     return redirect("accounts:index")
+# 회원가입 API View 커스텀
+class SignupView(generics.CreateAPIView):
+    queryset = User.objects.all()           # DB에 작업할 모델 쿼리셋 지정
+    serializer_class = SignupSerializer     # 요청 데이터 검증, 반환 시리얼라이저
+    permission_classes = [AllowAny]         # 유저객체 접근 권한
 
+    def create(self, request, *args, **kwargs):
+        # request.data : QueryDict / 클라이언트로 부터 받은 요청 데이터
+        data = request.data.copy()                      # QueryDict를 복사하여 수정 가능하도록 처리 (이메일 제외 위함)
+        if not data.get("email"):
+            data["email"] = None                        # 이메일 필드를 None으로 설정
+            serializer = self.get_serializer(data=data) # serializer 객체 반환
+        serializer.is_valid(raise_exception=True)       # 유효성 검증
 
-# @login_required
-# def update(request):
-#     if request.method == "POST":
-#         # form = CustomUserChangeForm(data=request.POST, instance=request.user)
-#         form = CustomUserChangeForm(request.POST, instance=request.user)
-#         if form.is_valid():
-#             form.save()
-#             return redirect("accounts:index")
-#     else:
-#         form = CustomUserChangeForm(instance=request.user)
-#     context = {
-#         "form": form,
-#     }
-#     return render(request, "accounts/update.html", context)
-
-
-# @login_required
-# def update_password(request, user_pk):
-#     if request.method == "POST":
-#         # form = PasswordChangeForm(user=request.user, data=request.POST)
-#         form = PasswordChangeForm(request.user, request.POST)
-#         if form.is_valid():
-#             # form.save() # 세션 무효화 미적용
-#             user = form.save()  # 세션 무효화 방지 (선택사항)
-#             update_session_auth_hash(request, user)  # 세션 무효화 방지 (선택사항)
-#             return redirect("accounts:index")
-#     else:
-#         form = PasswordChangeForm(request.user)  # 첫 번째 필수 위치 인자가 user
-#     context = {
-#         "form": form,
-#     }
-#     return render(request, "accounts/update_password.html", context)
+        response = super().create(request, *args, **kwargs)         # DB에 유저객체 생성후, HTTP 응답객체 반환
+        user = User.objects.get(username=response.data["username"]) # 생성된 사용자 가져오기
+        token, created = Token.objects.get_or_create(user=user)     # 생성된 토큰 가져오기
+        
+        # 응답 데이터에 토큰 추가
+        response_data = response.data
+        response_data["key"] = token.key
+        response_data["message"] = "회원가입 성공"
+        return Response(response_data, status=status.HTTP_201_CREATED)
