@@ -7,5 +7,5 @@ urlpatterns = [
     path('article/<int:article_pk>/', views.article_detail),
 
     path('article/<int:article_pk>/comment/', views.comment_create),  # 댓글 생성 (POST)
-    path('article/comment/<int:comment_pk>/', views.comment_detail), # 댓글 수정 (PUT), 삭제 (DELETE)
+    path('article/comment/<int:comment_pk>/', views.comment_detail),  # 댓글 수정 (PUT), 삭제 (DELETE)
 ]
