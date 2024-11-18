@@ -1,87 +1,87 @@
-from django.shortcuts import render, redirect
+from rest_framework import status, generics
+from rest_framework.response import Response
 
-# 유저 정보 관련
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import logout as auth_logout
-from django.contrib.auth import update_session_auth_hash # 세션 무효화 방지 (선택)
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm # 로그인, 비밀번호 변경
-from .forms import CustomUserCreationForm # 유저 생성
-from .forms import CustomUserChangeForm # 유저 정보변경
-from django.contrib.auth.decorators import login_required
+# 회원가입
+from rest_framework.authtoken.models import Token
+from allauth.socialaccount.models import SocialAccount
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
 
-def index(request):
-    return render(request, 'accounts/index.html')
+# 회원탈퇴/정보수정
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from .serializers import UpdateUserSerializer
 
-def login(request):
-    if request.user.is_authenticated:
-        if request.method == 'POST':
-            form = AuthenticationForm(request, request.POST)
-            # form = AuthenticationForm(request, data=request.POST)
-            if form.is_valid():
-                auth_login(request, form.get_user())
-                return redirect('accounts:index')
-    else:
-        form = AuthenticationForm()
-    context = {
-        'form': form,
-    }
-    return render(request, 'accounts/login.html', context)
+from django.contrib.auth import get_user_model
 
-@login_required
-def logout(request):
-    auth_logout(request)
-    return redirect('accounts:index')
-
-def signup(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            # form.save()               # 회원가입, 로그인 별개 진행
-            user = form.save()          # 회원가입 후 자동 로그인
-            auth_login(request, user)   # 회원가입 후 자동 로그인
-            return redirect('accounts:index')
-    else:
-        form = CustomUserCreationForm()
-    context = {
-        'form' : form,
-    }
-    return render(request, 'accounts/signup.html', context)
-
-@login_required
-def signout(request): # 요청하는 유저 정보가 request에 들어있음
-    request.user.delete()
-    auth_logout(request) # 탈퇴 후 session 데이터 삭제
-    return redirect('accounts:index')
-
-@login_required
-def update(request):
-    if request.method == 'POST':
-        # form = CustomUserChangeForm(data=request.POST, instance=request.user)
-        form = CustomUserChangeForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            return redirect('accounts:index')
-    else:
-        form = CustomUserChangeForm(instance=request.user)
-    context = {
-        'form': form,
-    }
-    return render(request, 'accounts/update.html', context)
+User = get_user_model()
 
 
-@login_required
-def update_password(request, user_pk):
-    if request.method == 'POST':
-        # form = PasswordChangeForm(user=request.user, data=request.POST)
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            # form.save() # 세션 무효화 미적용
-            user = form.save() # 세션 무효화 방지 (선택사항)
-            update_session_auth_hash(request, user) # 세션 무효화 방지 (선택사항)
-            return redirect('accounts:index')
-    else:
-        form = PasswordChangeForm(request.user) # 첫 번째 필수 위치 인자가 user
-    context = {
-        'form': form,
-    }
-    return render(request, 'accounts/update_password.html', context)
+# 유저탈퇴
+class DeleteUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.delete()  # 계정을 완전히 삭제
+        return Response({"detail": "Account has been deleted."}, status=status.HTTP_204_NO_CONTENT)
+
+
+# 유저 정보 변경
+class UpdateUserView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UpdateUserSerializer
+    http_method_names = ['patch'] # PATCH 메서드만 허용
+
+    def get_object(self):
+        return self.request.user  # 현재 로그인한 사용자
+
+
+temp_nickname_number = 0 # 유저명에 사용되는 임의값
+
+# 카카오 로그인
+class KakaoLogin(SocialLoginView):
+    adapter_class = KakaoOAuth2Adapter
+
+    def post(self, request):
+        email = request.data.get("email")
+        nickname = request.data.get("nickname")
+        try:
+            # 기존에 가입된 유저와 쿼리해서 존재하면서, SocialAccount에도 존재하면 로그인
+            user = User.objects.get(email=email)
+            social_user = SocialAccount.objects.filter(user=user).first()
+            # 로그인
+            if social_user:
+                # 이미 존재하는 사용자 -> 토큰 생성 또는 가져오기
+                token = Token.objects.filter(user=user)
+                token_data = token.values('key')
+                print(token.values('key'))
+                return Response({'key': token_data, "detail": "로그인 성공"}, status=status.HTTP_200_OK)
+            
+            # 동일한 이메일의 유저가 있지만, social계정이 아닐때 
+            if social_user is None:
+                return Response({"detail": "동일한 이메일로 가입된 소셜 계정이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # 소셜계정이 카카오가 아닌 다른 소셜계정으로 가입했을때
+            if social_user.provider != "kakao":
+                return Response({"detail": "동일한 이메일로 타 소셜 계정에 가입되어 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    
+        # 기존에 가입된 유저가 없으면 새로 가입
+        except User.DoesNotExist:
+            
+            # User Table에 계정 생성
+            global temp_nickname_number
+            new_user = User.objects.create(
+                nickname=f"나는유저{temp_nickname_number}",
+                email=email,
+                fullname=nickname,
+            )
+            temp_nickname_number += 1
+
+            # Social Account Table에 계정 생성
+            SocialAccount.objects.create(user_id=new_user.id, provider='kakao')
+
+            # 토큰 생성 - header로 전송
+            
+            token = Token.objects.create(user=new_user)
+            return Response({'key': token.key, "detail": "회원가입 성공"}, status=status.HTTP_201_CREATED)
