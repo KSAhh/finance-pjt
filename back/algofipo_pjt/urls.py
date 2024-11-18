@@ -28,9 +28,8 @@ urlpatterns = [
     path('api/v1/', include('articles.urls')),
 
     # Authentication
-    path('accounts/', include('accounts.urls')),                            # 소셜 로그인
+    path('accounts/', include('accounts.urls')),                            # 소셜 로그인, 회원가입, 회원탈퇴
     path("accounts/", include("dj_rest_auth.urls")),                        # 로그인, 로그아웃, 비밀번호 변경 등
-    path("accounts/signup/", include("dj_rest_auth.registration.urls")),    # 회원가입 
     # path('api-auth/', include('rest_framework.urls')), # DRF 기본 인증뷰쀼쀼 (세션인증)
 ]
 
