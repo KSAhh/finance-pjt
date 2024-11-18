@@ -15,6 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
 # 환경변수
 import os
 import environ
@@ -41,20 +42,23 @@ INSTALLED_APPS = [
     "articles",
     
     # third party
-    "rest_framework",            # serializer
-    "rest_framework.authtoken",  # Token authentication
-    "dj_rest_auth",              # authentication library
     "corsheaders",               # CORS header
 
-    # - authentication registration
+    # - DRF
+    "rest_framework",            # serializer
+    "rest_framework.authtoken",  # Token authentication
+    
+    # - REST_AUTH (signup)
+    "dj_rest_auth",              # authentication library
     "allauth",
     "allauth.account",
+    "dj_rest_auth.registration",
     "allauth.socialaccount",
+    "django.contrib.sites",
     "allauth.socialaccount.providers.google",
     "allauth.socialaccount.providers.kakao",
     "allauth.socialaccount.providers.naver",
     
-    "django.contrib.sites",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -63,7 +67,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
-SITE_ID = 1  # authentication registration
+# all_auth - related to social login
+SITE_ID = 1  # registration
 
 SOCIALACCOUNT_PROVIDERS = {
     'kakao': {
@@ -75,6 +80,7 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+# DRF auth settings
 REST_FRAMEWORK = {
     # Authentication - Token
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -86,11 +92,21 @@ REST_FRAMEWORK = {
     ],
 }
 
+# REST-AUTH registration 기본 Serializer
+REST_AUTH = {
+    'REGISTER_SERIALIZER' : 'accounts.serializers.CustomRegisterSerializer',
+    'USER_DETAILS_SERIALIZER' : 'accounts.serializers.CustomUserDetailsSerializer',
+}
+ACCOUNT_ADAPTER = 'accounts.models.CustomAccountAdapter'
+
 # Django Allauth
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend', # basic authentication
     'allauth.account.auth_backends.AuthenticationBackend', # allauth authentication
 ]
+
+# Custom User
+AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -188,7 +204,3 @@ MEDIA_URL = "/media/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Custom User
-AUTH_USER_MODEL = "accounts.User"
-
