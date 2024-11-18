@@ -1,7 +1,11 @@
 from rest_framework import serializers
+
 from dj_rest_auth.serializers import UserDetailsSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
+
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
+
 
 UserModel = get_user_model()
 
@@ -49,3 +53,19 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
         model = UserModel
         fields = ('pk', *extra_fields)
         read_only_fields = ('email',)
+
+# 회원정보 수정용
+class UpdateUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)  # 비밀번호를 쓰기 전용으로 설정
+
+    class Meta:
+        model = UserModel
+        fields = ['nickname', 'profile_image', 'password']
+
+    def validate_password(self, value):
+        """
+        비밀번호를 해시화하여 저장
+        """
+        if value:  # 비밀번호가 요청에 포함된 경우
+            return make_password(value)
+        return value

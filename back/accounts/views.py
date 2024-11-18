@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.response import Response
 
 # 회원가입
@@ -7,17 +7,18 @@ from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
 
-# 회원탈퇴
+# 회원탈퇴/정보수정
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from .serializers import UpdateUserSerializer
 
 from django.contrib.auth import get_user_model
 
-
 User = get_user_model()
-temp_nickname_number = 0 # 유저명에 사용되는 임의값
 
-class DeleteAccountView(APIView):
+
+# 유저탈퇴
+class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request):
@@ -26,6 +27,19 @@ class DeleteAccountView(APIView):
         return Response({"detail": "Account has been deleted."}, status=status.HTTP_204_NO_CONTENT)
 
 
+# 유저 정보 변경
+class UpdateUserView(generics.UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UpdateUserSerializer
+    http_method_names = ['patch'] # PATCH 메서드만 허용
+
+    def get_object(self):
+        return self.request.user  # 현재 로그인한 사용자
+
+
+temp_nickname_number = 0 # 유저명에 사용되는 임의값
+
+# 카카오 로그인
 class KakaoLogin(SocialLoginView):
     adapter_class = KakaoOAuth2Adapter
 
