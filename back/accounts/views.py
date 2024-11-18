@@ -1,15 +1,29 @@
 from rest_framework import status
 from rest_framework.response import Response
 
+# 회원가입
 from rest_framework.authtoken.models import Token
 from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
 
+# 회원탈퇴
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+
 from django.contrib.auth import get_user_model
+
 
 User = get_user_model()
 temp_nickname_number = 0 # 유저명에 사용되는 임의값
+
+class DeleteAccountView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.delete()  # 계정을 완전히 삭제
+        return Response({"detail": "Account has been deleted."}, status=status.HTTP_204_NO_CONTENT)
 
 
 class KakaoLogin(SocialLoginView):
@@ -28,15 +42,15 @@ class KakaoLogin(SocialLoginView):
                 token = Token.objects.filter(user=user)
                 token_data = token.values('key')
                 print(token.values('key'))
-                return Response({'key': token_data, "message": "로그인 성공"}, status=status.HTTP_200_OK)
+                return Response({'key': token_data, "detail": "로그인 성공"}, status=status.HTTP_200_OK)
             
             # 동일한 이메일의 유저가 있지만, social계정이 아닐때 
             if social_user is None:
-                return Response({"message": "동일한 이메일로 가입된 소셜 계정이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "동일한 이메일로 가입된 소셜 계정이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
             
             # 소셜계정이 카카오가 아닌 다른 소셜계정으로 가입했을때
             if social_user.provider != "kakao":
-                return Response({"message": "동일한 이메일로 타 소셜 계정에 가입되어 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "동일한 이메일로 타 소셜 계정에 가입되어 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
     
         # 기존에 가입된 유저가 없으면 새로 가입
         except User.DoesNotExist:
@@ -56,4 +70,4 @@ class KakaoLogin(SocialLoginView):
             # 토큰 생성 - header로 전송
             
             token = Token.objects.create(user=new_user)
-            return Response({'key': token.key, "message": "회원가입 성공"}, status=status.HTTP_201_CREATED)
+            return Response({'key': token.key, "detail": "회원가입 성공"}, status=status.HTTP_201_CREATED)
