@@ -4,8 +4,8 @@ from rest_framework.decorators import api_view
 
 # permission Decorators
 from rest_framework.decorators import permission_classes, authentication_classes
-from rest_framework.authentication import TokenAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 
 from django.shortcuts import get_object_or_404, get_list_or_404
 
@@ -95,7 +95,7 @@ def comment_detail(request, comment_pk):
         comment.is_delete = True
         comment.save()
         # comment.delete()                                            # 댓글 쿼리셋을 삭제
-        return Response({"message": "Successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
     elif request.method == "PUT":
         if comment.commenter == request.user:
             serializer = CommentSerializer(comment, data=request.data, partial=True)  # 댓글 쿼리셋을 직렬화
