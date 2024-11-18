@@ -3,7 +3,6 @@ from .models import Article, Comment
 
 # 글
 class ArticleSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Article
         fields = '__all__'
