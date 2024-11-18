@@ -1,19 +1,51 @@
 from rest_framework import serializers
+from dj_rest_auth.serializers import UserDetailsSerializer
+from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.contrib.auth import get_user_model
 
-User = get_user_model()
+UserModel = get_user_model()
 
-class SignupSerializer(serializers.ModelSerializer):
+# 회원가입 필드
+class CustomRegisterSerializer(RegisterSerializer):
+    # 필드 추가
+    nickname = serializers.CharField(required=True, allow_blank=False, max_length=10)
+    fullname = serializers.CharField(required=True, allow_blank=False, max_length=50)
+    profile_image = serializers.ImageField(required=False)
+    
+    # 생성
+    def get_cleaned_data(self):
+        return {
+            'username' : self.validated_data.get('username', ''),
+            'password1' : self.validated_data.get('password1', ''),
+            'nickname' : self.validated_data.get('nickname', ''),        
+            'fullname' : self.validated_data.get('fullname', ''),        
+            'profile_image' : self.validated_data.get('profile_image', ''),        
+        }
+    
+    # 닉네임 중복방지
+    # def validate_nickname(self, value):
+    #     if User.objects.filter(nickname=value).exists():
+    #         raise serializers.ValidationError("이미 사용 중인 닉네임입니다.")
+    #     return value
+
+# 유저 정보조회 필드
+class CustomUserDetailsSerializer(UserDetailsSerializer):
     class Meta:
-        model = User
-        fields = ["username", "password", "fullname", "nickname"]
-
-    def create(self, validated_data):
-        # UserManager의 create_user 메서드 호출
-        user = User.objects.create_user(
-            username=validated_data["username"],
-            password=validated_data["password"],
-            fullname=validated_data["fullname"],
-            nickname=validated_data["nickname"],
-        )
-        return user
+        extra_fields = []
+        # see https://github.com/iMerica/dj-rest-auth/issues/181
+        # UserModel.XYZ causing attribute error while importing other
+        # classes from `serializers.py`. So, we need to check whether the auth model has
+        # the attribute or not
+        if hasattr(UserModel, 'USERNAME_FIELD'):
+            extra_fields.append(UserModel.USERNAME_FIELD)
+        if hasattr(UserModel, 'EMAIL_FIELD'):
+            extra_fields.append(UserModel.EMAIL_FIELD)
+        if hasattr(UserModel, 'nickname'):
+            extra_fields.append('nickname')
+        if hasattr(UserModel, 'fullname'):
+            extra_fields.append('fullname')
+        if hasattr(UserModel, 'profile_image'):
+            extra_fields.append('profile_image')
+        model = UserModel
+        fields = ('pk', *extra_fields)
+        read_only_fields = ('email',)
