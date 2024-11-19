@@ -6,90 +6,86 @@
   </section>
 </template>
 
-<script>
+<script setup>
 import axios from "axios";
-const KAKAO_LOGIN_JS_KEY = import.meta.env.VITE_KAKAOLOGIN_JS_KEY;
-import { useNavBarStore } from "@/stores/navBarStore"; // NavBar 상태 관리 Store (Pinia 사용 시)
+import { useNavBarStore } from "@/stores/navBarStore"; // Pinia Store for NavBar
 
-export default {
-  name: "KLogin",
+// Kakao JavaScript SDK Key
+const KAKAO_LOGIN_JS_KEY = import.meta.env.VITE_KAKAO_LOGIN_JS_KEY;
 
-  methods: {
-    async kakaoLoginBtn() {
-      try {
-        // Kakao 초기화
-        if (!window.Kakao || !Kakao.isInitialized()) {
-          Kakao.init(KAKAO_LOGIN_JS_KEY);
-          console.log("Kakao SDK 초기화 완료");
-        }
+const navBarStore = useNavBarStore();
 
-        // 기존 로그인 상태 초기화
-        if (window.Kakao.Auth.getAccessToken()) {
-          await window.Kakao.API.request({ url: "/v1/user/unlink" });
-          window.Kakao.Auth.setAccessToken(undefined);
-        }
+const kakaoLoginBtn = async () => {
+  try {
+    // Kakao SDK Initialization
+    if (!window.Kakao || !window.Kakao.isInitialized()) {
+      window.Kakao.init(KAKAO_LOGIN_JS_KEY);
+      console.log("Kakao SDK 초기화 완료");
+    }
 
-        // Kakao 로그인
-        window.Kakao.Auth.login({
-          success: async (authObj) => {
-            console.log("Kakao 인증 성공:", authObj);
+    // Clear Existing Login State
+    if (window.Kakao.Auth.getAccessToken()) {
+      await window.Kakao.API.request({ url: "/v1/user/logout" });
+      window.Kakao.Auth.setAccessToken(null);
+    }
 
-            // 사용자 정보 요청
-            window.Kakao.API.request({
-              url: "/v2/user/me",
-              data: {
-                property_keys: ["kakao_account.email", "kakao_account.profile.nickname"],
-              },
-              success: async (response) => {
-                console.log("카카오 사용자 정보:", response);
+    // Kakao Login Request
+    window.Kakao.Auth.login({
+      success: async (authObj) => {
+        console.log("Kakao 인증 성공:", authObj);
 
-                // 사용자 정보를 백엔드로 전송
-                try {
-                  const serverResponse = await axios.post(
-                    "http://127.0.0.1:8000/accounts/kakao/login/",
-                    {
-                      id: response.id,
-                      email: response.kakao_account.email,
-                      nickname: response.kakao_account.profile.nickname,
-                    }
-                  );
-
-                  // 백엔드 응답 처리
-                  const key = serverResponse.data.key; // Django 인증 토큰
-                  localStorage.setItem("key", key);
-                  localStorage.setItem("fullname", response.kakao_account.profile.nickname);
-
-                  console.log("로그인 성공, 토큰 저장:", key);
-
-                  // NavBar 상태 업데이트 (이벤트 기반)
-                  const updateNavBarEvent = new Event("updateNavBar");
-                  window.dispatchEvent(updateNavBarEvent);
-
-                  // Pinia Store를 사용할 경우 (선택 사항)
-                  const navBarStore = useNavBarStore();
-                  navBarStore.login(response.kakao_account.profile.nickname);
-
-                  // 메인 페이지로 리다이렉트
-                  this.$router.push({ name: "MainView" });
-                } catch (error) {
-                  console.error("백엔드 요청 실패:", error);
-                }
-              },
-              fail: (error) => {
-                console.error("사용자 정보 요청 실패:", error);
-              },
-            });
-          },
-          fail: (error) => {
-            console.error("Kakao 로그인 실패:", error);
+        // Fetch User Information
+        const response = await window.Kakao.API.request({
+          url: "/v2/user/me",
+          data: {
+            property_keys: ["kakao_account.email", "kakao_account.profile.nickname"],
           },
         });
-      } catch (error) {
-        console.error("Kakao 로그인 과정에서 오류 발생:", error);
-      }
-    },
-  },
+        console.log("카카오 사용자 정보:", response);
+
+        // Send User Info to Backend
+        const serverResponse = await axios.post("http://127.0.0.1:8000/accounts/kakao/login/", {
+          id: response.id,
+          email: response.kakao_account.email,
+          nickname: response.kakao_account.profile.nickname,
+        });
+        console.log("서버 응답 데이터:", serverResponse.data);
+
+        // Extract Token from Server Response
+// 서버 응답에서 key 추출 (배열 또는 단일 객체 처리)
+const key = Array.isArray(serverResponse.data.key)
+  ? serverResponse.data.key[0]?.key // 배열인 경우 첫 번째 요소의 key
+  : serverResponse.data.key; // 단일 객체인 경우 직접 key
+
+if (!key) {
+  throw new Error("서버 응답에 key가 없습니다.");
+}
+
+
+        // Store Token and Full Name in Local Storage
+        localStorage.setItem("key", key);
+        localStorage.setItem("fullname", response.kakao_account.profile.nickname);
+
+        // Set Axios Authorization Header
+        axios.defaults.headers.common["Authorization"] = `Token ${key}`;
+        console.log("로그인 성공, 토큰 저장:", key);
+
+        // Update Pinia Store
+        navBarStore.login(response.kakao_account.profile.nickname);
+
+        // Redirect to Main Page
+        window.location.href = "/";
+      },
+      fail: (error) => {
+        console.error("Kakao 로그인 실패:", error);
+      },
+    });
+  } catch (error) {
+    console.error("Kakao 로그인 과정에서 오류 발생:", error);
+  }
+  
 };
+
 </script>
 
 <style scoped>

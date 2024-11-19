@@ -27,25 +27,17 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue";
 import NavBar from "@/components/NavBar.vue";
 
-export default {
-  name: "App",
-  components: {
-    NavBar,
-  },
-  data() {
-    return {
-      selectedMenu: null,
-    };
-  },
-};
+// 상태 관리
+const selectedMenu = ref(null);
 </script>
 
-<style>
+<style scoped>
 /* 전역 스타일이 필요하면 여기에 추가 */
 #app {
   position: relative;
 }
-</style>  
+</style>
