@@ -6,19 +6,19 @@ from django.http import JsonResponse
 
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 
 # permission Decorators
-from rest_framework.decorators import permission_classes, authentication_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 
 
 from .models import Product, ProductOption, Bank, BankProduct
 from .serializers import ProductSerializer, ProductOptionSerializer
-from django.db import transaction  # 원자적 작업을 위해 사용
 
 FSS_API_KEY = settings.FSS_API_KEY
 BASE_URL = "http://finlife.fss.or.kr/finlifeapi/"
+
+
 
 
 # 정기예금 상품, 옵션목록 DB에 저장
@@ -138,3 +138,50 @@ def product_detail(request, product_pk):
 #         "deposit_product" : product_serializer.data,
 #         "options": options_serializer.data
 #         }, status=status.HTTP_200_OK)
+
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])  # 관리자만 접근 가능
+def save_bank_info(request, bank_name):
+    KAKAO_API_KEY = settings.KAKAO_API_KEY
+    url = "https://dapi.kakao.com/v2/local/search/keyword.json"
+    headers = {"Authorization": f"KakaoAK {KAKAO_API_KEY}"}
+    params = {
+        "query": bank_name,
+        "size": 15,  # 최대 15개의 결과
+    }
+
+    # API 호출
+    response = requests.get(url, headers=headers, params=params)
+    if response.status_code != 200:
+        return Response(
+            {"detail": "Failed to fetch data from Kakao API"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    
+    # 결과 처리
+    result = response.json()
+    places = result.get("documents", [])
+    if not places:
+        return Response(
+            {"detail": f"No bank information found for {bank_name}"},
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    
+    # 은행 정보 저장
+    for place in places:
+        Bank.objects.update_or_create(
+            bank_name=place.get("place_name", "Unknown"),
+            address=place.get("road_address_name", place.get("address_name", "Unknown")),
+            defaults={
+                "latitude": float(place.get("y", 0.0000)),
+                "longitude": float(place.get("x", 0.0000)),
+            },
+        )
+
+    return Response(
+        {"detail": f"Bank information for {bank_name} has been saved."},
+        status=status.HTTP_200_OK,
+    )
