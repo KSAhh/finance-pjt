@@ -20,9 +20,9 @@
           <div class="block md:inline text-black">
             <span
               :class="showSecondSentence ? 'highlight-effect-delayed' : ''"
-              >몰라도, </span
+              >몰라도</span
             >
-            <span>괜찮습니다.</span>
+            <span> 괜찮습니다.</span>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from allauth.account.adapter import DefaultAccountAdapter
-from .managers import UserManager
+# from .managers import UserManager
 
 # 유저
 class User(AbstractUser):
@@ -20,7 +20,7 @@ class User(AbstractUser):
     email = models.EmailField(null=True, blank=True, default=None)    # 이메일
 
     # 커스텀 매니저 연결
-    objects = UserManager()  
+    # objects = UserManager()  
 
     def __str__(self):
         return self.nickname if self.nickname else f"User({self.username})" # 닉네임이 없으면 로그인 ID 반환
