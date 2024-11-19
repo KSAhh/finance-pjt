@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-center items-center min-h-screen bg-white">
     <!-- 중앙 컨텐츠 -->
-    <div class="p-8 w-full max-w-md">
+    <div class="p-8 w-full max-w-md transform -translate-y-20">
       <!-- 로고 -->
       <div class="flex justify-center mb-6">
         <img src="@/assets/headerlogo.svg" alt="algo.fipo 로고" class="h-16" />

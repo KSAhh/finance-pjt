@@ -1,2 +1,2 @@
 # finance-pjt
-web service
+web service.
