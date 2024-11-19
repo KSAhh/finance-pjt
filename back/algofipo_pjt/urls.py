@@ -22,15 +22,18 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
-    # Articles API
-    path('api/v1/', include('articles.urls')),
+    path("admin/", admin.site.urls),
 
     # Authentication
-    path('accounts/', include('accounts.urls')),            # 소셜 로그인, 회원가입, 회원탈퇴
+    path("accounts/", include("accounts.urls")),            # 소셜 로그인, 회원가입, 회원탈퇴
     path("accounts/", include("dj_rest_auth.urls")),        # 로그인, 로그아웃, 비밀번호 변경 등
-    # path('api-auth/', include('rest_framework.urls')),    # DRF 기본 인증뷰 (세션인증)
+    # path("api-auth/", include("rest_framework.urls")),    # DRF 기본 인증뷰 (세션인증)
+
+    # Articles API
+    path("api/v1/", include("articles.urls")),
+
+    # Products API
+    path("api/v1/products/", include("products.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

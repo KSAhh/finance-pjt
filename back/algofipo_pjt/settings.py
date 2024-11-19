@@ -20,8 +20,11 @@ import os
 import environ
 env = environ.Env(DEBUG=(bool, True))                           # 환경변수 저장 가능한 상태로 설정
 environ.Env.read_env(env_file=os.path.join(BASE_DIR, '.env'))   # 환경변수 읽어올 파일
-KAKAO_LOGIN_API_KEY = env('KAKAO_LOGIN_API_KEY')
-DJANGO_SECRET_KEY = env('DJANGO_SECRET_KEY')
+
+KAKAO_LOGIN_API_KEY = env("KAKAO_LOGIN_API_KEY")                # 카카오로그인
+DJANGO_SECRET_KEY = env("DJANGO_SECRET_KEY")
+FSS_API_KEY = env("FSS_API_KEY")                                # 금융감독원
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -39,6 +42,7 @@ INSTALLED_APPS = [
     # my app
     "accounts",
     "articles",
+    "products",
     
     # third party
     "corsheaders",               # CORS header
