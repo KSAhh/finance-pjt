@@ -1,4 +1,3 @@
-// store/navBarStore.js
 import { defineStore } from "pinia";
 
 export const useNavBarStore = defineStore("navBar", {
@@ -7,13 +6,15 @@ export const useNavBarStore = defineStore("navBar", {
     userFullName: localStorage.getItem("fullname") || "",
   }),
   actions: {
-    logout() {
-      this.isLoggedIn = false;
-      this.userFullName = "";
-    },
     login(fullName) {
       this.isLoggedIn = true;
       this.userFullName = fullName;
+    },
+    logout() {
+      this.isLoggedIn = false;
+      this.userFullName = "";
+      localStorage.removeItem("key");
+      localStorage.removeItem("fullname");
     },
   },
 });

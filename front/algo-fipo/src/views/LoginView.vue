@@ -1,6 +1,5 @@
 <template>
   <div class="flex justify-center items-center min-h-screen bg-white">
-    <!-- 중앙 컨텐츠 -->
     <div class="p-8 w-full max-w-md transform -translate-y-20">
       <!-- 로고 -->
       <div class="flex justify-center mb-6">
@@ -50,11 +49,13 @@
       <!-- 또는 다른 방법으로 로그인 -->
       <p class="text-center text-gray-500 mt-6 mb-2">또는 다음을 사용하여 계속하기</p>
       <div class="space-y-2">
+        <!-- 구글 로그인 버튼 (추후 구현 필요) -->
         <button
           class="w-full border border-gray-300 py-2 rounded text-gray-600 hover:bg-gray-100 focus:outline-none"
         >
           구글
         </button>
+        <!-- 카카오톡 로그인 -->
         <KakaoLogin />
       </div>
 
@@ -62,7 +63,7 @@
       <div class="flex justify-between items-center mt-6 text-sm text-gray-500">
         <a href="#" class="hover:underline">비밀번호를 잊으셨나요?</a>
         <a
-          @click.prevent="$router.push({ name: 'SignUpView' })"
+          @click.prevent="goToSignUp"
           class="hover:underline cursor-pointer"
         >
           계정 만들기
@@ -72,76 +73,72 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 import axios from "axios";
-import KakaoLogin from "@/components/KakaoLogin/KakaoLogin.vue";
+import { useNavBarStore } from "@/stores/navBarStore";
+import KakaoLogin from "@/components/KakaoLogin/KakaoLogin.vue"; // 카카오톡 로그인 컴포넌트
 
-export default {
-  name: "LoginView",
-  components: {
-    KakaoLogin,
-  },
-  data() {
-    return {
-      step: 1,
-      formData: {
-        username: "",
-        password: "",
-      },
-      errorMessage: "",
-    };
-  },
-  methods: {
-    async handleFormSubmit() {
-      if (this.step === 1) {
-        if (this.formData.username.trim() === "") {
-          this.errorMessage = "아이디를 입력해주세요.";
-          return;
-        }
-        this.errorMessage = "";
-        this.step = 2;
-      } else if (this.step === 2) {
-        try {
-          const response = await axios.post("http://127.0.0.1:8000/accounts/login/", {
-            username: this.formData.username,
-            password: this.formData.password,
-          });
+const router = useRouter();
+const navBarStore = useNavBarStore();
 
-          console.log('Response data from standard login:', response.data);
+const step = ref(1);
+const formData = reactive({
+  username: "",
+  password: "",
+});
+const errorMessage = ref("");
 
-          // Adjust extraction based on actual response structure
-          // Assuming similar structure to Kakao login
-          const token = response.data.key && response.data.key[0] && response.data.key[0].key;
-          if (!token) {
-            throw new Error("Token not found in standard login response");
-          }
+// 회원가입 페이지로 이동
+const goToSignUp = () => {
+  router.push({ name: "SignUpView" });
+};
 
-          const fullname = response.data.fullname;
+// 일반 로그인 처리
+const handleFormSubmit = async () => {
+  if (step.value === 1) {
+    if (!formData.username.trim()) {
+      errorMessage.value = "아이디를 입력해주세요.";
+      return;
+    }
+    errorMessage.value = "";
+    step.value = 2;
+  } else if (step.value === 2) {
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/accounts/login/", {
+        username: formData.username,
+        password: formData.password,
+      });
 
-          localStorage.setItem("key", token);
-          localStorage.setItem("fullname", fullname);
+      const token = response.data.key;
+      const fullname = response.data.fullname || "사용자 이름 없음";
 
-          // Set Axios default header
-          axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-
-          // Emit event to update NavBar
-          const updateNavBarEvent = new Event("updateNavBar");
-          window.dispatchEvent(updateNavBarEvent);
-
-          // Redirect to MainView
-          this.$router.push({ name: "MainView" });
-        } catch (error) {
-          console.error("로그인 실패:", error.response?.data || error);
-          this.errorMessage = "아이디 또는 비밀번호가 잘못되었습니다.";
-          this.step = 1;
-          this.formData.password = "";
-        }
+      if (!token) {
+        throw new Error("Token not found in response");
       }
-    },
-  },
+
+      // LocalStorage 저장
+      localStorage.setItem("key", token);
+      localStorage.setItem("fullname", fullname);
+
+      // Axios 기본 헤더 설정
+      axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+
+      // NavBar 상태 업데이트
+      navBarStore.login(fullname);
+
+      // 메인 페이지로 이동
+      router.push({ name: "MainView" });
+    } catch (error) {
+      console.error("로그인 실패:", error.response?.data || error);
+      errorMessage.value = "아이디 또는 비밀번호가 잘못되었습니다.";
+      step.value = 1;
+      formData.password = "";
+    }
+  }
 };
 </script>
-
 
 <style scoped>
 /* 화면 조정 스타일 */

@@ -37,9 +37,7 @@
     </section>
 
     <!-- Main Content -->
-    <div
-      class="flex flex-col md:flex-row items-stretch px-4 sm:px-6 md:px-8 lg:px-12"
-    >
+    <div class="flex flex-col md:flex-row items-stretch px-4 sm:px-6 md:px-8 lg:px-12">
       <!-- 파란 박스 -->
       <div
         class="w-full md:w-1/3 bg-[#0048e8] text-white p-6 md:rounded-l min-h-[400px]"
@@ -53,67 +51,22 @@
           class="space-y-4 sm:space-y-6 md:space-y-8 text-[clamp(0.875rem, 2vw, 1.125rem)] text-center"
         >
           <li
-            @click="selectedContent = '개인 맞춤형 어드밴스드'"
+            v-for="(service, index) in serviceList"
+            :key="index"
+            @click="selectedContent = service.label"
             class="cursor-pointer hover:underline"
           >
-            개인 맞춤형 어드밴스드
-          </li>
-          <li
-            @click="selectedContent = '개인 맞춤형 정보 입력형'"
-            class="cursor-pointer hover:underline"
-          >
-            개인 맞춤형 정보 입력형
-          </li>
-          <li
-            @click="selectedContent = '기본 필터형'"
-            class="cursor-pointer hover:underline"
-          >
-            기본 필터형
-          </li>
-        </ul>
-        <div
-          class="text-[clamp(1rem, 2.5vw, 1.5rem)] font-bold mt-8 border-b border-white pb-2 text-center"
-        >
-          기타 서비스 소개
-        </div>
-        <ul
-          class="space-y-4 sm:space-y-6 md:space-y-8 text-[clamp(0.875rem, 2vw, 1.125rem)] text-center"
-        >
-          <li
-            @click="selectedContent = '환율 계산 서비스'"
-            class="cursor-pointer hover:underline"
-          >
-            환율 계산 서비스
-          </li>
-          <li
-            @click="selectedContent = '은행 지도 서비스'"
-            class="cursor-pointer hover:underline"
-          >
-            은행 지도 서비스
-          </li>
-          <li
-            @click="selectedContent = '?'"
-            class="cursor-pointer hover:underline"
-          >
-            ?
+            {{ service.label }}
           </li>
         </ul>
       </div>
 
       <!-- 노란 박스 -->
-      <div
-        class="w-full md:w-2/3 bg-[#ffd700] p-6 md:rounded-r min-h-[400px]"
-      >
-        <p
-          v-if="selectedContent"
-          class="text-[clamp(0.875rem, 2vw, 1.25rem)]"
-        >
+      <div class="w-full md:w-2/3 bg-[#ffd700] p-6 md:rounded-r min-h-[400px]">
+        <p v-if="selectedContent" class="text-[clamp(0.875rem, 2vw, 1.25rem)]">
           {{ selectedContent }} 서비스 내용입니다.
         </p>
-        <p
-          v-else
-          class="text-[clamp(0.875rem, 2vw, 1.25rem)]"
-        >
+        <p v-else class="text-[clamp(0.875rem, 2vw, 1.25rem)]">
           서비스를 선택해 주세요.
         </p>
       </div>
@@ -121,32 +74,38 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: "MainView",
-  data() {
-    return {
-      selectedContent: null,
-      showFirstSentence: false,
-      showSecondSentence: false,
-      showThirdSentence: false,
-    };
-  },
-  mounted() {
-    this.showFirstSentence = true;
-    setTimeout(() => {
-      this.showSecondSentence = true;
-    }, 1400);
-    setTimeout(() => {
-      this.showThirdSentence = true;
-    }, 2800);
-  },
-};
+<script setup>
+import { ref, onMounted } from "vue";
+
+// 상태
+const selectedContent = ref(null);
+const showFirstSentence = ref(false);
+const showSecondSentence = ref(false);
+const showThirdSentence = ref(false);
+
+// 서비스 목록
+const serviceList = [
+  { label: "개인 맞춤형 어드밴스드" },
+  { label: "개인 맞춤형 정보 입력형" },
+  { label: "기본 필터형" },
+  { label: "환율 계산 서비스" },
+  { label: "은행 지도 서비스" },
+  { label: "?" },
+];
+
+// 애니메이션 초기화
+onMounted(() => {
+  showFirstSentence.value = true;
+  setTimeout(() => {
+    showSecondSentence.value = true;
+  }, 1400);
+  setTimeout(() => {
+    showThirdSentence.value = true;
+  }, 2800);
+});
 </script>
 
 <style scoped>
-
-
 /* 텍스트 박스 그림자 효과 */
 .shadow-text {
   position: relative;
@@ -159,7 +118,6 @@ export default {
   font-weight: bold;
   text-shadow: 1px 1px 6px rgba(0, 72, 232, 0.7); /* 파란색 번짐 */
 }
-
 
 /* 형광펜 애니메이션 정의 */
 @keyframes highlight {
@@ -244,7 +202,6 @@ export default {
 }
 
 .invisible {
-  /* visibility: hidden; */
   opacity: 0;
 }
 

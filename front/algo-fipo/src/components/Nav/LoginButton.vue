@@ -7,13 +7,17 @@
   </button>
 </template>
 
-<script>
-export default {
-  name: "LoginButton",
-  methods: {
-    goToLogin() {
-      this.$router.push({ name: "LoginView" }); // LoginView로 이동
-    },
-  },
+<script setup>
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+// LoginView로 이동하는 함수
+const goToLogin = () => {
+  router.push({ name: "LoginView" });
 };
 </script>
+
+<style scoped>
+/* 필요 시 추가 스타일 작성 */
+</style>
