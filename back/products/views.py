@@ -13,24 +13,25 @@ from rest_framework.decorators import permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
 
 
-from .models import Product, ProductOption
+from .models import Product, ProductOption, Bank, BankProduct
 from .serializers import ProductSerializer, ProductOptionSerializer
+from django.db import transaction  # 원자적 작업을 위해 사용
 
 FSS_API_KEY = settings.FSS_API_KEY
 BASE_URL = "http://finlife.fss.or.kr/finlifeapi/"
 
 
 # 정기예금 상품, 옵션목록 DB에 저장
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAdminUser])  # 관리자만 접근 가능
 def save_products(request, product_type):
 
     # API에서 데이터 가져오기
     URL = f"{BASE_URL}{product_type}ProductsSearch.json"
     params = {
-        'auth': FSS_API_KEY,
-        'topFinGrpNo': '020000', # 금융회사 코드 - 020000(은행), 030200(여신전문), 030300(저축은행), 050000(보험), 060000(금융투자)
-        'pageNo': 1,
+        "auth": FSS_API_KEY,
+        "topFinGrpNo": "020000", # 금융회사 코드 - 020000(은행), 030200(여신전문), 030300(저축은행), 050000(보험), 060000(금융투자)
+        "pageNo": 1,
     }
     response = requests.get(URL, params=params).json()
     result = response.get("result", {})
@@ -41,48 +42,69 @@ def save_products(request, product_type):
         return Response({"detail" : detail}, status=status.HTTP_400_BAD_REQUEST)
     
     # API 응답 성공 - 상품, 옵션 데이터 가져오기
-    product_list = result.get('baseList', [])   # 상품목록
-    option_list = result.get('optionList', [])  # 옵션목록
+    product_list = result.get("baseList", [])   # 상품목록
+    option_list = result.get("optionList", [])  # 옵션목록
 
     for product_data in product_list:
         # 중복 상품 검사 (금융상품 코드 기준)
-        if Product.objects.filter(fin_prdt_cd=product_data.get('fin_prdt_cd')).exists():
+        if Product.objects.filter(fin_prdt_cd=product_data.get("fin_prdt_cd")).exists():
             continue
-        
+    
+
         # 상품 저장
-        product_serializer = ProductSerializer(data=product_data)
-        if product_serializer.is_valid(raise_exception=True):
-            product = product_serializer.save() # 상품 객체 반환
+        product = Product.objects.create(
+            kor_co_nm=product_data.get("kor_co_nm", "Unknown"),
+            fin_prdt_cd=product_data.get("fin_prdt_cd"),
+            fin_prdt_nm=product_data.get("fin_prdt_nm", "Unknown"),
+            join_way=product_data.get("join_way", "-"),
+            mtrt_int=product_data.get("mtrt_int", "-"),
+            spcl_cnd=product_data.get("spcl_cnd", "-"),
+            join_deny=product_data.get("join_deny", 1),
+            join_member=product_data.get("join_member", "실명의 개인"),
+            etc_note=product_data.get("etc_note", "-"),
+            fin_co_subm_day=product_data.get("fin_co_subm_day", "000000000000"),
+            max_limit=product_data.get("max_limit", -1.00)
+        )
 
         # 옵션 저장
         if ProductOption.objects.filter(product=product).exists(): 
             continue
-        
-        for option_data in option_list:
-            if option_data.get('fin_prdt_cd') == product_data.get('fin_prdt_cd'):
-                option_serializer = ProductOptionSerializer(data=option_data)
-                if option_serializer.is_valid(raise_exception=True):
-                    option_serializer.save(product=product)
-    return Response({'detail': 'Successfully saved.'}, status=status.HTTP_201_CREATED)
+
+        product_options = [
+            ProductOption(
+                product=product,
+                intr_rate_type_nm=option.get('intr_rate_type_nm', 'Unknown'),
+                save_trm=option.get('save_trm', -1),
+                intr_rate=option.get('intr_rate', -1.00),
+                intr_rate2=option.get('intr_rate2', 0.00),
+                rsrv_type_nm=option.get('rsrv_type_nm', 'Unknown')
+            )
+            for option in option_list if option.get('fin_prdt_cd') == product.fin_prdt_cd
+        ]
+        # 옵션 데이터가 있는 경우 한 번에 저장
+        if product_options:
+            ProductOption.objects.bulk_create(product_options)
+
+    return Response({"detail": "Successfully saved."}, status=status.HTTP_201_CREATED)
 
 
 # 전체 상품 목록 조회 (GET)
-@api_view(['GET'])
+@api_view(["GET"])
 def product_list(request):
-    if request.method == 'GET':
+    if request.method == "GET":
         products = get_list_or_404(Product)
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data)
     # 상품 데이터 저장 (POST)
-    # if request.method == 'POST':
+    # if request.method == "POST":
     #     serializer = ProductSerializer(data=request.data)
     #     if serializer.is_valid():
     #         serializer.save()
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response({'detail' : "이미 있는 데이터이거나, 데이터가 잘못 입력되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
+    #     return Response({"detail" : "이미 있는 데이터이거나, 데이터가 잘못 입력되었습니다."}, status=status.HTTP_400_BAD_REQUEST)
         
 # 단일 상품 조회 (GET)
-@api_view(['GET'])
+@api_view(["GET"])
 def product_detail(request, product_pk):
     print("product pk:     ", product_pk)
     if request.method == "GET":
@@ -94,7 +116,7 @@ def product_detail(request, product_pk):
         return Response({"product": product_serializer.data, "options": options_serializer.data}, status=status.HTTP_200_OK)
 
 # 특정 상품의 옵션 리스트 출력
-# @api_view(['GET'])
+# @api_view(["GET"])
 # def product_options(request, fin_prdt_cd):
 #     options = get_list_or_404(ProductOption, fin_prdt_cd=fin_prdt_cd)
 #     serializer = ProductOptionSerializer(options, many=True)
@@ -102,7 +124,7 @@ def product_detail(request, product_pk):
 
 
 # 최고 우대 금리의 상품, 옵션 리스트 출력
-# @api_view(['GET'])
+# @api_view(["GET"])
 # def top_rate(request):
 #     options = get_list_or_404(ProductOption)
     
