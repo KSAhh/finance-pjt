@@ -48,4 +48,4 @@ export default {
 #app {
   position: relative;
 }
-</style>
+</style>  
