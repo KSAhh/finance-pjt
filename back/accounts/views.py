@@ -6,6 +6,8 @@ from rest_framework.authtoken.models import Token
 from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
+from dj_rest_auth.views import LoginView #추가
+from accounts.serializers import CustomLoginSerializer
 
 # 회원탈퇴/정보수정
 from rest_framework.views import APIView
@@ -16,8 +18,21 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+#로그인뷰
+class CustomLoginView(LoginView):
+    serializer_class = CustomLoginSerializer
 
-# 유저탈퇴
+    def get_response(self):
+        # 기본적으로 토큰만 반환하는 응답에 사용자 데이터 추가
+        original_response = super().get_response()
+        user = self.request.user
+
+        # 응답 데이터에 fullname 추가
+        data = original_response.data
+        data['fullname'] = user.fullname  # User 모델의 fullname 필드
+
+        return Response(data)
+    
 class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -85,3 +100,4 @@ class KakaoLogin(SocialLoginView):
             
             token = Token.objects.create(user=new_user)
             return Response({'key': token.key, "detail": "회원가입 성공"}, status=status.HTTP_201_CREATED)
+

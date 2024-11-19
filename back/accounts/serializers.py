@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
-from dj_rest_auth.serializers import UserDetailsSerializer
+from dj_rest_auth.serializers import UserDetailsSerializer, LoginSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 
@@ -69,3 +68,22 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         if value:  # 비밀번호가 요청에 포함된 경우
             return make_password(value)
         return value
+
+
+#일반 로그인 전용 커스터마이징 for fullname
+class CustomLoginSerializer(LoginSerializer):
+    fullname = serializers.CharField(source="user.fullname", read_only=True)
+
+    def validate(self, attrs):
+        # 기본 LoginSerializer의 validate 호출
+        validated_data = super().validate(attrs)
+
+        # 인증된 사용자 가져오기
+        user = validated_data.get('user')
+        if not user:
+            raise serializers.ValidationError("사용자 인증에 실패했습니다.")
+
+        # fullname 추가
+        validated_data['fullname'] = getattr(user, 'fullname', None)
+        return validated_data
+
