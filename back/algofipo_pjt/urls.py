@@ -30,7 +30,7 @@ urlpatterns = [
     # path("api-auth/", include("rest_framework.urls")),    # DRF 기본 인증뷰 (세션인증)
 
     # Articles API
-    path("api/v1/", include("articles.urls")),
+    path("api/v1/articles/", include("articles.urls")),
 
     # Products API
     path("api/v1/products/", include("products.urls")),
