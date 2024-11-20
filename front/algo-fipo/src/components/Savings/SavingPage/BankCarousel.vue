@@ -1,9 +1,13 @@
 <template>
-  <div class="overflow-hidden relative mt-8">
+  <div
+    ref="carouselContainer"
+    class="overflow-hidden relative mt-8"
+    @wheel.prevent="onWheel"
+  >
     <div
       ref="carousel"
-      class="flex gap-6 transition-transform duration-500"
-      :style="{ transform: `translateX(-${currentSlide * slideWidth}px)` }"
+      class="flex gap-6 transition-transform duration-300"
+      :style="{ transform: `translateX(-${scrollPosition}px)` }"
     >
       <div
         v-for="bank in banks"
@@ -35,7 +39,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from 'vue';
 
 const props = defineProps({
   banks: {
@@ -48,38 +52,58 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["select-bank"]);
+const emit = defineEmits(['select-bank']);
 
-const currentSlide = ref(0);
-const slideWidth = ref(0);
-
+const carouselContainer = ref(null);
 const carousel = ref(null);
 
-onMounted(() => {
-  slideWidth.value = carousel.value.offsetWidth;
-});
-
-const totalSlides = computed(() => Math.ceil(props.banks.length / 5));
+const scrollPosition = ref(0);
 
 const isSelected = (bank) => props.selectedBanks.includes(bank.id);
 
 const selectBank = (bank) => {
-  emit("select-bank", bank);
+  emit('select-bank', bank);
+};
+
+const scrollStep = 150; // Pixels to scroll per wheel event or arrow button click
+
+const updateScrollPosition = () => {
+  // Ensure scrollPosition is within valid range
+  const maxScroll = carousel.value.scrollWidth - carouselContainer.value.clientWidth;
+  if (scrollPosition.value < 0) {
+    scrollPosition.value = 0;
+  } else if (scrollPosition.value > maxScroll) {
+    scrollPosition.value = maxScroll;
+  }
+};
+
+const onWheel = (event) => {
+  const delta = event.deltaY;
+  if (delta > 0) {
+    // Scroll right
+    scrollPosition.value += scrollStep;
+  } else {
+    // Scroll left
+    scrollPosition.value -= scrollStep;
+  }
+  updateScrollPosition();
 };
 
 const prevSlide = () => {
-  if (currentSlide.value > 0) {
-    currentSlide.value--;
-  }
+  scrollPosition.value -= carouselContainer.value.clientWidth;
+  updateScrollPosition();
 };
 
 const nextSlide = () => {
-  if (currentSlide.value < totalSlides.value - 1) {
-    currentSlide.value++;
-  }
+  scrollPosition.value += carouselContainer.value.clientWidth;
+  updateScrollPosition();
 };
+
+onMounted(() => {
+  scrollPosition.value = 0;
+});
 </script>
 
 <style scoped>
-/* 추가적인 스타일이 필요한 경우 여기에 작성하세요 */
+/* Add any additional styles if needed */
 </style>

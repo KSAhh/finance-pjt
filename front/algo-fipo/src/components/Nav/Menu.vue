@@ -22,7 +22,7 @@ import MenuItem from "./MenuItem.vue";
 const router = useRouter();
 const currentOpenDropdown = ref(null);
 
-// 메뉴 항목 정의
+// 메뉴 항목 정의 (보험 메뉴 제거)
 const menuItems = reactive([
   {
     label: "예적금",
@@ -33,7 +33,7 @@ const menuItems = reactive([
   },
   {
     label: "대출",
-    dropdownContent: ["대출 상품 1", "대출 상품 2", "대출 상품 3"],
+    dropdownContent: ["대출 알아보기"],
   },
   {
     label: "연금저축",
@@ -58,7 +58,9 @@ const closeDropdown = () => {
 // 드롭다운 아이템 클릭 이벤트
 const handleItemClick = (item) => {
   const selectedItem = menuItems[currentOpenDropdown.value];
-  if (selectedItem.label === "예적금") {
+  if (selectedItem.label === "대출") {
+    router.push({ name: "LoanPage" });
+  } else if (selectedItem.label === "예적금") {
     const category = selectedItem.dropdownContent.find(
       (content) => content.label === item.label
     )?.category;
@@ -69,11 +71,14 @@ const handleItemClick = (item) => {
 
 // 대분류 클릭 이벤트
 const navigateToMainPage = (label) => {
-  if (label === "예적금") {
+  if (label === "대출") {
+    router.push({ name: "LoanPage" });
+  } else if (label === "예적금") {
     router.push({ name: "SavingsPage", query: { category: "예금" } });
   }
 };
 </script>
+
 
 <style scoped>
 ul > li::before {
@@ -83,5 +88,4 @@ ul > li::before {
   z-index: -1;
   background-color: transparent; /* 시각적 변경 없음 */
 }
-
 </style>

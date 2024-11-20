@@ -6,6 +6,7 @@ import CallBack from "@/components/KakaoLogin/CallBack.vue";
 import SignUpView from "@/views/SignUpView.vue";
 import FindPasswordView from "@/views/FindPasswordView.vue";
 import SavingsPage from "@/views/SavingsPage.vue";
+import LoanPageView from "@/views/LoanPageView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -44,8 +45,13 @@ const router = createRouter({
     },
     {
       path: "/saving",
-      name: "SavingsPage", // 이름도 일관성 유지
+      name: "SavingsPage",
       component: SavingsPage,
+    },
+    {
+      path: '/loans',
+      name: 'LoanPage',
+      component: LoanPageView,
     },
   ],
 });
