@@ -6,7 +6,6 @@ class Product(models.Model):
     kor_co_nm = models.CharField(max_length=255, default="Unknown")                 # 금융회사명
     fin_prdt_cd = models.CharField(max_length=255, default="Unknown")               # 금융 상품 코드
     fin_prdt_nm = models.CharField(max_length=255, default="Unknown")               # 금융 상품명
-    join_way = models.CharField(max_length=255, default="Unknown")                  # 가입 방법
     mtrt_int = models.TextField(default="Unknown")                                  # 만기 후 이자율 조건 설명
     spcl_cnd = models.TextField(default="Unknown")                                  # 우대 조건
     join_deny = models.IntegerField(default=1)                                      # 가입 제한(1: 제한없음, 2:서민전용, 3:일부제한)
@@ -16,6 +15,12 @@ class Product(models.Model):
 
     # 적금
     max_limit = models.DecimalField(max_digits=15, decimal_places=2, default=-1.00)    # 최고한도
+
+
+# 가입 방법
+class JoinWay(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="join_ways")
+    way = models.CharField(max_length=255)
 
 
 # 금융상품 옵션
