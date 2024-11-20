@@ -1,76 +1,125 @@
 <template>
-  <div class="mt-6 space-y-4">
-    <div class="flex justify-between items-center">
-      <!-- 기간 -->
-      <div>
-        <span class="text-sm text-gray-500">기간:</span>
-        <select
-          v-model="localFilters.duration"
-          class="border p-2 rounded"
-          @change="emitFilters"
-        >
-          <option value="">전체</option>
-          <option value="6개월">6개월</option>
-          <option value="12개월">12개월</option>
-          <option value="24개월 이상">24개월 이상</option>
-        </select>
+  <div class="flex flex-wrap items-start justify-center gap-8">
+    <!-- 기간 선택 -->
+    <div class="flex flex-col items-center">
+      <label class="font-semibold text-gray-700 mb-2">기간:</label>
+      <div class="flex flex-col space-y-1">
+        <div v-for="option in periodOptions" :key="option" class="flex items-center">
+          <input
+            type="checkbox"
+            :value="option"
+            v-model="localFilters.durations"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
+          />
+          <label class="text-gray-700">{{ option }}</label>
+        </div>
       </div>
-      <!-- 상품 유형 -->
-      <div>
-        <span class="text-sm text-gray-500">상품 유형:</span>
-        <select
-          v-model="localFilters.type"
-          class="border p-2 rounded"
-          @change="emitFilters"
+    </div>
+
+    <!-- 상품 유형 선택 -->
+    <div class="flex flex-col items-center">
+      <label class="font-semibold text-gray-700 mb-2">상품 유형:</label>
+      <div class="flex flex-col space-y-1">
+        <div
+          v-for="type in productTypes[selectedCategory]"
+          :key="type"
+          class="flex items-center"
         >
-          <option value="">전체</option>
-          <!-- 상품 유형을 동적으로 렌더링 -->
-          <option
-            v-for="type in productTypes[selectedCategory]"
-            :key="type"
+          <input
+            type="checkbox"
             :value="type"
-          >
-            {{ type }}
-          </option>
-        </select>
+            v-model="localFilters.types"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
+          />
+          <label class="text-gray-700">{{ type }}</label>
+        </div>
       </div>
-      <!-- 우대 조건 -->
-      <div>
-        <span class="text-sm text-gray-500">우대 조건:</span>
-        <button
-          @click="$emit('toggle-preferences')"
-          class="border p-2 rounded bg-gray-100 hover:bg-gray-200"
-        >
-          {{ selectedPreferences.length > 0 ? `우대 조건 ${selectedPreferences.length}개` : "전체" }}
-        </button>
+    </div>
+
+    <!-- 우대 조건 선택 -->
+    <div class="flex flex-col items-center">
+      <label class="font-semibold text-gray-700 mb-2">우대 조건:</label>
+      <div class="flex flex-col space-y-1">
+        <div v-for="pref in preferences" :key="pref" class="flex items-center">
+          <input
+            type="checkbox"
+            :value="pref"
+            v-model="localSelectedPreferences"
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
+          />
+          <label class="text-gray-700">{{ pref }}</label>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, watch } from "vue";
+import { reactive, watch, ref } from "vue";
 
 const props = defineProps({
-  filters: Object, // 필터 데이터
-  productTypes: Object, // 상품 유형 (예금/적금에 따라 다름)
-  selectedCategory: String, // 현재 선택된 카테고리 (예: 예금, 적금)
-  selectedPreferences: Array, // 현재 선택된 우대 조건
+  filters: {
+    type: Object,
+    required: true,
+  },
+  periodOptions: {
+    type: Array,
+    required: true,
+  },
+  productTypes: {
+    type: Object,
+    required: true,
+  },
+  selectedCategory: {
+    type: String,
+    required: true,
+  },
+  preferences: {
+    type: Array,
+    default: () => [],
+  },
+  selectedPreferences: {
+    type: Array,
+    default: () => [],
+  },
 });
 
-const emit = defineEmits(["update-filters", "toggle-preferences"]);
+const emit = defineEmits(["update-filters", "update-preferences"]);
 
-const localFilters = reactive({ ...props.filters });
+const localFilters = reactive({
+  durations: [...props.filters.durations],
+  types: [...props.filters.types],
+});
 
-// 필터 변경 시 부모 컴포넌트로 emit
-const emitFilters = () => {
-  emit("update-filters", { ...localFilters });
-};
+const localSelectedPreferences = ref([...props.selectedPreferences]);
 
 watch(
   () => props.filters,
-  (newVal) => {
-    Object.assign(localFilters, newVal);
+  (newFilters) => {
+    localFilters.durations = [...newFilters.durations];
+    localFilters.types = [...newFilters.types];
+  }
+);
+
+watch(
+  () => localFilters,
+  (newFilters) => {
+    emit("update-filters", { durations: [...newFilters.durations], types: [...newFilters.types] });
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.selectedPreferences,
+  (newPrefs) => {
+    localSelectedPreferences.value = [...newPrefs];
+  }
+);
+
+watch(
+  () => localSelectedPreferences.value,
+  (newPrefs) => {
+    emit("update-preferences", [...newPrefs]);
   }
 );
 </script>

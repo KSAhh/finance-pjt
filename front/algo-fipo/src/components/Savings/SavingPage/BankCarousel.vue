@@ -1,32 +1,32 @@
 <template>
-  <div class="overflow-hidden relative">
+  <div class="overflow-hidden relative mt-8">
     <div
       ref="carousel"
-      class="flex gap-4 transition-transform duration-500"
+      class="flex gap-6 transition-transform duration-500"
       :style="{ transform: `translateX(-${currentSlide * slideWidth}px)` }"
     >
       <div
         v-for="bank in banks"
         :key="bank.id"
-        class="min-w-[150px] p-4 rounded-lg shadow cursor-pointer"
-        @click="toggleBankSelection(bank)"
+        class="min-w-[150px] p-4 rounded-lg shadow cursor-pointer flex flex-col items-center justify-center transition duration-300"
+        @click="selectBank(bank)"
         :class="[
-          isSelected(bank) ? 'bg-blue-100' : 'bg-gray-200',
+          isSelected(bank) ? 'bg-blue-100 border-2 border-blue-600' : 'bg-gray-100 hover:bg-gray-200',
         ]"
       >
-        <img :src="bank.logo || '/default-logo.png'" alt="Bank Logo" class="w-16 h-16 mx-auto mb-2" />
-        <p class="text-center">{{ bank.name }}</p>
+        <img :src="bank.logo || '/default-logo.png'" alt="Bank Logo" class="w-16 h-16 mb-2" />
+        <p class="text-center font-medium">{{ bank.name }}</p>
       </div>
     </div>
     <!-- 화살표 버튼 -->
     <button
-      class="absolute top-1/2 left-0 -translate-y-1/2 bg-gray-300 p-2 rounded-full"
+      class="absolute top-1/2 left-0 -translate-y-1/2 bg-white text-gray-700 p-2 rounded-full shadow-md hover:bg-gray-100 transition duration-300"
       @click="prevSlide"
     >
       &lt;
     </button>
     <button
-      class="absolute top-1/2 right-0 -translate-y-1/2 bg-gray-300 p-2 rounded-full"
+      class="absolute top-1/2 right-0 -translate-y-1/2 bg-white text-gray-700 p-2 rounded-full shadow-md hover:bg-gray-100 transition duration-300"
       @click="nextSlide"
     >
       &gt;
@@ -35,7 +35,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
 
 const props = defineProps({
   banks: {
@@ -50,28 +50,36 @@ const props = defineProps({
 
 const emit = defineEmits(["select-bank"]);
 
-const carousel = ref(null);
 const currentSlide = ref(0);
-const slideWidth = 150;
+const slideWidth = ref(0);
 
-// 선택된 은행인지 확인
+const carousel = ref(null);
+
+onMounted(() => {
+  slideWidth.value = carousel.value.offsetWidth;
+});
+
+const totalSlides = computed(() => Math.ceil(props.banks.length / 5));
+
 const isSelected = (bank) => props.selectedBanks.includes(bank.id);
 
-// 은행 선택 상태 토글
-const toggleBankSelection = (bank) => {
+const selectBank = (bank) => {
   emit("select-bank", bank);
 };
 
 const prevSlide = () => {
-  currentSlide.value = Math.max(currentSlide.value - 1, 0);
+  if (currentSlide.value > 0) {
+    currentSlide.value--;
+  }
 };
 
 const nextSlide = () => {
-  const totalSlides = props.banks.length - Math.floor(carousel.value.offsetWidth / slideWidth);
-  currentSlide.value = Math.min(currentSlide.value + 1, totalSlides);
+  if (currentSlide.value < totalSlides.value - 1) {
+    currentSlide.value++;
+  }
 };
 </script>
 
 <style scoped>
-/* 필요 시 스타일 추가 */
+/* 추가적인 스타일이 필요한 경우 여기에 작성하세요 */
 </style>

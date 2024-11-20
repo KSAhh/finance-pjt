@@ -1,59 +1,59 @@
 <template>
-  <div class="p-6 bg-gray-50 min-h-screen">
+  <div class="bg-gray-50 min-h-screen">
     <!-- 컨텐츠 전체를 감싸는 박스 -->
-    <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-6">
+    <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-10">
       <!-- 카테고리 선택 -->
       <CategorySelector
         :categories="categories"
-        :selectedCategory="selectedCategory"
+        :selected-category="selectedCategory"
         @select-category="selectCategory"
       />
 
       <!-- 은행 캐러셀 -->
       <BankCarousel
         :banks="bankList"
-        :selectedBanks="selectedBanks"
+        :selected-banks="selectedBanks"
         @select-bank="toggleBank"
-        class="mt-6"
+        class="mt-8"
       />
 
       <!-- 필터 버튼 -->
-      <div class="mt-6 flex justify-end">
+      <div class="mt-8 flex justify-end space-x-2">
         <button
           @click="showFilterModal = true"
-          class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+          class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
         >
           필터 설정
+        </button>
+        <button
+          @click="resetFilters"
+          class="px-3 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300"
+        >
+          필터 초기화
         </button>
       </div>
 
       <!-- 필터 모달 -->
       <FilterModal
         v-if="showFilterModal"
-        :banks="banks.value"
-        :savingsBanks="savingsBanks.value"
-        :selectedBanks="selectedBanks"
-        @update:selectedBanks="updateSelectedBanks"
+        :banks="banks"
+        :savings-banks="savingsBanks"
+        :selected-banks="selectedBanks"
+        @update:selected-banks="updateSelectedBanks"
         @close="showFilterModal = false"
       />
 
       <!-- 필터 선택 섹션 -->
       <FilterSelector
         :filters="filters"
-        :productTypes="productTypes"
-        :selectedCategory="selectedCategory"
-        :selectedPreferences="selectedPreferences"
-        @update-filters="updateFilters"
-        @toggle-preferences="showPreferences = !showPreferences"
-        class="mt-6"
-      />
-
-      <!-- 우대 조건 선택 모달 -->
-      <PreferenceTable
-        v-if="showPreferences"
+        :period-options="periodOptions"
+        :product-types="productTypes"
+        :selected-category="selectedCategory"
         :preferences="preferences"
-        :selectedPreferences="selectedPreferences"
+        :selected-preferences="selectedPreferences"
+        @update-filters="updateFilters"
         @update-preferences="updatePreferences"
+        class="mt-8"
       />
 
       <!-- 선택된 필터 표시 -->
@@ -61,24 +61,14 @@
         v-if="activeFiltersWithBanks.length > 0"
         :filters="activeFiltersWithBanks"
         @remove-filter="removeFilter"
-        class="mt-4 border rounded-lg p-4 bg-gray-50"
+        class="mt-6 border rounded-lg p-4 bg-gray-100"
       />
 
       <!-- 상품 리스트 -->
       <ProductList
         :products="filteredProducts"
-        class="mt-6"
+        class="mt-8"
       />
-
-      <!-- 필터 초기화 버튼 -->
-      <div class="mt-6 flex justify-end">
-        <button
-          @click="resetFilters"
-          class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-        >
-          필터 초기화
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -91,7 +81,6 @@ import CategorySelector from "@/components/Savings/SavingPage/CategorySelector.v
 import BankCarousel from "@/components/Savings/SavingPage/BankCarousel.vue";
 import FilterModal from "@/components/Savings/SavingPage/FilterModal.vue";
 import FilterSelector from "@/components/Savings/SavingPage/FilterSelector.vue";
-import PreferenceTable from "@/components/Savings/SavingPage/PreferenceTable.vue";
 import SelectedFilters from "@/components/Savings/SavingPage/SelectedFilters.vue";
 import ProductList from "@/components/Savings/SavingPage/ProductList.vue";
 
@@ -133,7 +122,9 @@ const bankList = computed(() => [...banks.value, ...savingsBanks.value]);
 const selectedBanks = ref([]); // 선택된 은행 목록
 const showFilterModal = ref(false); // 필터 모달 상태
 
-const filters = ref({ duration: "", type: "" });
+const periodOptions = ["6개월", "12개월", "24개월"];
+
+const filters = ref({ durations: [], types: [] });
 const productTypes = {
   예금: ["특판", "방문없이가입", "누구나가입"],
   적금: [
@@ -149,14 +140,12 @@ const productTypes = {
 };
 const preferences = ["비대면 가입", "은행 앱 사용", "급여 연동", "추천, 쿠폰"];
 const selectedPreferences = ref([]);
-const showPreferences = ref(false);
 
 const activeFilters = computed(() => {
-  return [
-    filters.value.duration && `기간: ${filters.value.duration}`,
-    filters.value.type && `상품 유형: ${filters.value.type}`,
-    ...selectedPreferences.value.map((pref) => `우대 조건: ${pref}`),
-  ].filter(Boolean);
+  const durationFilters = filters.value.durations.map((duration) => `기간: ${duration}`);
+  const typeFilters = filters.value.types.map((type) => `상품 유형: ${type}`);
+  const preferenceFilters = selectedPreferences.value.map((pref) => `우대 조건: ${pref}`);
+  return [...durationFilters, ...typeFilters, ...preferenceFilters];
 });
 
 // 선택된 은행을 필터 목록에 추가
@@ -180,7 +169,10 @@ const activeFiltersWithBanks = computed(() => {
   const selectedSavingsBankIds = selectedBanks.value.filter((bankId) =>
     savingsBanks.value.some((bank) => bank.id === bankId)
   );
-  if (selectedSavingsBankIds.length === savingsBanks.value.length && savingsBanks.value.length > 0) {
+  if (
+    selectedSavingsBankIds.length === savingsBanks.value.length &&
+    savingsBanks.value.length > 0
+  ) {
     bankFilters.push("저축은행 전체");
   } else {
     const selectedSavingsBankNames = selectedSavingsBankIds.map(
@@ -202,7 +194,6 @@ const updateFilters = (newFilters) => {
 // 우대 조건 업데이트 함수
 const updatePreferences = (newPreferences) => {
   selectedPreferences.value = newPreferences;
-  showPreferences.value = false;
 };
 
 // 선택된 은행 업데이트 함수
@@ -228,8 +219,12 @@ const toggleBank = (bank) => {
 
 // 필터 제거 함수
 const removeFilter = (filter) => {
-  if (`기간: ${filters.value.duration}` === filter) filters.value.duration = "";
-  if (`상품 유형: ${filters.value.type}` === filter) filters.value.type = "";
+  filters.value.durations = filters.value.durations.filter(
+    (duration) => `기간: ${duration}` !== filter
+  );
+  filters.value.types = filters.value.types.filter(
+    (type) => `상품 유형: ${type}` !== filter
+  );
   selectedPreferences.value = selectedPreferences.value.filter(
     (pref) => `우대 조건: ${pref}` !== filter
   );
@@ -253,35 +248,13 @@ const removeFilter = (filter) => {
 
 // 필터 초기화 함수
 const resetFilters = () => {
-  filters.value = { duration: "", type: "" };
+  filters.value = { durations: [], types: [] };
   selectedPreferences.value = [];
   selectedBanks.value = [];
+  showFilterModal.value = false;
 };
 </script>
 
 <style scoped>
-.p-6 {
-  padding: 1.5rem;
-}
-
-.min-h-screen {
-  min-height: 100vh;
-}
-
-.bg-gray-50 {
-  background-color: #f9fafb;
-}
-
-.bg-white {
-  background-color: #ffffff;
-}
-
-.rounded-lg {
-  border-radius: 0.5rem;
-}
-
-.shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
+/* 스타일은 이전 답변과 동일하게 유지합니다. */
 </style>
