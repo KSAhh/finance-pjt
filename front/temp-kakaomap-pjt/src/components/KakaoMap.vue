@@ -14,15 +14,12 @@
 </template>
 
 <script setup>
+
 import { ref, onMounted } from 'vue';
 
 const { VITE_KAKAO_JS_KEY } = import.meta.env;
 const mapContainer = ref(null); // 지도 표시 객체
-
-
-// const keyword = ref(''); // 검색어 입력 값
-// const ps = ref(null); // 장소 검색 객체
-// const markers = ref([]); // 마커 배열
+const keyword = ref("") // 검색어
 
 
 // 컴포넌트 마운트 시 지도 로드
@@ -64,66 +61,77 @@ const loadKakaoMap = (container) => {
             // 3. 마커 표시 (은행위치 여러 곳)
             const markers = []                                      // 마커 배열
             const ps = new kakao.maps.services.Places(mapInstance)  // 장소 검색 객체 생성
-            const searchBanksInBounds = () => { ps.categorySearch('BK9', placesSearchCB, { useMapBounds: true })} // 카테고리기반 검색 완료 후, placeSearchCB 함수 호출 / useMapBounds: 현재 지도 범위를 기준으로 검색을 제한
             
             // - 은행 카테고리 검색 결과 (콜백 함수)
+            const searchBanksInBounds = () => {ps.categorySearch('BK9', placesSearchCB, { useMapBounds: true })} // 카테고리기반 검색 완료 후, placeSearchCB 함수 호출 / useMapBounds: 현재 지도 범위를 기준으로 검색을 제한
             const placesSearchCB = (data, status, pagination) => {
                 if (status === kakao.maps.services.Status.OK) {
-                  removeAllMarkers() // 기존 마커 제거 (중복 방지)
-                  for (let i = 0; i < data.length; i++) {
-                    displayMarker(data[i]) // 새로운 검색 결과 표시
-                  }
+                    removeAllMarkers() // 기존 마커 제거 (중복 방지)
+                    data.forEach((place) => displayMarker(place));
                 } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-                  alert('검색 결과가 없습니다.')
+                    alert('검색 결과가 없습니다.')
                 } else {
-                  alert('검색 중 오류가 발생했습니다.')
+                    alert('검색 중 오류가 발생했습니다.')
                 }
             }
 
-            // - 기존 마커 삭제
-            function removeAllMarkers() {
-                for (let i = 0; i < markers.length; i++) {
-                    markers[i].setMap(null) // 지도에서 마커 제거
-                }
+            // - 마커 삭제 함수
+            const removeAllMarkers = () => {
+                markers.forEach((marker) => marker.setMap(null))
                 markers.length = 0 // 배열 초기화
             }
-
             
-
-            const infoWindow = new kakao.maps.InfoWindow({ zIndex: 1 }); // 전역 인포윈도우 객체 생성
-
-            // - 지도에 마커 표시
-            function displayMarker(place) {
-              const marker = new kakao.maps.Marker({
-                map: mapInstance, // 지도 객체
-                position: new kakao.maps.LatLng(place.y, place.x), // 장소의 위도, 경도를 기반으로 마커 생성
-              })
-              markers.push(marker); // 마커를 배열에 저장
-
-              // 마커 클릭 시 인포윈도우 표시
-              kakao.maps.event.addListener(marker, 'click', function () {
-                infoWindow.setContent(
-                  `<div style="padding:5px;font-size:12px;">${place.place_name}</div>` // 장소명 표시
-                );
-                infoWindow.open(mapInstance, marker); // 현재 마커에 인포윈도우 열기
-              });
-            }
+            // - 마커 표시 함수
+            const displayMarker = (place) => {
+                const marker = new kakao.maps.Marker({
+                    map: mapInstance, // 지도 객체
+                    position: new kakao.maps.LatLng(place.y, place.x), // 장소의 위도, 경도를 기반으로 마커 생성
+                })
+                markers.push(marker); // 마커를 배열에 저장
             
-            // 4. 장소 검색 기능
-            // - 키워드 검색 함수
+            
+                // 마커 클릭 시 인포윈도우 표시
+                const infoWindow = new kakao.maps.InfoWindow({ zIndex: 1 }); // 전역 인포윈도우 객체 생성
+                kakao.maps.event.addListener(marker, 'click', function () {
+                    infoWindow.setContent(
+                      `<div style="padding:5px;font-size:12px;">${place.place_name}</div>` // 장소명 표시
+                    );
+                    infoWindow.open(mapInstance, marker); // 현재 마커에 인포윈도우 열기
+                });
+            } 
+
+            // 4. 키워드 검색 함수
             const searchPlaces = () => {
                 if (!keyword.value.trim()) {
                     alert('검색어를 입력하세요.')
                     return
                 }
-                ps.keywordSearch(keyword.value, placesSearchCB) // 키워드 검색 실행
+                ps.keywordSearch(keyword.value, (data, status) => {
+                    if (status === kakao.maps.services.Status.OK) {
+                        const firstResult = data[0]; // 첫 번째 검색 결과
+                        const center = new kakao.maps.LatLng(firstResult.y, firstResult.x);
+                        mapInstance.setCenter(center); // 지도 중심 이동
+                        searchBanksInBounds(); // 은행 카테고리 검색
+                    } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+                        alert("키워드 검색 결과가 없습니다.");
+                    } else {
+                        alert("검색 중 오류가 발생했습니다.");
+                    }
+                  })
             }
             searchBanksInBounds(); // 초기 은행 검색
+            // 검색 함수 바인딩
+            window.searchPlaces = searchPlaces;
         });
     };
 };
 
-
+// 검색 함수
+const searchPlaces = () => {
+  if (typeof window.searchPlaces === "function") {
+    window.searchPlaces();
+  }
+};
 </script>
 
 <style scoped>
