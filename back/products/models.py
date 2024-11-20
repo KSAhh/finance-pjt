@@ -38,14 +38,16 @@ class ProductOption(models.Model):
 
 # 은행
 class Bank(models.Model):
-    bank_name = models.CharField(max_length=255, default="Unknown")                     # 은행명
+    name = models.CharField(max_length=255, default="Unknown")                          # 은행명
     address = models.CharField(max_length=500, default="Unknown")                       # 지점 주소
     latitude = models.DecimalField(max_digits=9, decimal_places=6, default=0.0000)      # 위도 (기본값: 바다 위 좌표) (총 9자리 중 소수점 이하에 6자리를 사용)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, default=-160.0000)  # 경도 (기본값: 바다 위 좌표)
     created_at = models.DateTimeField(auto_now_add=True)                                # 생성 시간
 
+    def __str__(self):
+        return self.name
 
 # 은행지점별 예적금 정보(M:N)
 class BankProduct(models.Model):
-    bank_location = models.ForeignKey(Bank, on_delete=models.CASCADE)   # 은행 위치 참조
+    address = models.ForeignKey(Bank, on_delete=models.CASCADE)         # 은행 위치 참조
     product = models.ForeignKey(Product, on_delete=models.CASCADE)      # 예적금 상품 참조

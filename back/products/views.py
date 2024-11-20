@@ -1,6 +1,6 @@
 import requests
 
-from django.shortcuts import get_list_or_404, get_object_or_404
+from django.shortcuts import get_list_or_404, get_object_or_404, render
 from django.conf import settings
 
 from rest_framework import status
@@ -12,11 +12,12 @@ from rest_framework.permissions import IsAdminUser
 
 
 from .models import Product, JoinWay, ProductOption, Bank, BankProduct
-from .serializers import ProductSerializer, ProductOptionSerializer
+from .serializers import ProductSerializer, ProductOptionSerializer, JoinWaySerializer
 
 FSS_API_KEY = settings.FSS_API_KEY
 BASE_URL = "http://finlife.fss.or.kr/finlifeapi/"
-
+KAKAO_API_KEY = settings.KAKAO_API_KEY
+KAKAO_JS_KEY = settings.KAKAO_JS_KEY
 
 # 정기예금 상품, 옵션목록 DB에 저장
 @api_view(["GET"])
@@ -136,10 +137,17 @@ def product_detail(request, product_pk):
     if request.method == "GET":
         product = get_object_or_404(Product, pk=product_pk)
         options = ProductOption.objects.filter(product=product)
+        joinways = JoinWay.objects.filter(product=product)
         
         product_serializer = ProductSerializer(product)
         options_serializer = ProductOptionSerializer(options, many=True)
-        return Response({"product": product_serializer.data, "options": options_serializer.data}, status=status.HTTP_200_OK)
+        joinways_serializer = JoinWaySerializer(joinways, many=True)
+        detail = {
+            "product" : product_serializer.data,
+            "options" : options_serializer.data,
+            "joinways" : joinways_serializer.data,
+        }
+        return Response(detail, status=status.HTTP_200_OK)
 
 # 특정 상품의 옵션 리스트 출력
 # @api_view(["GET"])
@@ -166,48 +174,87 @@ def product_detail(request, product_pk):
 #         }, status=status.HTTP_200_OK)
 
 
+@api_view(["GET"])
+def bank_map(request):
+    return render(request, "products/index.html", {"KAKAO_JS_KEY": KAKAO_JS_KEY})
 
+from django.http import JsonResponse
 
 @api_view(["GET"])
-@permission_classes([IsAdminUser])  # 관리자만 접근 가능
-def save_bank_info(request, bank_name):
-    KAKAO_API_KEY = settings.KAKAO_API_KEY
-    url = "https://dapi.kakao.com/v2/local/search/keyword.json"
-    headers = {"Authorization": f"KakaoAK {KAKAO_API_KEY}"}
+# @permission_classes([IsAdminUser])  # 관리자만 접근 가능
+def bank_search(request, query):
+    """
+    Kakao Places API를 호출하여 검색 결과를 반환합니다.
+    """
+    kakao_api_url = "https://dapi.kakao.com/v2/local/search/keyword.json"
+    headers = {
+        "Authorization": f"KakaoAK {settings.KAKAO_REST_API_KEY}"  # REST API 키
+    }
     params = {
-        "query": bank_name,
-        "size": 15,  # 최대 15개의 결과
+        "query": query,  # 검색어
+        "size": 10  # 최대 10개 결과 반환
     }
 
-    # API 호출
-    response = requests.get(url, headers=headers, params=params)
-    if response.status_code != 200:
-        return Response(
-            {"detail": "Failed to fetch data from Kakao API"},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+    try:
+        # Kakao Places API 호출
+        response = requests.get(kakao_api_url, headers=headers, params=params)
+        if response.status_code == 200:
+            data = response.json()
+            # 필요한 데이터만 반환
+            results = [
+                {
+                    "name": place["place_name"],
+                    "address": place["road_address_name"] or place["address_name"],
+                    "latitude": float(place["y"]),
+                    "longitude": float(place["x"]),
+                }
+                for place in data.get("documents", [])
+            ]
+            return JsonResponse(results, safe=False)
+        else:
+            return JsonResponse({"error": "Failed to fetch data from Kakao API."}, status=response.status_code)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
     
-    # 결과 처리
-    result = response.json()
-    places = result.get("documents", [])
-    if not places:
-        return Response(
-            {"detail": f"No bank information found for {bank_name}"},
-            status=status.HTTP_404_NOT_FOUND,
-        )
-    
-    # 은행 정보 저장
-    for place in places:
-        Bank.objects.update_or_create(
-            bank_name=place.get("place_name", "Unknown"),
-            address=place.get("road_address_name", place.get("address_name", "Unknown")),
-            defaults={
-                "latitude": float(place.get("y", 0.0000)),
-                "longitude": float(place.get("x", 0.0000)),
-            },
-        )
+    # from django.http import JsonResponse
+    # branches = Bank.objects.values('name', 'address', 'latitude', 'longitude')
+    # return JsonResponse(list(branches), safe=False)
 
-    return Response(
-        {"detail": f"Bank information for {bank_name} has been saved."},
-        status=status.HTTP_200_OK,
-    )
+
+
+    # banks = Bank.objects.all()
+
+    # url = "https://dapi.kakao.com/v2/local/search/keyword.json"
+    # headers = {"Authorization": f"KakaoAK {KAKAO_API_KEY}"}
+    # params = {
+    #     "query": query, # 검색어
+    #     "size": 15,  # 최대 15개의 결과
+    # }
+
+    # # API 호출
+    # response = requests.get(url, headers=headers, params=params)
+    # if response.status_code != 200:
+    #     return Response({"detail": "Failed to fetch data from Kakao API"}, status=status.HTTP_400_BAD_REQUEST,)
+    
+    # # 결과 처리
+    # result = response.json()
+    # places = result.get("documents", [])
+    # if not places:
+    #     return Response({"detail": f"No bank information found for {query}"}, status=status.HTTP_404_NOT_FOUND,)
+    
+    # # 은행 정보 저장
+    # for place in places:
+    #     Bank.objects.update_or_create(
+    #         name=place.get("place_name", "Unknown"),
+    #         address=place.get("road_address_name", place.get("address_name", "Unknown")),
+    #         defaults={
+    #             "latitude": float(place.get("y", 0.0000)),
+    #             "longitude": float(place.get("x", 0.0000)),
+    #         },
+    #     )
+
+    # return Response(
+    #     {"detail": f"Bank information for {query} has been saved."},
+    #     status=status.HTTP_200_OK,
+    # )
+    # # return render(request, 'index.html', {'banks' : banks})
