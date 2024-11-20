@@ -61,13 +61,12 @@
 
       <!-- 하단 링크 -->
       <div class="flex justify-between items-center mt-6 text-sm text-gray-500">
-        <a href="#" class="hover:underline">비밀번호를 잊으셨나요?</a>
-        <a
-          @click.prevent="goToSignUp"
-          class="hover:underline cursor-pointer"
-        >
+        <router-link to="/find-password" class="hover:underline">
+          비밀번호를 잊으셨나요?
+        </router-link>
+        <router-link to="/signup" class="hover:underline">
           계정 만들기
-        </a>
+        </router-link>
       </div>
     </div>
   </div>
@@ -90,11 +89,6 @@ const formData = reactive({
 });
 const errorMessage = ref("");
 
-// 회원가입 페이지로 이동
-const goToSignUp = () => {
-  router.push({ name: "SignUpView" });
-};
-
 // 일반 로그인 처리
 const handleFormSubmit = async () => {
   if (step.value === 1) {
@@ -106,29 +100,26 @@ const handleFormSubmit = async () => {
     step.value = 2;
   } else if (step.value === 2) {
     try {
-      const response = await axios.post("http://127.0.0.1:8000/accounts/login/", {
+      const loginResponse = await axios.post("http://127.0.0.1:8000/accounts/login/", {
         username: formData.username,
         password: formData.password,
       });
 
-      const token = response.data.key;
-      const fullname = response.data.fullname || "사용자 이름 없음";
-
+      const token = loginResponse.data.key;
       if (!token) {
-        throw new Error("Token not found in response");
+        throw new Error("Token not found in login response");
       }
 
-      // LocalStorage 저장
+      axios.defaults.headers.common["Authorization"] = `Token ${token}`;
+
+      const userResponse = await axios.get("http://127.0.0.1:8000/accounts/user/");
+      const fullname = userResponse.data.fullname || "사용자 이름 없음";
+
       localStorage.setItem("key", token);
       localStorage.setItem("fullname", fullname);
 
-      // Axios 기본 헤더 설정
-      axios.defaults.headers.common["Authorization"] = `Token ${token}`;
-
-      // NavBar 상태 업데이트
       navBarStore.login(fullname);
 
-      // 메인 페이지로 이동
       router.push({ name: "MainView" });
     } catch (error) {
       console.error("로그인 실패:", error.response?.data || error);
@@ -141,7 +132,6 @@ const handleFormSubmit = async () => {
 </script>
 
 <style scoped>
-/* 화면 조정 스타일 */
 html,
 body,
 #app {

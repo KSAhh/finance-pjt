@@ -83,7 +83,9 @@
 
       <!-- 하단 링크 -->
       <div class="flex justify-between items-center mt-6 text-sm text-gray-500">
-        <a @click.prevent="goToLogin" class="hover:underline cursor-pointer">이미 계정이 있으신가요?</a>
+        <router-link to="/login" class="hover:underline">
+          이미 계정이 있으신가요?
+        </router-link>
       </div>
     </div>
   </div>
@@ -91,10 +93,7 @@
 
 <script setup>
 import { ref } from "vue";
-import { useRouter } from "vue-router";
 import axios from "axios";
-
-const router = useRouter();
 
 const formData = ref({
   username: "",
@@ -116,7 +115,6 @@ const signup = async () => {
     return;
   }
 
-  // 간단한 클라이언트 데이터 검증
   if (!formData.value.username || !formData.value.nickname || !formData.value.fullname) {
     alert("모든 필드를 채워주세요.");
     return;
@@ -136,17 +134,13 @@ const signup = async () => {
       fullname: formData.value.fullname,
     });
 
-    // 서버 응답 확인
-    console.log("회원가입 성공:", response.data);
-
-    // 자동 로그인 처리
     const token = response.data.key;
     if (token) {
       localStorage.setItem("key", token);
       localStorage.setItem("fullname", formData.value.fullname);
       axios.defaults.headers.common["Authorization"] = `Token ${token}`;
       alert("회원가입이 성공적으로 완료되었습니다!");
-      router.push({ name: "MainView" }); // 메인 페이지로 이동
+      this.$router.push({ name: "MainView" });
     } else {
       alert("회원가입은 완료되었으나 자동 로그인을 처리할 수 없습니다.");
     }
@@ -155,7 +149,6 @@ const signup = async () => {
     const errorMessage = error.response?.data?.detail || "회원가입에 실패했습니다. 다시 시도해주세요.";
     alert(errorMessage);
   } finally {
-    // 입력값 초기화
     formData.value = {
       username: "",
       password: "",
@@ -165,15 +158,9 @@ const signup = async () => {
     };
   }
 };
-
-const goToLogin = () => {
-  router.push({ name: "LoginView" });
-};
 </script>
 
-
 <style scoped>
-/* 화면 조정 스타일 */
 html,
 body,
 #app {

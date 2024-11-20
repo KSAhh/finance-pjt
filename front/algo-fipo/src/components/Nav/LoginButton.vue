@@ -1,21 +1,14 @@
 <template>
-  <button
-    @click="goToLogin"
+  <router-link
+    to="/login"
     class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 whitespace-nowrap"
   >
     로그인
-  </button>
+  </router-link>
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
-
-const router = useRouter();
-
-// LoginView로 이동하는 함수
-const goToLogin = () => {
-  router.push({ name: "LoginView" });
-};
+// 별도의 JavaScript 코드 불필요
 </script>
 
 <style scoped>

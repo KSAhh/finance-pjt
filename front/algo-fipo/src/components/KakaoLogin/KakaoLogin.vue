@@ -25,8 +25,20 @@ const kakaoLoginBtn = async () => {
 
     // Clear Existing Login State
     if (window.Kakao.Auth.getAccessToken()) {
-      await window.Kakao.API.request({ url: "/v1/user/logout" });
+      console.log("기존 액세스 토큰이 감지됨:", window.Kakao.Auth.getAccessToken());
+
+      // 강제 로그아웃
+      try {
+        await window.Kakao.API.request({ url: "/v1/user/logout" });
+        console.log("카카오 로그아웃 성공");
+      } catch (logoutError) {
+        console.error("카카오 로그아웃 요청 실패:", logoutError);
+      }
+
+      // 모든 세션 데이터 초기화
       window.Kakao.Auth.setAccessToken(null);
+      localStorage.removeItem("kakao_access_token"); // 필요 시 추가
+      console.log("카카오 세션 데이터 초기화 완료");
     }
 
     // Kakao Login Request
@@ -52,15 +64,13 @@ const kakaoLoginBtn = async () => {
         console.log("서버 응답 데이터:", serverResponse.data);
 
         // Extract Token from Server Response
-// 서버 응답에서 key 추출 (배열 또는 단일 객체 처리)
-const key = Array.isArray(serverResponse.data.key)
-  ? serverResponse.data.key[0]?.key // 배열인 경우 첫 번째 요소의 key
-  : serverResponse.data.key; // 단일 객체인 경우 직접 key
+        const key = Array.isArray(serverResponse.data.key)
+          ? serverResponse.data.key[0]?.key
+          : serverResponse.data.key;
 
-if (!key) {
-  throw new Error("서버 응답에 key가 없습니다.");
-}
-
+        if (!key) {
+          throw new Error("서버 응답에 key가 없습니다.");
+        }
 
         // Store Token and Full Name in Local Storage
         localStorage.setItem("key", key);
@@ -82,9 +92,13 @@ if (!key) {
     });
   } catch (error) {
     console.error("Kakao 로그인 과정에서 오류 발생:", error);
+    // 오류 발생 시 세션 데이터 초기화
+    localStorage.removeItem("key");
+    localStorage.removeItem("fullname");
+    window.Kakao.Auth.setAccessToken(null);
   }
-  
 };
+
 
 </script>
 

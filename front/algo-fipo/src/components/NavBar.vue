@@ -1,11 +1,16 @@
-
 <template>
-  <nav class="bg-white shadow py-4 px-6 flex justify-between items-center w-full fixed top-0 left-0 z-50">
+  <nav class="bg-white shadow py-4 px-6 flex justify-between items-center w-full fixed top-0 left-0 z-50 whitespace-nowrap">
     <!-- Logo -->
-    <Logo @click="goToMain" />
+    <div class="flex-shrink-0">
+      <router-link to="/" class="flex items-center">
+        <Logo />
+      </router-link>
+    </div>
 
     <!-- Main Menu -->
-    <Menu />
+    <div class="flex-grow hidden sm:flex justify-center items-center space-x-4">
+      <Menu />
+    </div>
 
     <!-- User Status-based Menu -->
     <div class="flex items-center space-x-4 mr-4">
@@ -17,41 +22,23 @@
         <LoginButton />
         <SignUpButton />
       </template>
-      <HamburgerMenu />
+    </div>
+
+    <!-- 햄버거 메뉴 -->
+    <div class="absolute right-4 top-4 sm:static">
+      <HamburgerMenu class="w-8 h-8" />
     </div>
   </nav>
 </template>
 
-  <script setup>
-  import { onMounted, onUnmounted } from "vue";
-  import { useNavBarStore } from "@/stores/navBarStore";
-  import Logo from "./Nav/Logo.vue";
-  import Menu from "./Nav/Menu.vue";
-  import LoginButton from "./Nav/LoginButton.vue";
-  import SignUpButton from "./Nav/SignUpButton.vue";
-  import HamburgerMenu from "./Nav/HamburgerMenu.vue";
-  import LogoutButton from "./Nav/LogoutButton.vue";
-  
-  const navBarStore = useNavBarStore();
-  
-  onMounted(() => {
-    const updateNavBar = () => {
-      navBarStore.isLoggedIn = !!localStorage.getItem("key");
-      navBarStore.userFullName = localStorage.getItem("fullname") || "";
-    };
-  
-    // 이벤트 리스너 등록
-    window.addEventListener("updateNavBar", updateNavBar);
-  
-    // 초기 상태 설정
-    updateNavBar();
-  });
-  
-  onUnmounted(() => {
-    // 이벤트 리스너 해제
-    window.removeEventListener("updateNavBar", updateNavBar);
-  });
-  </script>
-<style scoped>
-/* 필요한 경우 스타일 추가 */
-</style>
+<script setup>
+import { useNavBarStore } from "@/stores/navBarStore";
+import Logo from "./Nav/Logo.vue";
+import Menu from "./Nav/Menu.vue";
+import LoginButton from "./Nav/LoginButton.vue";
+import SignUpButton from "./Nav/SignUpButton.vue";
+import HamburgerMenu from "./Nav/HamburgerMenu.vue";
+import LogoutButton from "./Nav/LogoutButton.vue";
+
+const navBarStore = useNavBarStore();
+</script>
