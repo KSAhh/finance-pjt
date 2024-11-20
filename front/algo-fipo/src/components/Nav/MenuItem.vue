@@ -1,7 +1,7 @@
 <template>
   <li class="px-4 lg:px-6 xl:px-8 relative group">
     <!-- 메뉴 이름 -->
-    <a href="#" @click.prevent="$emit('click-menu', label)" class="hover:underline">
+    <a href="#" @click.prevent="onMenuClick" class="hover:underline">
       {{ label }}
     </a>
 
@@ -26,7 +26,7 @@
               v-for="(item, index) in dropdownContent"
               :key="index"
               class="hover:underline cursor-pointer"
-              @click="$emit('click-item', item)"
+              @click="onItemClick(item)"
             >
               {{ item.label || item }}
             </li>
@@ -46,7 +46,9 @@
 </template>
 
 <script setup>
-defineProps({
+import { defineProps, defineEmits } from 'vue';
+
+const props = defineProps({
   label: {
     type: String,
     required: true,
@@ -60,6 +62,16 @@ defineProps({
     default: false,
   },
 });
+
+const emit = defineEmits(['click-menu', 'click-item']);
+
+function onMenuClick() {
+  emit('click-menu', props.label);
+}
+
+function onItemClick(item) {
+  emit('click-item', item);
+}
 </script>
 
 <style scoped>

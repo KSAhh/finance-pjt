@@ -17,20 +17,40 @@
         class="mt-8"
       />
 
-      <!-- 필터 버튼 -->
-      <div class="mt-8 flex justify-end space-x-2">
-        <button
-          @click="showFilterModal = true"
-          class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
-        >
-          필터 설정
-        </button>
-        <button
-          @click="resetFilters"
-          class="px-3 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition duration-300"
-        >
-          필터 초기화
-        </button>
+      <!-- 버튼들과 필터 선택 섹션을 감싸는 컨테이너 -->
+      <div class="mt-8 flex items-center justify-between">
+        <!-- 왼쪽의 보이지 않는 요소 -->
+        <div class="w-32"></div>
+
+        <!-- 필터 선택 섹션 -->
+        <div class="flex-1 flex justify-center">
+          <FilterSelector
+            :filters="filters"
+            :period-options="periodOptions"
+            :product-types="productTypes"
+            :selected-category="selectedCategory"
+            :preferences="preferences"
+            :selected-preferences="selectedPreferences"
+            @update-filters="updateFilters"
+            @update-preferences="updatePreferences"
+          />
+        </div>
+
+        <!-- 필터 버튼 -->
+        <div class="flex flex-col items-end space-y-2">
+          <button
+            @click="showFilterModal = true"
+            class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+          >
+            필터 설정
+          </button>
+          <button
+            @click="resetFilters"
+            class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300"
+          >
+            필터 초기화
+          </button>
+        </div>
       </div>
 
       <!-- 필터 모달 -->
@@ -41,19 +61,6 @@
         :selected-banks="selectedBanks"
         @update:selected-banks="updateSelectedBanks"
         @close="showFilterModal = false"
-      />
-
-      <!-- 필터 선택 섹션 -->
-      <FilterSelector
-        :filters="filters"
-        :period-options="periodOptions"
-        :product-types="productTypes"
-        :selected-category="selectedCategory"
-        :preferences="preferences"
-        :selected-preferences="selectedPreferences"
-        @update-filters="updateFilters"
-        @update-preferences="updatePreferences"
-        class="mt-8"
       />
 
       <!-- 선택된 필터 표시 -->
@@ -256,5 +263,5 @@ const resetFilters = () => {
 </script>
 
 <style scoped>
-/* 스타일은 이전 답변과 동일하게 유지합니다. */
+/* 추가적인 스타일이 필요한 경우 여기에 작성하세요 */
 </style>
