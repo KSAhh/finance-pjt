@@ -2,17 +2,16 @@ import requests
 
 from django.shortcuts import get_list_or_404, get_object_or_404
 from django.conf import settings
-from django.http import JsonResponse
 
 from rest_framework import status
 from rest_framework.response import Response
 
 # permission Decorators
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAdminUser
 
 
-from .models import Product, ProductOption, Bank, BankProduct
+from .models import Product, JoinWay, ProductOption, Bank, BankProduct
 from .serializers import ProductSerializer, ProductOptionSerializer
 
 FSS_API_KEY = settings.FSS_API_KEY
@@ -23,54 +22,6 @@ BASE_URL = "http://finlife.fss.or.kr/finlifeapi/"
 @api_view(["GET"])
 @permission_classes([IsAdminUser])  # 관리자만 접근 가능
 def save_products(request):
-
-    path_params = {
-        "deposit" : 1, 
-        "saving" : 2,
-    }
-    # deposit
-    #   topFinGrpNo : 020000
-    #   max_page_no : 1
-    #   total_count : 39
-
-    #   topFinGrpNo : 030200
-    #   max_page_no : 1
-    #   total_count : 0
-
-    #   topFinGrpNo : 030300
-    #   max_page_no : 4
-    #   total_count : 381
-
-    #   topFinGrpNo : 050000
-    #   max_page_no : 1
-    #   total_count : 0
-
-    #   topFinGrpNo : 060000
-    #   max_page_no : 1
-    #   total_count : 0
-
-
-    # saving
-    #   topFinGrpNo : 020000
-    #   max_page_no : 1
-    #   total_count : 58
-
-    #   topFinGrpNo : 030200
-    #   max_page_no : 1
-    #   total_count : 0
-
-    #   topFinGrpNo : 030300
-    #   max_page_no : 3
-    #   total_count : 262
-
-    #   topFinGrpNo : 050000
-    #   max_page_no : 1
-    #   total_count : 0
-
-    #   topFinGrpNo : 060000
-    #   max_page_no : 1
-    #   total_count : 0
-
     # API에서 데이터 가져오기
     PRODUCT_TYPES = ["deposit", "saving"]  # 상품 유형
     TOP_FIN_GRP_NO_LIST = ["020000", "030300"]  # 금융회사 코드 목록
@@ -89,7 +40,6 @@ def save_products(request):
                     "topFinGrpNo": top_fin_grp_no,
                     "pageNo": page_no,
                 }
-                print("요청 params: ", params["topFinGrpNo"], params["pageNo"])
                 response = requests.get(URL, params=params).json()
                 result = response.get("result", {})
 
@@ -98,7 +48,6 @@ def save_products(request):
                     print(f"Failed for {product_type}, topFinGrpNo={top_fin_grp_no}, pageNo={page_no}")
                     continue
             
-                cnt = 0
                 # API 응답 성공 - 상품, 옵션 데이터 가져오기
                 product_list = result.get("baseList", [])   # 상품목록
                 option_list = result.get("optionList", [])  # 옵션목록
@@ -118,16 +67,11 @@ def save_products(request):
                     if max_limit in [None, ""]:
                         max_limit = -1.00
                     
-                    join_way = product_data.get("join_way", "Unknown")
-                    if join_way in [None, ""]:
-                        join_way = "Unknown"
-
                     # 상품 저장 (기본값 DB에서 지정)
                     product = Product.objects.create(
                         kor_co_nm=product_data.get("kor_co_nm", "Unknown"),
                         fin_prdt_cd=product_data.get("fin_prdt_cd", "Unknown"),
                         fin_prdt_nm=product_data.get("fin_prdt_nm", "Unknown"),
-                        join_way=join_way,
                         mtrt_int=product_data.get("mtrt_int", "Unknown"),
                         spcl_cnd=product_data.get("spcl_cnd", "Unknown"),
                         join_deny=product_data.get("join_deny", 1),
@@ -136,7 +80,15 @@ def save_products(request):
                         fin_co_subm_day=product_data.get("fin_co_subm_day", "000000000000"),
                         max_limit=max_limit,
                     )
-                    cnt += 1
+
+                    # join_way 데이터 제1정규화 처리
+                    join_way_data = product_data.get("join_way", "Unknown")
+                    if join_way_data in [None, ""]:
+                        join_way_data = "Unknown"
+                    join_way_list = [way.strip() for way in join_way_data.split(",")] # 문자열로 들어 온 여러 개의 데이터를 나눠서 저장
+
+                    for way in join_way_list:
+                        JoinWay.objects.create(product=product, way=way)
 
                     for option in option_list:
 
@@ -158,7 +110,6 @@ def save_products(request):
                             intr_rate2=option.get("intr_rate2", -1.00),
                             rsrv_type_nm=option.get("rsrv_type_nm", 0.00),
                         )
-                print("여기서 저장된 값 : ", cnt)
 
     return Response({"detail": "Successfully saved."}, status=status.HTTP_201_CREATED)
 
