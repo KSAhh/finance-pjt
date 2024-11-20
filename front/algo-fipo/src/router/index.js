@@ -4,6 +4,8 @@ import LoginView from "@/views/LoginView.vue";
 import KakaoLogin from "@/components/KakaoLogin/KakaoLogin.vue";
 import CallBack from "@/components/KakaoLogin/CallBack.vue";
 import SignUpView from "@/views/SignUpView.vue";
+import FindPasswordView from "@/views/FindPasswordView.vue";
+import SavingsPage from "@/views/SavingsPage.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +36,16 @@ const router = createRouter({
       name: "SignUpView",
       component: SignUpView,
       meta: { requiresGuest: true }, // 비로그인 사용자만 접근 가능
+    },
+    {
+      path: "/find-password",
+      name: "FindPassword",
+      component: FindPasswordView,
+    },
+    {
+      path: "/saving",
+      name: "SavingsPage", // 이름도 일관성 유지
+      component: SavingsPage,
     },
   ],
 });

@@ -97,10 +97,6 @@ REST_AUTH = {
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserDetailsSerializer',
 }
 
-REST_AUTH_SERIALIZERS = {
-    'LOGIN_SERIALIZER': 'accounts.serializers.CustomLoginSerializer',
-}
-
 ACCOUNT_ADAPTER = 'accounts.models.CustomAccountAdapter'
 
 # Django Allauth

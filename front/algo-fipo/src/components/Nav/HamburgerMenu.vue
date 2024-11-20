@@ -28,7 +28,7 @@
 import { ref } from "vue";
 
 // 메뉴 항목 데이터
-const menuItems = ref(["예적금", "대출", "외화예적금", "환율"]);
+const menuItems = ref(["마이페이지", "자주하는 질문", "고객센터", "임시"]);
 </script>
 
 <style scoped>
