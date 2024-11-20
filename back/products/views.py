@@ -19,71 +19,146 @@ FSS_API_KEY = settings.FSS_API_KEY
 BASE_URL = "http://finlife.fss.or.kr/finlifeapi/"
 
 
-
-
 # 정기예금 상품, 옵션목록 DB에 저장
 @api_view(["GET"])
 @permission_classes([IsAdminUser])  # 관리자만 접근 가능
-def save_products(request, product_type):
+def save_products(request):
+
+    path_params = {
+        "deposit" : 1, 
+        "saving" : 2,
+    }
+    # deposit
+    #   topFinGrpNo : 020000
+    #   max_page_no : 1
+    #   total_count : 39
+
+    #   topFinGrpNo : 030200
+    #   max_page_no : 1
+    #   total_count : 0
+
+    #   topFinGrpNo : 030300
+    #   max_page_no : 4
+    #   total_count : 381
+
+    #   topFinGrpNo : 050000
+    #   max_page_no : 1
+    #   total_count : 0
+
+    #   topFinGrpNo : 060000
+    #   max_page_no : 1
+    #   total_count : 0
+
+
+    # saving
+    #   topFinGrpNo : 020000
+    #   max_page_no : 1
+    #   total_count : 58
+
+    #   topFinGrpNo : 030200
+    #   max_page_no : 1
+    #   total_count : 0
+
+    #   topFinGrpNo : 030300
+    #   max_page_no : 3
+    #   total_count : 262
+
+    #   topFinGrpNo : 050000
+    #   max_page_no : 1
+    #   total_count : 0
+
+    #   topFinGrpNo : 060000
+    #   max_page_no : 1
+    #   total_count : 0
 
     # API에서 데이터 가져오기
-    URL = f"{BASE_URL}{product_type}ProductsSearch.json"
-    params = {
-        "auth": FSS_API_KEY,
-        "topFinGrpNo": "020000", # 금융회사 코드 - 020000(은행), 030200(여신전문), 030300(저축은행), 050000(보험), 060000(금융투자)
-        "pageNo": 1,
-    }
-    response = requests.get(URL, params=params).json()
-    result = response.get("result", {})
+    PRODUCT_TYPES = ["deposit", "saving"]  # 상품 유형
+    TOP_FIN_GRP_NO_LIST = ["020000", "030300"]  # 금융회사 코드 목록
+    MAX_PAGE_NO = {
+        "deposit": {"020000": 1, "030300": 4},
+        "saving": {"020000": 1, "030300": 3},
+    }  # 각 상품 유형 및 금융회사별 페이지 수
 
-    # API 응답 실패 - 오류 반환
-    if result.get("err_cd", {}) != "000":
-        detail = result.get("err_msg", "Invalid API request.")
-        return Response({"detail" : detail}, status=status.HTTP_400_BAD_REQUEST)
-    
-    # API 응답 성공 - 상품, 옵션 데이터 가져오기
-    product_list = result.get("baseList", [])   # 상품목록
-    option_list = result.get("optionList", [])  # 옵션목록
+    for product_type in PRODUCT_TYPES:  # deposit, saving
+        for top_fin_grp_no in TOP_FIN_GRP_NO_LIST:
+            max_page_no = MAX_PAGE_NO[product_type].get(top_fin_grp_no, 1)
+            for page_no in range(1, max_page_no + 1):
+                URL = f"{BASE_URL}{product_type}ProductsSearch.json"
+                params = {
+                    "auth": FSS_API_KEY,
+                    "topFinGrpNo": top_fin_grp_no,
+                    "pageNo": page_no,
+                }
+                print("요청 params: ", params["topFinGrpNo"], params["pageNo"])
+                response = requests.get(URL, params=params).json()
+                result = response.get("result", {})
 
-    for product_data in product_list:
-        # 중복 상품 검사 (금융상품 코드 기준)
-        if Product.objects.filter(fin_prdt_cd=product_data.get("fin_prdt_cd")).exists():
-            continue
-    
+                # API 응답 실패 - 오류 반환
+                if result.get("err_cd", {}) != "000":
+                    print(f"Failed for {product_type}, topFinGrpNo={top_fin_grp_no}, pageNo={page_no}")
+                    continue
+            
+                cnt = 0
+                # API 응답 성공 - 상품, 옵션 데이터 가져오기
+                product_list = result.get("baseList", [])   # 상품목록
+                option_list = result.get("optionList", [])  # 옵션목록
 
-        # 상품 저장
-        product = Product.objects.create(
-            kor_co_nm=product_data.get("kor_co_nm", "Unknown"),
-            fin_prdt_cd=product_data.get("fin_prdt_cd"),
-            fin_prdt_nm=product_data.get("fin_prdt_nm", "Unknown"),
-            join_way=product_data.get("join_way", "-"),
-            mtrt_int=product_data.get("mtrt_int", "-"),
-            spcl_cnd=product_data.get("spcl_cnd", "-"),
-            join_deny=product_data.get("join_deny", 1),
-            join_member=product_data.get("join_member", "실명의 개인"),
-            etc_note=product_data.get("etc_note", "-"),
-            fin_co_subm_day=product_data.get("fin_co_subm_day", "000000000000"),
-            max_limit=product_data.get("max_limit", -1.00)
-        )
+                # 상품 객체 생성
+                for product_data in product_list:
+                    # 중복 상품 검사
+                    if Product.objects.filter(
+                        kor_co_nm=product_data.get("kor_co_nm"),
+                        fin_prdt_cd=product_data.get("fin_prdt_cd"),
+                    ).exists():
+                        print(product_data)
+                        continue
 
-        # 옵션 저장
-        if ProductOption.objects.filter(product=product).exists(): 
-            continue
+                    # max_limit, join_way 필드 값이 None, 빈 문자열 등일 경우 기본값 설정
+                    max_limit = product_data.get("max_limit", -1.00)
+                    if max_limit in [None, ""]:
+                        max_limit = -1.00
+                    
+                    join_way = product_data.get("join_way", "Unknown")
+                    if join_way in [None, ""]:
+                        join_way = "Unknown"
 
-        product_options = [
-            ProductOption(
-                product=product,
-                intr_rate_type_nm=option.get('intr_rate_type_nm', 'Unknown'),
-                save_trm=option.get('save_trm', -1),
-                intr_rate=option.get('intr_rate', -1.00),
-                intr_rate2=option.get('intr_rate2', 0.00),
-                rsrv_type_nm=option.get('rsrv_type_nm', 'Unknown')
-            )
-            for option in option_list if option.get('fin_prdt_cd') == product.fin_prdt_cd
-        ]
-        # 옵션 데이터가 있는 경우 한 번에 저장
-        if product_options:
-            ProductOption.objects.bulk_create(product_options)
+                    # 상품 저장 (기본값 DB에서 지정)
+                    product = Product.objects.create(
+                        kor_co_nm=product_data.get("kor_co_nm", "Unknown"),
+                        fin_prdt_cd=product_data.get("fin_prdt_cd", "Unknown"),
+                        fin_prdt_nm=product_data.get("fin_prdt_nm", "Unknown"),
+                        join_way=join_way,
+                        mtrt_int=product_data.get("mtrt_int", "Unknown"),
+                        spcl_cnd=product_data.get("spcl_cnd", "Unknown"),
+                        join_deny=product_data.get("join_deny", 1),
+                        join_member=product_data.get("join_member", "실명의 개인"),
+                        etc_note=product_data.get("etc_note", "Unknown"),
+                        fin_co_subm_day=product_data.get("fin_co_subm_day", "000000000000"),
+                        max_limit=max_limit,
+                    )
+                    cnt += 1
+
+                    for option in option_list:
+
+                        # 금융상품 코드가 동일하지 않으면 건너뜀
+                        if option.get("fin_prdt_cd") != product.fin_prdt_cd:
+                            continue
+
+                        # `intr_rate` 값 검증 및 기본값 설정
+                        intr_rate = option.get("intr_rate", -1.00)
+                        if intr_rate in [None, ""]:
+                            intr_rate = -1.00
+
+                        # 옵션 객체 생성 및 저장 -------------------------------------------------------- 여러번의 INSERT 발생 -> 오버헤드
+                        ProductOption.objects.create(
+                            product=product,
+                            intr_rate_type_nm=option.get("intr_rate_type_nm", "Unknown"),
+                            save_trm=option.get("save_trm", -1),
+                            intr_rate=intr_rate,
+                            intr_rate2=option.get("intr_rate2", -1.00),
+                            rsrv_type_nm=option.get("rsrv_type_nm", 0.00),
+                        )
+                print("여기서 저장된 값 : ", cnt)
 
     return Response({"detail": "Successfully saved."}, status=status.HTTP_201_CREATED)
 
@@ -142,7 +217,7 @@ def product_detail(request, product_pk):
 
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAdminUser])  # 관리자만 접근 가능
 def save_bank_info(request, bank_name):
     KAKAO_API_KEY = settings.KAKAO_API_KEY
