@@ -1,11 +1,17 @@
 from rest_framework import serializers
-from .models import Product, ProductOption, JoinWay
+from .models import DepositProduct, SavingProduct, ProductOption
 import json
 
-# 상품
-class ProductSerializer(serializers.ModelSerializer):
+# 상품 - 예금
+class DepositProductSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Product
+        model = DepositProduct
+        fields = '__all__'
+
+# 상품 - 적금
+class SavingProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavingProduct
         fields = '__all__'
 
 
@@ -15,10 +21,3 @@ class ProductOptionSerializer(serializers.ModelSerializer):
         model = ProductOption
         fields = '__all__'
         read_only_fields = ['product']
-
-
-# 가입방법
-class JoinWaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = JoinWay
-        fields = ['way']
