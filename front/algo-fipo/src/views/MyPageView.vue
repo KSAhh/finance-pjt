@@ -24,10 +24,10 @@
           </div>
           <div class="col-span-2"></div>
           <div class="col-span-2 text-left space-y-2">
-            <button class="block hover:underline text-sm">내 금융상품</button>
-            <button class="block hover:underline text-sm">내가 단 댓글</button>
-            <button class="block hover:underline text-sm">내 문의내역</button>
-            <button class="block hover:underline text-sm">회원정보수정</button>
+            <button @click="goToMyFinancialProduct" class="block hover:underline text-sm">내 금융상품</button>
+            <button @click="goToMyComments" class="block hover:underline text-sm">내가 단 댓글</button>
+            <button @click="goToMyInquire" class="block hover:underline text-sm">내 문의내역</button>
+            <button @click="goToMyInfo" class="block hover:underline text-sm">회원정보수정</button>
           </div>
         </div>
       </div>
@@ -77,7 +77,23 @@
   import axios from 'axios';
   import ProfileImage from '@/components/mypage/ProfileImage.vue';
   import NickNameChange from '@/components/mypage/NickNameChange.vue';
-  
+  import { useRouter } from 'vue-router';
+
+
+
+  const router = useRouter()
+  const goToMyComments = () => {
+  router.push({ name: 'MyComments' });
+};
+const goToMyFinancialProduct = () => {
+  router.push({ name: "MyFinancialProduct"})
+}
+const goToMyInquire = () => {
+  router.push({ name: "MyInquire"})
+}
+const goToMyInfo = () => {
+  router.push({ name: "MyInfoEdit" })
+}
   // 상태 관리
   const profileImage = ref(''); // 프로필 이미지 초기값
   const nickname = ref(''); // 닉네임 초기값
