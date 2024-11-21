@@ -8,11 +8,12 @@ from rest_framework.response import Response
 
 # permission Decorators
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
 
 
-from .models import DepositProduct, SavingProduct, ProductOption
-from .serializers import DepositProductSerializer, SavingProductSerializer, ProductOptionSerializer
+from .models import DepositProduct, SavingProduct, ProductOption, UserProduct
+from .serializers import DepositSavingSerializer, ProductOptionSerializer, UserProductSerializer
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -92,10 +93,8 @@ def save_products(request):
                         "join_member" : product_data.get("join_member", "실명의 개인"),
                         "etc_note" : product_data.get("etc_note", "Unknown"),
                         "fin_co_subm_day" : product_data.get("fin_co_subm_day", "000000000000"),
+                        "max_limit" : max_limit
                     }
-                    if product_type == "deposit": # 저축상품 전용필드 추가
-                            max_limit=max_limit if product_type == "saving" else None, # only 저축상품 옵션
-                    
                     product = model_class.objects.create(**product_data_common)                           
                     
                     # 옵션 저장
@@ -129,8 +128,10 @@ def product_list(request):
         deposit_products = DepositProduct.objects.all()
         saving_products = SavingProduct.objects.all()
         if deposit_products or saving_products:
-            deposit_serializer = DepositProductSerializer(deposit_products, many=True)
-            saving_serializer = DepositProductSerializer(saving_products, many=True)
+            deposit_serializer = DepositSavingSerializer(deposit_products, many=True)
+            saving_serializer = DepositSavingSerializer(saving_products, many=True)
+            # deposit_serializer = ProductSerializer(deposit_products, many=True)
+            # saving_serializer = ProductSerializer(saving_products, many=True)
             detail = {"deposits" : deposit_serializer.data, "savings": saving_serializer.data}
             return Response(detail, status=status.HTTP_200_OK)
         return Response({"detail" : "조회 가능한 상품이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
@@ -144,20 +145,34 @@ def product_list(request):
         
 # 단일 상품 조회 (GET)
 @api_view(["GET"])
-def product_detail(request, product_pk):
-    pass
-#     if request.method == "GET":
-#         deposit_product = DepositProduct., pk=product_pk)
-#         options = ProductOption.objects.filter(product=product)
+def product_detail(request, product_type, product_pk):
+    if request.method == "GET":
+        """
+        특정 금융상품의 옵션 데이터 조회
+        :param product_type: 상품 유형 ('deposit' 또는 'saving')
+        :param product_id: 금융상품 ID
+        """
+        # Product 모델 설정
+        if product_type == "deposit":
+            product_model = DepositProduct
+        elif product_type == "saving":
+            product_model = SavingProduct
+        else:
+            return Response({"detail": "Invalid product type"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 금융상품 조회
+        product = product_model.objects.get(pk=product_pk)
+        # 관련 옵션 데이터 조회
+        options = product.options.all() # 역참조
+
+        product_serializer = DepositSavingSerializer(product)
+        options_serializer = ProductOptionSerializer(options, many=True) # 데이터 직렬화
         
-#         product_serializer = ProductSerializer(product)
-#         product_serializer = ProductSerializer(product)
-#         options_serializer = ProductOptionSerializer(options, many=True)
-#         detail = {
-#             "product" : product_serializer.data,
-#             "options" : options_serializer.data,
-#         }
-#         return Response(detail, status=status.HTTP_200_OK)
+        detail = {
+            "product" : product_serializer.data,
+            "options" : options_serializer.data,
+        }
+        return Response(detail, status=status.HTTP_200_OK)
 
 # 특정 상품의 옵션 리스트 출력
 # @api_view(["GET"])
@@ -183,88 +198,24 @@ def product_detail(request, product_pk):
 #         "options": options_serializer.data
 #         }, status=status.HTTP_200_OK)
 
-
-@api_view(["GET"])
-def bank_map(request):
-    return render(request, "products/index.html", {"KAKAO_JS_KEY": KAKAO_JS_KEY})
-
-from django.http import JsonResponse
-
-@api_view(["GET"])
-# @permission_classes([IsAdminUser])  # 관리자만 접근 가능
-def bank_search(request, query):
-    """
-    Kakao Places API를 호출하여 검색 결과를 반환합니다.
-    """
-    kakao_api_url = "https://dapi.kakao.com/v2/local/search/keyword.json"
-    headers = {
-        "Authorization": f"KakaoAK {settings.KAKAO_REST_API_KEY}"  # REST API 키
-    }
-    params = {
-        "query": query,  # 검색어
-        "size": 10  # 최대 10개 결과 반환
-    }
-
-    try:
-        # Kakao Places API 호출
-        response = requests.get(kakao_api_url, headers=headers, params=params)
-        if response.status_code == 200:
-            data = response.json()
-            # 필요한 데이터만 반환
-            results = [
-                {
-                    "name": place["place_name"],
-                    "address": place["road_address_name"] or place["address_name"],
-                    "latitude": float(place["y"]),
-                    "longitude": float(place["x"]),
-                }
-                for place in data.get("documents", [])
-            ]
-            return JsonResponse(results, safe=False)
-        else:
-            return JsonResponse({"error": "Failed to fetch data from Kakao API."}, status=response.status_code)
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=500)
-    
-    # from django.http import JsonResponse
-    # branches = Bank.objects.values('name', 'address', 'latitude', 'longitude')
-    # return JsonResponse(list(branches), safe=False)
-
-
-
-    # banks = Bank.objects.all()
-
-    # url = "https://dapi.kakao.com/v2/local/search/keyword.json"
-    # headers = {"Authorization": f"KakaoAK {KAKAO_API_KEY}"}
-    # params = {
-    #     "query": query, # 검색어
-    #     "size": 15,  # 최대 15개의 결과
-    # }
-
-    # # API 호출
-    # response = requests.get(url, headers=headers, params=params)
-    # if response.status_code != 200:
-    #     return Response({"detail": "Failed to fetch data from Kakao API"}, status=status.HTTP_400_BAD_REQUEST,)
-    
-    # # 결과 처리
-    # result = response.json()
-    # places = result.get("documents", [])
-    # if not places:
-    #     return Response({"detail": f"No bank information found for {query}"}, status=status.HTTP_404_NOT_FOUND,)
-    
-    # # 은행 정보 저장
-    # for place in places:
-    #     Bank.objects.update_or_create(
-    #         name=place.get("place_name", "Unknown"),
-    #         address=place.get("road_address_name", place.get("address_name", "Unknown")),
-    #         defaults={
-    #             "latitude": float(place.get("y", 0.0000)),
-    #             "longitude": float(place.get("x", 0.0000)),
-    #         },
-    #     )
-
-    # return Response(
-    #     {"detail": f"Bank information for {query} has been saved."},
-    #     status=status.HTTP_200_OK,
-    # )
-    # # return render(request, 'index.html', {'banks' : banks})
+# 유저 상품 조회 (GET)
+# 유저 상품 등록 (POST)
+# 유저 상품 수정 (PUT? PATCH?)
+# 유저 상품 삭제 (DELETE)
+@api_view(["GET", "POST"])
+@permission_classes([IsAuthenticated])  # 로그인 한 본인정보만 조회가능
+@authentication_classes([TokenAuthentication])
+def user_products(request, user_pk):
+    if request.user.id != user_pk:  # 유저 본인확인
+        return Response({"detail": "접근 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+    if request.method == "GET":
+        pass
+    elif request.method == "POST":
+        """
+        유저가 가입한 금융상품 저장.
+        """
+        serializer = UserProductSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
