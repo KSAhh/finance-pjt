@@ -10,7 +10,7 @@ import LoanPageView from "@/views/LoanPageView.vue";
 import MyPageView from "@/views/MyPageView.vue";
 import FAQView from "@/views/FAQView.vue";
 import CustomerSupportView from "@/views/CustomerSupportView.vue";
-
+import BankMapView from "@/views/BankMapView.vue";
 
 
 const router = createRouter({
@@ -73,6 +73,11 @@ const router = createRouter({
       path: '/cs',
       name: 'CustomerSupport',
       component: CustomerSupportView,
+    },
+    {
+      path: '/bankmap',
+      name: 'BankMap',
+      component: BankMapView,
     },
   ],
 });
