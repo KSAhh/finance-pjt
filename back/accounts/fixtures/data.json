@@ -375,30 +375,6 @@
 },
 {
     "model": "authtoken.token",
-    "pk": "1284d1d69b6dadc99d9d3813d7f60da75a7c13c0",
-    "fields": {
-        "user": 1,
-        "created": "2024-11-18T11:12:43.459Z"
-    }
-},
-{
-    "model": "authtoken.token",
-    "pk": "453ed77eb17802ab6d66a1045463f18a45bc70d4",
-    "fields": {
-        "user": 3,
-        "created": "2024-11-18T11:14:23.713Z"
-    }
-},
-{
-    "model": "authtoken.token",
-    "pk": "4a07c0d8d6438b32c8dee45c5d46a1000776f465",
-    "fields": {
-        "user": 5,
-        "created": "2024-11-18T11:14:31.191Z"
-    }
-},
-{
-    "model": "authtoken.token",
     "pk": "4e32758ae9cbcd1c5a1451dc2bcaad1b69ffb0c9",
     "fields": {
         "user": 4,

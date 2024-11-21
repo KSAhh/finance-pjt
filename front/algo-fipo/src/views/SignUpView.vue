@@ -94,7 +94,9 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
+import { useRouter } from "vue-router"; // useRouter를 가져옵니다.
 
+const router = useRouter(); // useRouter 훅 사용
 const formData = ref({
   username: "",
   password: "",
@@ -140,7 +142,7 @@ const signup = async () => {
       localStorage.setItem("fullname", formData.value.fullname);
       axios.defaults.headers.common["Authorization"] = `Token ${token}`;
       alert("회원가입이 성공적으로 완료되었습니다!");
-      this.$router.push({ name: "MainView" });
+      router.push({ name: "MainView" }); // router.push로 라우팅
     } else {
       alert("회원가입은 완료되었으나 자동 로그인을 처리할 수 없습니다.");
     }
@@ -159,6 +161,7 @@ const signup = async () => {
   }
 };
 </script>
+
 
 <style scoped>
 html,
