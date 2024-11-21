@@ -1,4 +1,5 @@
 <template>
+  <h1>1차</h1>
   <!-- 지도 지정(mapContainer참조하여 동적으로 제어) & 크기설정 -->
   <div ref="mapContainer" style="width: 100%; height:70vh"></div>
 
