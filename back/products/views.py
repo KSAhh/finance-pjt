@@ -11,8 +11,11 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from rest_framework.permissions import IsAdminUser
 
 
-from .models import Product, JoinWay, ProductOption, Bank, BankProduct
-from .serializers import ProductSerializer, ProductOptionSerializer, JoinWaySerializer
+from .models import DepositProduct, SavingProduct, ProductOption
+from .serializers import DepositProductSerializer, SavingProductSerializer, ProductOptionSerializer
+
+from django.contrib.contenttypes.models import ContentType
+
 
 FSS_API_KEY = settings.FSS_API_KEY
 BASE_URL = "http://finlife.fss.or.kr/finlifeapi/"
@@ -55,45 +58,49 @@ def save_products(request):
 
                 # 상품 객체 생성
                 for product_data in product_list:
+
                     # 중복 상품 검사
-                    if Product.objects.filter(
+                    model_class = DepositProduct if product_type == "deposit" else SavingProduct
+                    if model_class.objects.filter(
                         kor_co_nm=product_data.get("kor_co_nm"),
-                        fin_prdt_cd=product_data.get("fin_prdt_cd"),
+                        fin_prdt_cd=product_data.get("fin_prdt_cd")
                     ).exists():
-                        print(product_data)
+                        print("중복상품 : ", product_data)
                         continue
 
                     # max_limit, join_way 필드 값이 None, 빈 문자열 등일 경우 기본값 설정
                     max_limit = product_data.get("max_limit", -1.00)
                     if max_limit in [None, ""]:
                         max_limit = -1.00
-                    
-                    # 상품 저장 (기본값 DB에서 지정)
-                    product = Product.objects.create(
-                        kor_co_nm=product_data.get("kor_co_nm", "Unknown"),
-                        fin_prdt_cd=product_data.get("fin_prdt_cd", "Unknown"),
-                        fin_prdt_nm=product_data.get("fin_prdt_nm", "Unknown"),
-                        mtrt_int=product_data.get("mtrt_int", "Unknown"),
-                        spcl_cnd=product_data.get("spcl_cnd", "Unknown"),
-                        join_deny=product_data.get("join_deny", 1),
-                        join_member=product_data.get("join_member", "실명의 개인"),
-                        etc_note=product_data.get("etc_note", "Unknown"),
-                        fin_co_subm_day=product_data.get("fin_co_subm_day", "000000000000"),
-                        max_limit=max_limit,
-                    )
 
-                    # join_way 데이터 제1정규화 처리
+                    # join_way 전처리 (리스트로 변환)
                     join_way_data = product_data.get("join_way", "Unknown")
                     if join_way_data in [None, ""]:
                         join_way_data = "Unknown"
                     join_way_list = [way.strip() for way in join_way_data.split(",")] # 문자열로 들어 온 여러 개의 데이터를 나눠서 저장
 
-                    for way in join_way_list:
-                        JoinWay.objects.create(product=product, way=way)
-
+                    
+                    # 상품 저장
+                    product_data_common = { # 상품 공통 필드
+                        "kor_co_nm" : product_data.get("kor_co_nm", "Unknown"),
+                        "fin_prdt_cd" : product_data.get("fin_prdt_cd", "Unknown"),
+                        "fin_prdt_nm" : product_data.get("fin_prdt_nm", "Unknown"),
+                        "join_way" : join_way_list,
+                        "mtrt_int" : product_data.get("mtrt_int", "Unknown"),
+                        "spcl_cnd" : product_data.get("spcl_cnd", "Unknown"),
+                        "join_deny" : product_data.get("join_deny", 1),
+                        "join_member" : product_data.get("join_member", "실명의 개인"),
+                        "etc_note" : product_data.get("etc_note", "Unknown"),
+                        "fin_co_subm_day" : product_data.get("fin_co_subm_day", "000000000000"),
+                    }
+                    if product_type == "deposit": # 저축상품 전용필드 추가
+                            max_limit=max_limit if product_type == "saving" else None, # only 저축상품 옵션
+                    
+                    product = model_class.objects.create(**product_data_common)                           
+                    
+                    # 옵션 저장
                     for option in option_list:
-
-                        # 금융상품 코드가 동일하지 않으면 건너뜀
+                        # 금융상품 코드가 동일하면 옵션 저장
                         if option.get("fin_prdt_cd") != product.fin_prdt_cd:
                             continue
 
@@ -102,7 +109,7 @@ def save_products(request):
                         if intr_rate in [None, ""]:
                             intr_rate = -1.00
 
-                        # 옵션 객체 생성 및 저장 -------------------------------------------------------- 여러번의 INSERT 발생 -> 오버헤드
+                        # 옵션 객체 생성 및 저장
                         ProductOption.objects.create(
                             product=product,
                             intr_rate_type_nm=option.get("intr_rate_type_nm", "Unknown"),
@@ -119,9 +126,14 @@ def save_products(request):
 @api_view(["GET"])
 def product_list(request):
     if request.method == "GET":
-        products = get_list_or_404(Product)
-        serializer = ProductSerializer(products, many=True)
-        return Response(serializer.data)
+        deposit_products = DepositProduct.objects.all()
+        saving_products = SavingProduct.objects.all()
+        if deposit_products or saving_products:
+            deposit_serializer = DepositProductSerializer(deposit_products, many=True)
+            saving_serializer = DepositProductSerializer(saving_products, many=True)
+            detail = {"deposits" : deposit_serializer.data, "savings": saving_serializer.data}
+            return Response(detail, status=status.HTTP_200_OK)
+        return Response({"detail" : "조회 가능한 상품이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
     # 상품 데이터 저장 (POST)
     # if request.method == "POST":
     #     serializer = ProductSerializer(data=request.data)
@@ -133,21 +145,19 @@ def product_list(request):
 # 단일 상품 조회 (GET)
 @api_view(["GET"])
 def product_detail(request, product_pk):
-    print("product pk:     ", product_pk)
-    if request.method == "GET":
-        product = get_object_or_404(Product, pk=product_pk)
-        options = ProductOption.objects.filter(product=product)
-        joinways = JoinWay.objects.filter(product=product)
+    pass
+#     if request.method == "GET":
+#         deposit_product = DepositProduct., pk=product_pk)
+#         options = ProductOption.objects.filter(product=product)
         
-        product_serializer = ProductSerializer(product)
-        options_serializer = ProductOptionSerializer(options, many=True)
-        joinways_serializer = JoinWaySerializer(joinways, many=True)
-        detail = {
-            "product" : product_serializer.data,
-            "options" : options_serializer.data,
-            "joinways" : joinways_serializer.data,
-        }
-        return Response(detail, status=status.HTTP_200_OK)
+#         product_serializer = ProductSerializer(product)
+#         product_serializer = ProductSerializer(product)
+#         options_serializer = ProductOptionSerializer(options, many=True)
+#         detail = {
+#             "product" : product_serializer.data,
+#             "options" : options_serializer.data,
+#         }
+#         return Response(detail, status=status.HTTP_200_OK)
 
 # 특정 상품의 옵션 리스트 출력
 # @api_view(["GET"])
