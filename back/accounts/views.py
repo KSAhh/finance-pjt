@@ -6,6 +6,7 @@ from rest_framework.authtoken.models import Token
 from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
+
 # 회원탈퇴/정보수정
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -83,4 +84,3 @@ class KakaoLogin(SocialLoginView):
             
             token = Token.objects.create(user=new_user)
             return Response({'key': token.key, "detail": "회원가입 성공"}, status=status.HTTP_201_CREATED)
-
