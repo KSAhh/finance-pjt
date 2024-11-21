@@ -1,0 +1,254 @@
+<template>
+    <div>
+      <h1>지도와 오버레이</h1>
+  
+      <!-- 지도 컨테이너 -->
+      <div ref="mapContainer" class="map-container">
+        <!-- 오버레이로 표시되지 않은 장소 목록 -->
+        <div class="overlay-list" v-if="overflowMarkers.length > 0">
+          <h2>표시되지 않은 장소 목록</h2>
+          <ul>
+            <li
+              v-for="place in overflowMarkers"
+              :key="place.id"
+              @click="moveToPlace(place)"
+            >
+              {{ place.place_name }}
+            </li>
+          </ul>
+        </div>
+      </div>
+  
+      <!-- 검색 입력 -->
+      <div class="search-container">
+        <input
+          v-model="keyword"
+          type="text"
+          placeholder="검색할 지역을 입력하세요"
+          @keyup.enter="searchPlaces"
+        />
+        <button @click="searchPlaces">검색</button>
+      </div>
+    </div>
+  </template>
+  
+  <script setup>
+  import { ref, onMounted } from "vue";
+  
+  const { VITE_KAKAO_JS_KEY } = import.meta.env;
+  const mapContainer = ref(null); // 지도 DOM 요소
+  const keyword = ref(""); // 검색어
+  let mapInstance = null; // 지도 객체
+  let ps = null; // 장소 검색 객체
+  const markers = []; // 마커 배열
+  const overflowMarkers = ref([]); // 지도에 표시되지 않은 마커 목록
+  
+  // Kakao 지도 API 로드 함수
+  const loadKakaoMap = async () => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${VITE_KAKAO_JS_KEY}&autoload=false&libraries=services`;
+      document.head.appendChild(script);
+  
+      script.onload = () => {
+        window.kakao.maps.load(() => {
+          resolve(window.kakao);
+        });
+      };
+    });
+  };
+  
+  // 마커 관리 함수
+  const removeAllMarkers = () => {
+    markers.forEach((marker) => marker.setMap(null)); // 모든 마커를 지도에서 제거
+    markers.length = 0; // 배열 초기화
+    overflowMarkers.value = []; // 리스트 초기화
+  };
+  
+  const displayMarker = (place) => {
+    const marker = new kakao.maps.Marker({
+      map: mapInstance,
+      position: new kakao.maps.LatLng(place.y, place.x),
+    });
+    markers.push(marker);
+  
+    const infoWindow = new kakao.maps.InfoWindow({
+      content: `
+        <div style="padding:5px;font-size:12px;position:relative;">
+          ${place.place_name}
+          <button style="position:absolute;top:5px;right:5px;" onclick="this.parentElement.style.display='none'">닫기</button>
+        </div>
+      `,
+      zIndex: 1,
+    });
+  
+    kakao.maps.event.addListener(marker, "click", () => {
+      infoWindow.open(mapInstance, marker);
+    });
+  };
+  
+  // 숨겨진 마커 갱신
+  const updateHiddenMarkers = () => {
+    overflowMarkers.value = []; // 숨겨진 마커 목록 초기화
+  
+    markers.forEach((marker, index) => {
+      if (!marker.getVisible()) {
+        overflowMarkers.value.push({
+          id: index,
+          place_name: marker.getTitle() || "장소 이름 없음",
+          position: marker.getPosition(),
+        });
+      }
+    });
+  };
+  
+  // 은행 검색
+  const searchBanksInBounds = () => {
+    if (!ps) return;
+  
+    ps.categorySearch(
+      "BK9",
+      (data, status, pagination) => {
+        if (status === kakao.maps.services.Status.OK) {
+          removeAllMarkers();
+  
+          const bounds = mapInstance.getBounds();
+          data.forEach((place) => {
+            const position = new kakao.maps.LatLng(place.y, place.x);
+  
+            // 지도 범위에 포함되면 표시
+            if (bounds.contain(position)) {
+              displayMarker(place);
+            }
+          });
+  
+          updateHiddenMarkers(); // 숨겨진 마커 갱신
+        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+          alert("주변에 검색된 은행이 없습니다.");
+        } else {
+          alert("은행 검색 중 오류가 발생했습니다.");
+        }
+      },
+      { useMapBounds: true }
+    );
+  };
+  
+  // 키워드 검색
+  const searchPlaces = () => {
+    if (!keyword.value.trim()) {
+      alert("검색어를 입력하세요.");
+      return;
+    }
+  
+    ps.keywordSearch(keyword.value, (data, status) => {
+      if (status === kakao.maps.services.Status.OK) {
+        const firstResult = data[0];
+        const center = new kakao.maps.LatLng(firstResult.y, firstResult.x);
+        mapInstance.setCenter(center);
+        searchBanksInBounds();
+      } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+        alert("키워드 검색 결과가 없습니다.");
+      } else {
+        alert("검색 중 오류가 발생했습니다.");
+      }
+    });
+  };
+  
+  // 지도 초기화
+  const initializeMap = async () => {
+    const kakao = await loadKakaoMap();
+  
+    const options = {
+      center: new kakao.maps.LatLng(37.503188, 127.044811),
+      level: 3,
+    };
+    mapInstance = new kakao.maps.Map(mapContainer.value, options);
+    ps = new kakao.maps.services.Places(mapInstance);
+  
+    kakao.maps.event.addListener(mapInstance, "bounds_changed", () => {
+      searchBanksInBounds();
+      updateHiddenMarkers(); // 숨겨진 마커 목록 갱신
+    });
+  
+    searchBanksInBounds();
+  };
+  
+  // 컴포넌트 마운트 시 지도 초기화
+  onMounted(() => {
+    initializeMap();
+  });
+  </script>
+  
+  <style scoped>
+  .map-container {
+    width: 100%;
+    height: 70vh;
+    border: 1px solid #ccc;
+    position: relative;
+  }
+  
+  /* 오버레이 스타일 */
+  .overlay-list {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 2;
+  }
+  
+  .overlay-list h2 {
+    font-size: 16px;
+    margin-bottom: 5px;
+  }
+  
+  .overlay-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .overlay-list li {
+    font-size: 14px;
+    margin-bottom: 5px;
+    cursor: pointer;
+  }
+  
+  .overlay-list li:hover {
+    text-decoration: underline;
+    color: blue;
+  }
+  
+  .search-container {
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  </style>
+  
