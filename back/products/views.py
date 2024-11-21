@@ -122,6 +122,7 @@ def save_products(request):
 
 
 # 전체 상품 목록 조회 (GET)
+# 고객 가입 상품 저장 (POST)
 @api_view(["GET"])
 def product_list(request):
     if request.method == "GET":
@@ -145,7 +146,7 @@ def product_list(request):
         
 # 단일 상품 조회 (GET)
 @api_view(["GET"])
-def product_detail(request, product_type, product_pk):
+def product_detail(request, product_pk, product_type):
     if request.method == "GET":
         """
         특정 금융상품의 옵션 데이터 조회
@@ -153,15 +154,17 @@ def product_detail(request, product_type, product_pk):
         :param product_id: 금융상품 ID
         """
         # Product 모델 설정
+        product_model = ""
         if product_type == "deposit":
             product_model = DepositProduct
         elif product_type == "saving":
             product_model = SavingProduct
         else:
-            return Response({"detail": "Invalid product type"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "product type은 deposit 또는 saving이여야 합니다."}, status=status.HTTP_400_BAD_REQUEST)
 
         # 금융상품 조회
-        product = product_model.objects.get(pk=product_pk)
+        product = get_object_or_404(product_model, pk=product_pk)
+
         # 관련 옵션 데이터 조회
         options = product.options.all() # 역참조
 
@@ -198,24 +201,49 @@ def product_detail(request, product_type, product_pk):
 #         "options": options_serializer.data
 #         }, status=status.HTTP_200_OK)
 
-# 유저 상품 조회 (GET)
-# 유저 상품 등록 (POST)
-# 유저 상품 수정 (PUT? PATCH?)
-# 유저 상품 삭제 (DELETE)
+# 유저 상품 전체 조회 (GET)
+# 유저 상품 생성 (POST)
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticated])  # 로그인 한 본인정보만 조회가능
-@authentication_classes([TokenAuthentication])
-def user_products(request, user_pk):
-    if request.user.id != user_pk:  # 유저 본인확인
-        return Response({"detail": "접근 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+@permission_classes([IsAuthenticated]) 
+def user_product_list(request):
     if request.method == "GET":
-        pass
+        products = get_list_or_404(UserProduct, user=request.user)
+        serializer = UserProductSerializer(products, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == "POST":
         """
         유저가 가입한 금융상품 저장.
         """
-        serializer = UserProductSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(user=request.user)
+        product_data = request.data
+        product_type = product_data.get("product_type")
+        product_pk = product_data.get("product_pk") 
+        deposit_product = None
+        saving_product = None
+        # requeset.data에 product_pk가 포함되어 있어야 연동 가능
+        if product_pk != None:
+            if product_type == "예금" or product_type == "deposit":
+                deposit_product = DepositProduct.objects.filter(pk=product_pk).first()
+            elif product_type == "저축" or product_type == "saving":
+                saving_product = SavingProduct.objects.filter(pk=product_pk).first()
+        
+        # 동일 은행, 같은 상품인 경우 저장하지 않음
+        fin_prdt_nm = product_data.get("fin_prdt_nm")
+        kor_co_nm = product_data.get("kor_co_nm")
+        if UserProduct.objects.filter(fin_prdt_nm=fin_prdt_nm, kor_co_nm=kor_co_nm).exists():
+            return Response({"detail": "동일한 상품이 이미 등록되어있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = UserProductSerializer(data=product_data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request.user, deposit_product=deposit_product, saving_product=saving_product)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 유저 상품 단일 조회 (GET)
+# 유저 상품 수정 (PATCH)
+# 유저 상품 삭제 (DELETE)
+@api_view(["GET", "PATCH", "DELETE"])
+@permission_classes([IsAuthenticated])
+def user_product_detail(request, product_pk):
+    pass
+    # if request.user.id != user/
+# if request.user.id != user_pk:  # 유저 본인확인
+#         return Response({"detail": "접근 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)

@@ -14,7 +14,7 @@ class AbstractProduct(models.Model):
     mtrt_int = models.TextField(default="Unknown")                                  # 만기 후 이자율 조건 설명
     spcl_cnd = models.TextField(default="Unknown")                                  # 우대 조건
     join_deny = models.IntegerField(default=1)                                      # 가입 제한(1: 제한없음, 2:서민전용, 3:일부제한)
-    join_member = models.TextField(default="실명의 개인")                            # 가입대상
+    join_member = models.TextField(default="실명의 개인")                              # 가입대상
     etc_note = models.TextField(default="Unknown")                                  # 기타 유의사항
     fin_co_subm_day = models.CharField(max_length=12, default="000000000000")       # 금융회사 제출일 (YYYYMMDDHH24MI 형식)
     max_limit = models.DecimalField(max_digits=15, decimal_places=2, default=-1.00) # 최고한도
@@ -51,22 +51,17 @@ class ProductOption(models.Model):
 # 유저가 가입한 금융상품
 class UserProduct(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)  # 유저 참조
-    product_type = models.CharField(max_length=50, choices=(("deposit", "Deposit"), ("saving", "Saving"), ("etc", "Etc")), default="etc")  # 상품 유형
-    
+    product_type = models.CharField(max_length=50)  # 상품 유형
+
     # 예금/적금/기타 상품 중 택1
     deposit_product = models.ForeignKey(DepositProduct, null=True, blank=True, on_delete=models.SET_NULL, related_name="user_products")  # 예금 상품
     saving_product = models.ForeignKey(SavingProduct, null=True, blank=True, on_delete=models.SET_NULL, related_name="user_products")  # 적금 상품
-    etc_product = models.CharField(null=True, blank=True, max_length=50, default="Unknown")
 
-    balance = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)  # 상품에 남은 잔액
+    kor_co_nm = models.CharField(max_length=255)                 # 금융회사명
+    fin_prdt_nm = models.CharField(max_length=255)               # 금융 상품명
+    balance = models.DecimalField(max_digits=20, decimal_places=0)  # 상품에 남은 잔액
     start_date = models.DateField(null=True, blank=True)    # 상품 가입일
     end_date = models.DateField(null=True, blank=True)      # 상품 만기일
-    status = models.CharField(
-            max_length=20,
-            choices=(("active", "Active"), ("completed", "Completed"), ("canceled", "Canceled")),
-            default="active",
-        )  # 상태 (active, completed, canceled)
-    
 
     def __str__(self):
         product_name = (
