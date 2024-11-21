@@ -21,9 +21,10 @@ import environ
 env = environ.Env(DEBUG=(bool, True))                           # 환경변수 저장 가능한 상태로 설정
 environ.Env.read_env(env_file=os.path.join(BASE_DIR, '.env'))   # 환경변수 읽어올 파일
 
-KAKAO_LOGIN_API_KEY = env("KAKAO_LOGIN_API_KEY")                # 카카오로그인
+KAKAO_API_KEY = env("KAKAO_API_KEY")                # 카카오로그인
 DJANGO_SECRET_KEY = env("DJANGO_SECRET_KEY")
 FSS_API_KEY = env("FSS_API_KEY")                                # 금융감독원
+KAKAO_JS_KEY = env("KAKAO_JS_KEY")                              # 카카오 JS
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -76,7 +77,7 @@ SITE_ID = 1  # registration
 SOCIALACCOUNT_PROVIDERS = {
     'kakao': {
         'APP': {
-            'client_id': KAKAO_LOGIN_API_KEY,  # Kakao Login REST API 키
+            'client_id': KAKAO_API_KEY,  # Kakao Login REST API 키
             'secret': '', 
             "key": "",
         }
