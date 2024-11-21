@@ -1,8 +1,8 @@
 <!-- src/views/LoanPageView.vue -->
 <template>
-    <div class="loan-page container mx-auto p-4">
+    <div class="bg-gray-50 min-h-screen">
       <!-- 필터 섹션 -->
-      <FilterSection @filter-changed="onFilterChanged" :initial-category="initialCategory" />
+      <FilterSection class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-10" @filter-changed="onFilterChanged" :initial-category="initialCategory" />
   
       <!-- 상품 목록 -->
       <ProductList :filters="selectedFilters" />
@@ -71,8 +71,6 @@
   </script>
   
   <style scoped>
-  .loan-page {
-    /* Tailwind CSS를 사용하여 스타일링 */
-  }
+
   </style>
   
