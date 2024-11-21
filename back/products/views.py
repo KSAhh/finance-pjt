@@ -150,7 +150,7 @@ def product_detail(request, product_pk, product_type):
     if request.method == "GET":
         """
         특정 금융상품의 옵션 데이터 조회
-        :param product_type: 상품 유형 ('deposit' 또는 'saving')
+        :param product_type: 상품 유형 ("deposit" 또는 "saving")
         :param product_id: 금융상품 ID
         """
         # Product 모델 설정
@@ -243,7 +243,29 @@ def user_product_list(request):
 @api_view(["GET", "PATCH", "DELETE"])
 @permission_classes([IsAuthenticated])
 def user_product_detail(request, product_pk):
-    pass
-    # if request.user.id != user/
-# if request.user.id != user_pk:  # 유저 본인확인
-#         return Response({"detail": "접근 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+    product = get_object_or_404(UserProduct, pk=product_pk)
+    
+    # 유저 본인 상품만 확인 가능
+    if product.user.id != request.user.id: 
+        return Response({"detail": "접근 권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+    
+    if request.method == "GET":
+        serializer = UserProductSerializer(product)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    elif request.method == "PATCH":
+
+        # 상품의 타입에 따라 수정 가능한 필드를 제한
+        product_type = product.product_type
+        data = request.data
+
+        # 연동된 상품이 있는 경우, 데이터 일부 변경만 가능
+        if product.deposit_product or product.saving_product:
+            if 'kor_co_nm' in data or 'fin_prdt_nm' in data:
+                return Response({"detail": "연동된 상품이 있어 금융기관과 상품명이 변경될 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        # 연동된 상품 없는 경우, 변경 가능 필드 증가
+
+        serializer = UserProductSerializer(product, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
