@@ -1,41 +1,27 @@
 <template>
-    <div>
-      <h1>지도와 오버레이</h1>
-      </div>
-  
-      <div class="map_wrap">
-
-      <!-- 지도 컨테이너 -->
-      <div ref="mapContainer" id="map" class="map-container">
-        
-
-        <!-- 검색어 목록추가 -->
-        <div class="option">
-          <div>
-                <form onsubmit="searchPlaces(); return false;">
-                    키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15"> 
-                    <button type="submit">검색하기</button> 
-                </form>
-            </div>
-        </div>
-        <hr>
-        
-        <div id="pagination"></div>
-
-      </div>
+  <h1>주변 은행 찾기<hr></h1>
+<!-- 지도 컨테이너 -->
+ <div id="page-container">
+   <div ref="mapContainer" class="map-container"></div>
+   <!-- 검색 입력 및 결과 -->
+   
+   <div class="search-list">
+    <div class="search-container">
+     <input
+     v-model="keyword"
+     type="text"
+     placeholder="검색할 지역을 입력하세요"
+     @keyup.enter="searchPlaces"
+     />
+     <button @click="searchPlaces">검색</button>
+    </div>
+    <div class="alert-content">{{ alertContent }}</div>
   </div>
-      <!-- 검색 입력 -->
-      <div class="search-container">
-        <input
-          v-model="keyword"
-          type="text"
-          placeholder="검색할 지역을 입력하세요"
-          @keyup.enter="searchPlaces"
-        />
-        <button @click="searchPlaces">검색</button>
-      </div>
-      <div v-if="alertContent">{{ alertContent }}</div>
-  </template>
+ </div>
+
+
+  
+</template>
   
   <script setup>
   import { ref, onMounted, nextTick } from "vue";
@@ -128,7 +114,7 @@
   // 키워드 검색
   const searchPlaces = () => {
     if (!keyword.value.trim()) {
-      alertContent.value = `"${keyword.value}" 에 대한 은행 검색 결과 총 0건`
+      alertContent.value = ""
       return;
     }
   
@@ -180,75 +166,74 @@ const displayPlaces = (places) => {
   </script>
   
   <style scoped>
+
+  h1 {
+    margin: 20px auto;
+    max-width: 1200px;
+    font-size: 2rem;
+  }
+
+  #page-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    max-width: 1200px; /* 전체 영역 크기 확대 */
+    margin: auto;
+    gap: 20px;
+  }
+
+
   .map-container {
-    width: 100%;
+    flex: 3; /* 지도 영역을 더 크게 설정 */
     height: 70vh;
     border: 1px solid #ccc;
     position: relative;
+    margin-bottom: 100px;
+    min-width: 700px; /* 최소 너비 설정 */
   }
-  
-  /* 오버레이 스타일 */
-  .overlay-list {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 2;
+
+  .search-list {
+    display: flex;
+    flex-direction: column;
   }
-  
-  .overlay-list h2 {
-    font-size: 16px;
-    margin-bottom: 5px;
-  }
-  
-  .overlay-list ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .overlay-list li {
-    font-size: 14px;
-    margin-bottom: 5px;
-    cursor: pointer;
-  }
-  
-  .overlay-list li:hover {
-    text-decoration: underline;
-    color: blue;
-  }
-  
+
   .search-container {
-    margin: 10px 0;
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 2px;
   }
-  
-  input[type="text"] {
+
+  .search-container input[type="text"] {
     width: 300px;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 5px 0 0 5px; 
   }
-  
-  button {
+  input:focus{
+    outline: none;
+  }
+  .search-container button {
     padding: 10px 20px;
-    background-color: #4caf50;
+    background-color: #a1d0ec;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 0 5px 5px 0;
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
-  
-  button:hover {
-    background-color: #45a049;
+
+  .search-container button:focus {
+    outline: none;
   }
-  </style>
+
+  .search-container button:hover {
+    background-color: #3174f2;
+  }
+
+  .alert-content{
+    margin-top: 10px;
+    text-align: center;
+  }
+</style>
   
