@@ -283,7 +283,7 @@ def user_product_detail(request, product_pk):
         print(data)
         print(data.get("product_type"), "?")
         if data.get("product_type", product_type) not in ["예금", "deposit", "적금", "saving", "기타", "etc", ""]:
-            return Response({"detail" : "지원가능한 타입의 상품이 아닙니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail" : "지원가능한 타입(예금, 적금, 기타)의 상품이 아닙니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         
         # 날짜제한
@@ -292,17 +292,25 @@ def user_product_detail(request, product_pk):
         end_date = data.get("end_date", product.end_date)
 
         # 현재 날짜 확인
-        # 문자열을 datetime.date로 변환
-        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
-        if end_date is not None:
-            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
-
+        # 문자열인 경우만 datetime.date로 변환
+        try:
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+            if isinstance(end_date, str) and end_date is not None:
+                end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+        except ValueError as e:
+            return Response({"detail": "날짜 형식(%Y-%m-%d)이 맞지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
         if start_date > date.today():
-            return Response({"detail" : "start_date는 미래일자를 지정할 수 없습니다."})
+            return Response({"detail" : "start_date는 오늘보다 미래를 지정할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
         if end_date and start_date > end_date:
-            return Response({"detail" : "start_date는 end_date보다 미래일 수 없습니다."})
+            return Response({"detail" : "start_date는 end_date보다 미래일 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = UserProductSerializer(product, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    elif request.method == "DELETE":
+        product.delete()
+        product.save()
+        return Response({"detail" : "Successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
