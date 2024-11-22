@@ -98,10 +98,9 @@ REST_FRAMEWORK = {
 
 # REST-AUTH registration 기본 Serializer
 REST_AUTH = {
-    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
-    'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserDetailsSerializer',
+    'REGISTER_SERIALIZER' : 'accounts.serializers.CustomRegisterSerializer',
+    'USER_DETAILS_SERIALIZER' : 'accounts.serializers.CustomUserDetailsSerializer',
 }
-
 ACCOUNT_ADAPTER = 'accounts.models.CustomAccountAdapter'
 
 # Django Allauth

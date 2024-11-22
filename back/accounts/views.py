@@ -17,6 +17,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+# 유저탈퇴
 class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated]
 
