@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from datetime import date
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -60,8 +61,8 @@ class UserProduct(models.Model):
     kor_co_nm = models.CharField(max_length=255)                 # 금융회사명
     fin_prdt_nm = models.CharField(max_length=255)               # 금융 상품명
     balance = models.DecimalField(max_digits=20, decimal_places=0)  # 상품에 남은 잔액
-    start_date = models.DateField(null=True, blank=True)    # 상품 가입일
-    end_date = models.DateField(null=True, blank=True)      # 상품 만기일
+    start_date = models.DateField(blank=True, default=date(1, 1, 1))    # 상품 가입일 (기본값 : 서기 1년 1월 1일)
+    end_date = models.DateField(blank=True, default=date(9999, 12, 31))      # 상품 만기일 (기본값 : 서기 9999년 12월 31일)
 
     def __str__(self):
         product_name = (
