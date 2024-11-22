@@ -71,16 +71,39 @@
         @remove-filter="removeFilter"
         class="mt-6 border rounded-lg p-4 bg-gray-100"
       />
+    <!-- 필터 및 정렬 옵션 버튼 -->
+
+      <!-- 기본 저축금리 정렬 -->
+
+      <div class="flex space-x-4">
+        <button
+          @click="toggleSort('intr_rate')"
+          class="py-2 px-4 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 flex items-center"
+        >
+          기본 저축금리순
+          <span class="ml-2">{{ sortState.intr_rate === 'asc' ? '▲' : '▼' }}</span>
+        </button>
+        <button
+          @click="toggleSort('intr_rate2')"
+          class="py-2 px-4 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 flex items-center"
+        >
+          최고 우대금리순
+          <span class="ml-2">{{ sortState.intr_rate2 === 'asc' ? '▲' : '▼' }}</span>
+        </button>
+      </div>
 
       <!-- 상품 리스트 -->
       <ProductList
-      :products="filteredProductsByCategory"
-      :isLoading="productStore.isLoading"
-    />
+    :products="sortedProducts"
+    :isLoading="productStore.isLoading"
+    v-model:currentPage="currentPage"
+    :itemsPerPage="itemsPerPage"
+    
+  />
     </div>
   </div>
 </template>
-
+<!-- @sortRequested="handleSortRequested" -->
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -92,11 +115,34 @@ import SelectedFilters from "@/components/Savings/SavingPage/SelectedFilters.vue
 import ProductList from "@/components/Savings/SavingPage/ProductList.vue";
 import { useProductStore } from "@/stores/productstore";
 import { useBankNameStore } from "@/stores/banknamestore";
+const currentPage = ref(1);
+const itemsPerPage = 5;
+// 은행 캐러셀 관련 선언
 const bankNameStore = useBankNameStore();
 const productStore = useProductStore();
 const banks = computed(() => bankNameStore.banks);
 const savingsBanks = computed(() => bankNameStore.savingsBanks);
 const bankList = computed(() => bankNameStore.allBanks);
+
+
+const sortState = ref({
+  intr_rate: 'asc', // 기본 저축금리순
+  intr_rate2: 'asc', // 최고 우대금리순
+});
+
+
+
+// 정렬 상태 토글
+const toggleSort = (key) => {
+  sortState.value[key] = sortState.value[key] === 'asc' ? 'desc' : 'asc';
+  console.log(sortState.value[key])
+};
+
+
+
+
+
+
 const selectCategory = (category) => {
   console.log("선택된 카테고리:", category); // 콘솔에 로그 출력
   selectedCategory.value = category;
@@ -114,8 +160,34 @@ const filteredProductsByCategory = computed(() => {
   } else if (selectedCategory.value === "적금") {
     return productStore.products.savings || [];
   }
+  console.log(filteredProductsByCategory.value)
   return [];
 });
+
+
+const sortedProducts = computed(() => {
+  const currentProducts = filteredProductsByCategory.value;
+  const sortKey = Object.keys(sortState.value).find((key) => sortState.value[key]);
+  const sortOrder = sortState.value[sortKey];
+
+
+  if (!sortKey) return currentProducts;
+
+  return [...currentProducts].sort((a, b) => {
+    if (sortOrder === 'asc') {
+      return a[sortKey] - b[sortKey];
+    } else {
+      return b[sortKey] - a[sortKey];
+    }
+  });
+});
+
+
+
+
+
+  // console.log(sortedProducts)
+
 
 const route = useRoute();
 const router = useRouter();
