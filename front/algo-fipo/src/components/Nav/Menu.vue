@@ -36,8 +36,8 @@ const menuItems = reactive([
     dropdownContent: ["대출 알아보기"],
   },
   {
-    label: "연금저축",
-    dropdownContent: ["상품 1", "상품 2", "상품 3"],
+    label: "은행 지도",
+    dropdownContent: ["주변 은행 찾기", "상품 2", "상품 3"],
   },
   {
     label: "환율",
@@ -65,6 +65,11 @@ const handleItemClick = (item) => {
       (content) => content.label === item.label
     )?.category;
     router.push({ name: "SavingsPage", query: { category } });
+  } else if (selectedItem.label === "은행 지도") {
+    const category = selectedItem.dropdownContent.find(
+      (content) => content.label === item.label
+    )?.category;
+    router.push({ name: "BankMap", query: { category } });
   }
   closeDropdown(); // 드롭다운 닫기
 };
@@ -75,6 +80,9 @@ const navigateToMainPage = (label) => {
     router.push({ name: "LoanPage" });
   } else if (label === "예적금") {
     router.push({ name: "SavingsPage", query: { category: "예금" } });
+  }
+    else if (label === "은행 지도") {
+    router.push({ name: "BankMap"});
   }
 };
 </script>
