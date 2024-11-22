@@ -10,12 +10,12 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'algofipo_pjt.settings')
 django.setup()
 
 # 이제 Django ORM을 사용할 수 있습니다.
-from products.models import JoinWay
+from products.models import SavingProduct
 
 # 데이터 가져오기
-query = JoinWay.objects.all().values()
+query = DepositProduct.objects.all().values()
 df = pd.DataFrame.from_records(query)
 
 # 엑셀로 내보내기
-df.to_excel('output.xlsx', index=False)
+df.to_excel('DepositProduct.xlsx', index=False)
 print("데이터가 'output.xlsx' 파일로 저장되었습니다.")
