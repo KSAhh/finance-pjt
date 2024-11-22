@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from dj_rest_auth.serializers import UserDetailsSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 
@@ -69,3 +68,5 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         if value:  # 비밀번호가 요청에 포함된 경우
             return make_password(value)
         return value
+
+

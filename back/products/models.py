@@ -32,6 +32,12 @@ class SavingProduct(AbstractProduct):
     options = GenericRelation('ProductOption')  # GenericRelation 추가 (역참조 위함)
 
 
+# 가입 방법
+class JoinWay(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="join_ways")
+    way = models.CharField(max_length=255)
+
+
 # 금융상품 옵션
 class ProductOption(models.Model):
     # GenericForeignKey를 위한 필드
