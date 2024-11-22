@@ -10,7 +10,17 @@ import LoanPageView from "@/views/LoanPageView.vue";
 import MyPageView from "@/views/MyPageView.vue";
 import FAQView from "@/views/FAQView.vue";
 import CustomerSupportView from "@/views/CustomerSupportView.vue";
-
+import BankMapView from "@/views/BankMapView.vue";
+import MyCommentsView from "@/views/MyCommentsView.vue";
+import MyFinancialProductView from "@/views/MyFinancialProductView.vue";
+import MyInquireView from "@/views/MyInquireView.vue";
+import MyInfomationEditView from "@/views/MyInfomationEditView.vue";
+import ContactManagement from "@/components/MyInfoEdit/ContactManagement.vue";
+import PasswordEdit from "@/components/MyInfoEdit/PasswordEdit.vue";
+import FinanceInfoEdit from "@/components/MyInfoEdit/FinanceInfoEdit.vue";
+import DataAuthorization from "@/components/MyInfoEdit/DataAuthorization.vue";
+import Notifications from "@/components/MyInfoEdit/Notifications.vue";
+import AccountDeletion from "@/components/MyInfoEdit/AccountDeletion.vue";
 
 
 const router = createRouter({
@@ -74,8 +84,72 @@ const router = createRouter({
       name: 'CustomerSupport',
       component: CustomerSupportView,
     },
-  ],
-});
+    {
+      path: '/bankmap',
+      name: 'BankMap',
+      component: BankMapView,
+    },
+    {
+      path: '/mycomments',
+      name: 'MyComments',
+      component: MyCommentsView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/myfinancialproduct',
+      name: 'MyFinancialProduct',
+      component: MyFinancialProductView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/myinquire',
+      name: 'MyInquire',
+      component: MyInquireView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit",
+      name: "MyInfoEdit",
+      component: MyInfomationEditView,
+      meta: { requiresAuth: true }, // 인증 요구
+    },
+      {
+        path: "/myinfoedit/contact-management",
+        name: "ContactManagement",
+        component: ContactManagement,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/myinfoedit/password-edit",
+        name: "PasswordEdit",
+        component: PasswordEdit,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/myinfoedit/finance-info-edit",
+        name: "FinanceInfoEdit",
+        component: FinanceInfoEdit,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/myinfoedit/data-authorization",
+        name: "DataAuthorization",
+        component: DataAuthorization,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/myinfoedit/notifications",
+        name: "Notifications",
+        component: Notifications,
+        meta: { requiresAuth: true },
+      },
+      {
+        path: "/myinfoedit/account-deletion",
+        name: "AccountDeletion",
+        component: AccountDeletion,
+        meta: { requiresAuth: true },
+      },
+]});
 
 router.beforeEach((to, from, next) => {
   const isLoggedIn = !!localStorage.getItem("key"); // 로그인 여부 확인 (key가 있는지 확인)
