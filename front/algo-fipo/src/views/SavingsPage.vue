@@ -1,47 +1,47 @@
-<!-- :preferences="preferences"
-:selected-preferences="selectedPreferences" -->
 <template>
   <div class="bg-gray-50 min-h-screen">
     <!-- 컨텐츠 전체를 감싸는 박스 -->
     <div class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-10">
       <!-- 카테고리 선택 -->
       <CategorySelector
-        :categories="categories"
-        :selected-category="selectedCategory"
+      :categories="categories"
+      :selected-category="selectedCategory"
         @select-category="selectCategory"
       />
-
-
-    <!-- 은행 캐러셀 -->
-    <BankCarousel
+      
+      
+      <!-- 은행 캐러셀 -->
+      <BankCarousel
       :banks="bankList"
       :selected-banks="selectedBanks"
       @select-bank="toggleBank"
       class="mt-8"
-    />
-
+      />
+      
       <!-- 버튼들과 필터 선택 섹션을 감싸는 컨테이너 -->
       <div class="mt-8 flex items-center justify-between">
         <!-- 왼쪽의 보이지 않는 요소 -->
         <div class="w-32"></div>
-
-<!-- 필터 선택 섹션 -->
-<div class="flex-1 flex justify-center">
-  <FilterSelector
-    :filters="filters"
-    :period-options="periodOptions"
+        
+        <!-- 필터 선택 섹션 -->
+        <div class="flex-1 flex justify-center whitespace-unwrap">
+          <FilterSelector
+          :filters="filters"
+          :period-options="periodOptions"
     :product-types="productTypes"
     :selected-category="selectedCategory"
     :interest-rate-types="interestRateTypes"
     :join-methods="joinMethods"
     @update-filters="updateFilters"
     @update-preferences="updatePreferences"
-  />
-</div>
+    />
+  </div>
+  <!-- :preferences="preferences"
+  :selected-preferences="selectedPreferences" (위 필터섹션에서 제외)--> 
 
-
-        <!-- 필터 버튼 -->
-        <div class="flex flex-col items-end space-y-2">
+  
+  <!-- 필터 버튼 -->
+  <div class="flex flex-col items-end space-y-2">
           <button
             @click="showFilterModal = true"
             class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
@@ -197,7 +197,17 @@ const sortedProducts = computed(() => {
 
   // 1. 필터링
   const filteredProducts = currentProducts.filter((product) => {
-  // 기간 필터링
+  
+  // 은행 이름 필터링
+  const bankMatch =
+  selectedBanks.value.length === 0 || // 은행 필터가 없거나
+  selectedBanks.value.some((selectedBankId) => {
+    const bankData = [...banks.value, ...savingsBanks.value];
+    const selectedBank = bankData.find((bank) => bank.id === selectedBankId);
+    return selectedBank && product.kor_co_nm.includes(selectedBank.name); // 포함 관계 확인
+  });
+  
+    // 기간 필터링
   const durationMatch = 
     filters.value.durations.length === 0 || // 필터가 없거나
     product.options.some((option) =>
@@ -219,7 +229,7 @@ const sortedProducts = computed(() => {
     );
 
   // 최종 매칭 결과
-  return durationMatch && rateTypeMatch && joinWayMatch;
+  return bankMatch && durationMatch && rateTypeMatch && joinWayMatch;
   });
 
 
@@ -277,19 +287,19 @@ const filters = ref({
   joinMethods: [], // 가입 방법 필터
 });
 
-const productTypes = {
-  예금: ["특판", "방문없이가입", "누구나가입"],
-  적금: [
-    "특판",
-    "방문없이가입",
-    "청년적금",
-    "군인적금",
-    "주택청약",
-    "자유적금",
-    "정기적금",
-    "청년도약계좌",
-  ],
-};
+// const productTypes = {
+//   예금: ["특판", "방문없이가입", "누구나가입"],
+//   적금: [
+//     "특판",
+//     "방문없이가입",
+//     "청년적금",
+//     "군인적금",
+//     "주택청약",
+//     "자유적금",
+//     "정기적금",
+//     "청년도약계좌",
+//   ],
+// };
 // const preferences = ["비대면 가입", "은행 앱 사용", "급여 연동", "추천, 쿠폰"];
 // const selectedPreferences = ref([]);우대조건
 
@@ -316,9 +326,9 @@ const activeFiltersWithBanks = computed(() => {
 
 
 
-  return [...bankFilters, ...savingsBankFilters, ...durationFilters, ...typeFilters, ...preferenceFilters];
+  return [...bankFilters, ...savingsBankFilters, ...durationFilters];
 });
-
+// ...preferenceFilters(위 리턴에서 제외)...typeFilters,
 const updateFilters = (newFilters) => {
   filters.value = {
     ...filters.value,
@@ -355,9 +365,9 @@ const removeFilter = (filter) => {
   filters.value.durations = filters.value.durations.filter(
     (duration) => `기간: ${duration}` !== filter
   );
-  filters.value.types = filters.value.types.filter(
-    (type) => `상품 유형: ${type}` !== filter
-  );
+  // filters.value.types = filters.value.types.filter(
+  //   (type) => `상품 유형: ${type}` !== filter
+  // );
   // selectedPreferences.value = selectedPreferences.value.filter(
   //   (pref) => `우대 조건: ${pref}` !== filter
   // );
@@ -381,17 +391,24 @@ const removeFilter = (filter) => {
 
 const initialFilterState = {
   filters: { durations: [], types: [] },
-  selectedPreferences: [],
+  // selectedPreferences: [],
   selectedBanks: [],
   showFilterModal: false,
 };
 
 const resetFilters = () => {
   Object.assign(filters.value, initialFilterState.filters);
-  selectedPreferences.value = [...initialFilterState.selectedPreferences];
   selectedBanks.value = [...initialFilterState.selectedBanks];
   showFilterModal.value = initialFilterState.showFilterModal;
 };
+// selectedPreferences.value = [...initialFilterState.selectedPreferences];
+
+
+// const resetFilters = () => {
+//   Object.assign(filters.value, initialFilterState.filters);
+//   selectedBanks.value = []; // 은행 선택 초기화
+//   showFilterModal.value = initialFilterState.showFilterModal;
+// };
 
 onMounted(() => {
   updateSelectedCategoryFromRoute();

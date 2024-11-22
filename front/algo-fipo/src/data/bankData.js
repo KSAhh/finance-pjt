@@ -1,27 +1,58 @@
 // src/data/bankData.js
+import KB from "@/assets/BankLogo/bankName=KB국민.svg";
+import IBK from "@/assets/BankLogo/bankName=IBK기업.svg";
+import KBA from "@/assets/BankLogo/bankName=KB증권.svg";
+import KDB from "@/assets/BankLogo/bankName=KDB산업.svg";
+import KEB from "@/assets/BankLogo/bankName=KEB외환.svg";
+import NH from "@/assets/BankLogo/bankName=NH농협.svg";
+import NHI from "@/assets/BankLogo/bankName=NH투자증권.svg";
+import SBI from "@/assets/BankLogo/bankName=SBI저축.svg";
+import SC from "@/assets/BankLogo/bankName=SC제일.svg";
+import KN from "@/assets/BankLogo/bankName=경남.svg";
+import GJ from "@/assets/BankLogo/bankName=광주.svg";
+import DG from "@/assets/BankLogo/bankName=대구.svg";
+import BS from "@/assets/BankLogo/bankName=부산.svg";
+import FOREST from "@/assets/BankLogo/bankName=산림조합.svg";
+import NEW from "@/assets/BankLogo/bankName=새마을.svg";
+import SH from "@/assets/BankLogo/bankName=수협.svg";
+import SINHAN from "@/assets/BankLogo/bankName=신한.svg";
+import SINHY from "@/assets/BankLogo/bankName=신협.svg";
+import CITY from "@/assets/BankLogo/bankName=씨티.svg";
+import URI from "@/assets/BankLogo/bankName=우리.svg";
+import POST from "@/assets/BankLogo/bankName=우정사업본부.svg";
+import SB from "@/assets/BankLogo/bankName=저축은행.svg";
+import JB from "@/assets/BankLogo/bankName=전북.svg";
+import JJ from "@/assets/BankLogo/bankName=제주.svg";
+import K from "@/assets/BankLogo/bankName=케이뱅크.svg";
+import TOSS from "@/assets/BankLogo/bankName=토스뱅크.svg";
+import KAKAO from "@/assets/BankLogo/bankName=카카오뱅크.svg";
+import HANA from "@/assets/BankLogo/bankName=하나.svg";
+import HANTU from "@/assets/BankLogo/bankName=한국투자증권.svg";
+
+
 
 // 은행 데이터
 export const banks = [
-    { id: "BK_KB_Symbol", name: "KB국민", logo: null },
-    { id: "BK_SHINHAN_Symbol", name: "신한", logo: null },
-    { id: "BK_HANA_Symbol", name: "하나", logo: null },
-    { id: "BK_WOORI_Symbol", name: "우리", logo: null },
-    { id: "BK_NH_Symbol", name: "NH농협", logo: null },
-    { id: "BK_IBK_Symbol", name: "IBK기업", logo: null },
-    { id: "BK_KDB_Symbol", name: "KDB산업", logo: null },
-    { id: "BK_CU_Symbol", name: "신협", logo: null },
-    { id: "BK_SC_Symbol", name: "SC제일", logo: null },
-    { id: "BK_EPOST_Symbol", name: "우정사업본부", logo: null },
-    { id: "BK_BUSAN_Symbol", name: "부산", logo: null },
+    { id: "BK_KB_Symbol", name: "KB국민", logo: KB},
+    { id: "BK_SHINHAN_Symbol", name: "신한", logo: SINHAN },
+    { id: "BK_HANA_Symbol", name: "하나", logo: HANA },
+    { id: "BK_WOORI_Symbol", name: "우리", logo: URI },
+    { id: "BK_NH_Symbol", name: "NH농협", logo: NH },
+    { id: "BK_IBK_Symbol", name: "IBK기업", logo: IBK },
+    { id: "BK_KDB_Symbol", name: "KDB산업", logo: KDB },
+    { id: "BK_CU_Symbol", name: "신협", logo: SINHY },
+    { id: "BK_SC_Symbol", name: "SC제일", logo: SC },
+    { id: "BK_EPOST_Symbol", name: "우정사업본부", logo: POST },
+    { id: "BK_BUSAN_Symbol", name: "부산", logo: BS },
     { id: "BK_DAEGU_Symbol", name: "iM뱅크", logo: null },
-    { id: "BK_SH_Symbol", name: "SH수협", logo: null },
-    { id: "BK_KYOUNGNAM_Symbol", name: "경남", logo: null },
-    { id: "BK_KAKAO_Symbol", name: "카카오뱅크", logo: null },
-    { id: "BK_KWANGJU_Symbol", name: "광주", logo: null },
-    { id: "BK_TOSS_Symbol", name: "토스뱅크", logo: null },
-    { id: "BK_JEONBUK_Symbol", name: "전북", logo: null },
-    { id: "BK_K_Symbol", name: "케이뱅크", logo: null },
-    { id: "BK_JEJU_Symbol", name: "제주", logo: null },
+    { id: "BK_SH_Symbol", name: "SH수협", logo: SH },
+    { id: "BK_KYOUNGNAM_Symbol", name: "경남", logo: KN },
+    { id: "BK_KAKAO_Symbol", name: "카카오뱅크", logo: KAKAO },
+    { id: "BK_KWANGJU_Symbol", name: "광주", logo: GJ },
+    { id: "BK_TOSS_Symbol", name: "토스뱅크", logo: TOSS },
+    { id: "BK_JEONBUK_Symbol", name: "전북", logo: JB },
+    { id: "BK_K_Symbol", name: "케이뱅크", logo: K },
+    { id: "BK_JEJU_Symbol", name: "제주", logo: JJ },
   ];
   
   // 저축은행 데이터
@@ -34,8 +65,8 @@ export const banks = [
     { id: "SB_IBK_Symbol", name: "IBK저축", logo: null },
     { id: "SB_JT_Symbol", name: "JT저축", logo: null },
     { id: "SB_JTCHINAE_Symbol", name: "JT친애저축", logo: null },
-    { id: "SB_KB_Symbol", name: "KB저축", logo: null },
-    { id: "SB_NH_Symbol", name: "NH저축", logo: null },
+    { id: "SB_KB_Symbol", name: "KB저축", logo: KB },
+    { id: "SB_NH_Symbol", name: "NH저축", logo: NH },
     { id: "SB_OK_Symbol", name: "OK저축", logo: null },
     { id: "SB_OSB_Symbol", name: "OSB저축", logo: null },
     { id: "SB_SBI_Symbol", name: "SBI저축", logo: null },
