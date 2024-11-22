@@ -1,3 +1,4 @@
+
 <template>
   <div class="flex flex-wrap items-start justify-center gap-8">
     <!-- 기간 선택 -->
@@ -17,7 +18,7 @@
     </div>
 
     <!-- 상품 유형 선택 -->
-    <div class="flex flex-col items-center">
+    <!-- <div class="flex flex-col items-center">
       <label class="font-semibold text-gray-700 mb-2">상품 유형:</label>
       <div class="flex flex-col space-y-1">
         <div
@@ -34,10 +35,10 @@
           <label class="text-gray-700">{{ type }}</label>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- 우대 조건 선택 -->
-    <div class="flex flex-col items-center">
+    <!-- <div class="flex flex-col items-center">
       <label class="font-semibold text-gray-700 mb-2">우대 조건:</label>
       <div class="flex flex-col space-y-1">
         <div v-for="pref in preferences" :key="pref" class="flex items-center">
@@ -50,7 +51,7 @@
           <label class="text-gray-700">{{ pref }}</label>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- 단리/복리 선택 -->
     <div class="flex flex-col items-center">
@@ -95,9 +96,9 @@ const props = defineProps({
   filters: { type: Object, required: true },
   periodOptions: { type: Array, required: true },
   productTypes: { type: Object, required: true },
-  selectedCategory: { type: String, required: true },
-  preferences: { type: Array, default: () => [] },
-  selectedPreferences: { type: Array, default: () => [] },
+  selectedCategory: { type: String, required: true },//이건 지우면안됨
+  // preferences: { type: Array, default: () => [] },
+  // selectedPreferences: { type: Array, default: () => [] },
   interestRateTypes: { type: Array, required: true },
   joinMethods: { type: Array, required: true },
 });
@@ -108,12 +109,12 @@ const emit = defineEmits(["update-filters", "update-preferences"]);
 // 로컬 상태 정의
 const localFilters = reactive({
   durations: [...props.filters.durations],
-  types: [...props.filters.types],
+  // types: [...props.filters.types],
   interestRateTypes: [...props.filters.interestRateTypes || []],
   joinMethods: [...props.filters.joinMethods || []],
 });
 
-const localSelectedPreferences = ref([...props.selectedPreferences]);
+// const localSelectedPreferences = ref([...props.selectedPreferences]);
 
 // Debounce 사용
 const debouncedEmitFilters = debounce((filters) => {
@@ -148,17 +149,17 @@ watch(
   { deep: true }
 );
 
-watch(
-  () => props.selectedPreferences,
-  (newPrefs) => {
-    localSelectedPreferences.value = [...newPrefs];
-  }
-);
+// watch(
+//   () => props.selectedPreferences,
+//   (newPrefs) => {
+//     localSelectedPreferences.value = [...newPrefs];
+//   }
+// );
 
-watch(
-  () => localSelectedPreferences.value,
-  (newPrefs) => {
-    debouncedEmitPreferences([...newPrefs]);
-  }
-);
+// watch(
+//   () => localSelectedPreferences.value,
+//   (newPrefs) => {
+//     debouncedEmitPreferences([...newPrefs]);
+//   }
+// );
 </script>
