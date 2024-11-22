@@ -16,7 +16,27 @@
      <button @click="searchPlaces">검색</button>
     </div>
     <div class="alert-content">{{ alertContent }}</div>
+
+
+    <div id="menu_wrap" class="bg_white">
+      <div class="option">
+
+    </div>
+    <ul class="place-list">
+      <li v-for="place in listEl" :key="place.index" class="place-item">
+        <div class="marker">
+        <span class="markerbg" :class="'marker_' + (place.index + 1)"></span>
+        </div>
+        <div class="info">
+          <h5 class="place-name">{{ place.name }}</h5>
+          <span v-if="place.roadAddress" class="place-address">{{ place.roadAddress }}</span>
+          <span v-else class="jibun gray place-address">{{ place.jibunAddress }}</span>
+          <span class="tel" v-if="place.phone">{{ place.phone }}</span>
+        </div>
+      </li>
+    </ul>
   </div>
+</div>
  </div>
 
 
@@ -98,7 +118,17 @@
           data.forEach((place) => {
             const position = new kakao.maps.LatLng(place.y, place.x);
             displayMarker(place);
+            console.log(place)
           });
+
+          listEl.value = data.map((place, index) => ({
+            index,
+            name: place.place_name,
+            roadAddress: place.road_address_name || null,
+            jibunAddress: place.address_name,
+            phone: place.phone || null,
+          }));
+
 
         // } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
         //   alert("현재 위치에 은행이 없습니다.");
@@ -123,6 +153,7 @@
 
   const placesSearchCB = (data, status, pagination) => {
     if (status === kakao.maps.services.Status.OK) {
+        console.log(data)
         displayPlaces(data) // 검색 목록, 마커 표시
         alertContent.value = `"${keyword.value}" 에 대한 은행 검색 결과 총 ${data.length}건`
       } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
@@ -132,6 +163,7 @@
       }
   }
 
+const listEl = ref([]) // 검색결과 목록
 
 const displayPlaces = (places) => {
     const firstResult = places[0];
@@ -221,6 +253,8 @@ const displayPlaces = (places) => {
     border-radius: 0 5px 5px 0;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    min-width: 70px;
+    height: 46px;
   }
 
   .search-container button:focus {
@@ -234,6 +268,66 @@ const displayPlaces = (places) => {
   .alert-content{
     margin-top: 10px;
     text-align: center;
+    max-width: 350px;
   }
+
+  .place-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.place-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.3s ease;
+}
+
+.place-item:hover {
+  background-color: #f9f9f9;
+}
+
+.marker {
+  margin-right: 10px;
+}
+
+.markerbg {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  background-color: #3174f2; /* 기본 마커 색상 */
+  color: white;
+  text-align: center;
+  line-height: 30px;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.info {
+  flex: 1;
+}
+
+.place-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  color: #333;
+}
+
+.place-address {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.tel {
+  font-size: 13px;
+  color: #999;
+  margin-top: 5px;
+}
+
 </style>
   
