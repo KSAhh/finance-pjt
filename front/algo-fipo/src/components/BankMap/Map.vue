@@ -1,24 +1,29 @@
 <template>
     <div>
       <h1>지도와 오버레이</h1>
-  
-      <!-- 지도 컨테이너 -->
-      <div ref="mapContainer" class="map-container">
-        <!-- 오버레이로 표시되지 않은 장소 목록 -->
-        <div class="overlay-list" v-if="overflowMarkers.length > 0">
-          <h2>표시되지 않은 장소 목록</h2>
-          <ul>
-            <li
-              v-for="place in overflowMarkers"
-              :key="place.id"
-              @click="moveToPlace(place)"
-            >
-              {{ place.place_name }}
-            </li>
-          </ul>
-        </div>
       </div>
   
+      <div class="map_wrap">
+
+      <!-- 지도 컨테이너 -->
+      <div ref="mapContainer" id="map" class="map-container">
+        
+
+        <!-- 검색어 목록추가 -->
+        <div class="option">
+          <div>
+                <form onsubmit="searchPlaces(); return false;">
+                    키워드 : <input type="text" value="이태원 맛집" id="keyword" size="15"> 
+                    <button type="submit">검색하기</button> 
+                </form>
+            </div>
+        </div>
+        <hr>
+        
+        <div id="pagination"></div>
+
+      </div>
+  </div>
       <!-- 검색 입력 -->
       <div class="search-container">
         <input
@@ -29,11 +34,11 @@
         />
         <button @click="searchPlaces">검색</button>
       </div>
-    </div>
+      <div v-if="alertContent">{{ alertContent }}</div>
   </template>
   
   <script setup>
-  import { ref, onMounted } from "vue";
+  import { ref, onMounted, nextTick } from "vue";
   
   const { VITE_KAKAO_JS_KEY } = import.meta.env;
   const mapContainer = ref(null); // 지도 DOM 요소
@@ -41,8 +46,8 @@
   let mapInstance = null; // 지도 객체
   let ps = null; // 장소 검색 객체
   const markers = []; // 마커 배열
-  const overflowMarkers = ref([]); // 지도에 표시되지 않은 마커 목록
-  
+  const alertContent = ref("")
+
   // Kakao 지도 API 로드 함수
   const loadKakaoMap = async () => {
     return new Promise((resolve) => {
@@ -58,11 +63,12 @@
     });
   };
   
+
+
   // 마커 관리 함수
   const removeAllMarkers = () => {
     markers.forEach((marker) => marker.setMap(null)); // 모든 마커를 지도에서 제거
     markers.length = 0; // 배열 초기화
-    overflowMarkers.value = []; // 리스트 초기화
   };
   
   const displayMarker = (place) => {
@@ -89,27 +95,10 @@
     kakao.maps.event.addListener(infoWindow, "click", () => {
       infoWindow.close()
     })
-
-
   };
 
 
-  // 숨겨진 마커 갱신
-  const updateHiddenMarkers = () => {
-    overflowMarkers.value = []; // 숨겨진 마커 목록 초기화
-  
-    markers.forEach((marker, index) => {
-      if (!marker.getVisible()) {
-        overflowMarkers.value.push({
-          id: index,
-          place_name: marker.getTitle() || "장소 이름 없음",
-          position: marker.getPosition(),
-        });
-      }
-    });
-  };
-  
-  // 은행 검색
+  // 은행 검색 (마커표시)
   const searchBanksInBounds = () => {
     if (!ps) return;
   
@@ -122,18 +111,14 @@
           const bounds = mapInstance.getBounds();
           data.forEach((place) => {
             const position = new kakao.maps.LatLng(place.y, place.x);
-  
-            // 지도 범위에 포함되면 표시
-            if (bounds.contain(position)) {
-              displayMarker(place);
-            }
+            displayMarker(place);
           });
-  
-          updateHiddenMarkers(); // 숨겨진 마커 갱신
-        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-          alert("주변에 검색된 은행이 없습니다.");
+
+        // } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+        //   alert("현재 위치에 은행이 없습니다.");
         } else {
-          alert("은행 검색 중 오류가 발생했습니다.");
+          console.log(status)
+          // alert("은행 검색 중 오류가 발생했습니다.");
         }
       },
       { useMapBounds: true }
@@ -143,7 +128,7 @@
   // 키워드 검색
   const searchPlaces = () => {
     if (!keyword.value.trim()) {
-      alert("검색어를 입력하세요.");
+      alertContent.value = `"${keyword.value}" 에 대한 은행 검색 결과 총 0건`
       return;
     }
   
@@ -152,18 +137,18 @@
 
   const placesSearchCB = (data, status, pagination) => {
     if (status === kakao.maps.services.Status.OK) {
-        displayPlaces(data)
+        displayPlaces(data) // 검색 목록, 마커 표시
+        alertContent.value = `"${keyword.value}" 에 대한 은행 검색 결과 총 ${data.length}건`
       } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
-        alert("키워드 검색 결과가 없습니다.");
+        alertContent.value = `"${keyword.value}" 에 대한 은행 검색 결과 총 0건`
       } else {
         alert("검색 중 오류가 발생했습니다.");
       }
   }
 
-  const displayPlaces = (places) => {
-    
 
-    const firstResult = data[0];
+const displayPlaces = (places) => {
+    const firstResult = places[0];
     const center = new kakao.maps.LatLng(firstResult.y, firstResult.x);
     mapInstance.setCenter(center);
     searchBanksInBounds();
@@ -183,7 +168,6 @@
   
     kakao.maps.event.addListener(mapInstance, "bounds_changed", () => {
       searchBanksInBounds();
-      updateHiddenMarkers(); // 숨겨진 마커 목록 갱신
     });
   
     searchBanksInBounds();
