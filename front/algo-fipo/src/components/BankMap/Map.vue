@@ -71,22 +71,29 @@
       position: new kakao.maps.LatLng(place.y, place.x),
     });
     markers.push(marker);
-  
+
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
         <div style="padding:5px;font-size:12px;position:relative;">
           ${place.place_name}
-          <button style="position:absolute;top:5px;right:5px;" onclick="this.parentElement.style.display='none'">닫기</button>
         </div>
       `,
       zIndex: 1,
+      removable : true
     });
-  
+
     kakao.maps.event.addListener(marker, "click", () => {
       infoWindow.open(mapInstance, marker);
     });
+
+    kakao.maps.event.addListener(infoWindow, "click", () => {
+      infoWindow.close()
+    })
+
+
   };
-  
+
+
   // 숨겨진 마커 갱신
   const updateHiddenMarkers = () => {
     overflowMarkers.value = []; // 숨겨진 마커 목록 초기화
