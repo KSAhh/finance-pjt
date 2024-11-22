@@ -74,9 +74,9 @@
 
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
-        <div style="padding:5px;font-size:12px;position:relative;">
+        <p style="width: 100%; padding:5px 25px 5px 5px; font-size:12px; white-space: nowrap; display:inline-block; ">
           ${place.place_name}
-        </div>
+        </p>
       `,
       zIndex: 1,
       removable : true
