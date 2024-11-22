@@ -9,13 +9,14 @@
         @select-category="selectCategory"
       />
 
-      <!-- 은행 캐러셀 -->
-      <BankCarousel
-        :banks="bankList"
-        :selected-banks="selectedBanks"
-        @select-bank="toggleBank"
-        class="mt-8"
-      />
+
+    <!-- 은행 캐러셀 -->
+    <BankCarousel
+      :banks="bankList"
+      :selected-banks="selectedBanks"
+      @select-bank="toggleBank"
+      class="mt-8"
+    />
 
       <!-- 버튼들과 필터 선택 섹션을 감싸는 컨테이너 -->
       <div class="mt-8 flex items-center justify-between">
@@ -73,9 +74,9 @@
 
       <!-- 상품 리스트 -->
       <ProductList
-        :products="filteredProducts"
-        class="mt-8"
-      />
+      :products="filteredProductsByCategory"
+      :isLoading="productStore.isLoading"
+    />
     </div>
   </div>
 </template>
@@ -83,18 +84,38 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-
 import CategorySelector from "@/components/Savings/SavingPage/CategorySelector.vue";
 import BankCarousel from "@/components/Savings/SavingPage/BankCarousel.vue";
 import FilterModal from "@/components/Savings/SavingPage/FilterModal.vue";
 import FilterSelector from "@/components/Savings/SavingPage/FilterSelector.vue";
 import SelectedFilters from "@/components/Savings/SavingPage/SelectedFilters.vue";
 import ProductList from "@/components/Savings/SavingPage/ProductList.vue";
-
-import { banks as banksData, savingsBanks as savingsBanksData } from "@/data/bankData";
-
+import { useProductStore } from "@/stores/productstore";
+import { useBankNameStore } from "@/stores/banknamestore";
+const bankNameStore = useBankNameStore();
+const productStore = useProductStore();
+const banks = computed(() => bankNameStore.banks);
+const savingsBanks = computed(() => bankNameStore.savingsBanks);
+const bankList = computed(() => bankNameStore.allBanks);
+const selectCategory = (category) => {
+  console.log("선택된 카테고리:", category); // 콘솔에 로그 출력
+  selectedCategory.value = category;
+  // 선택한 카테고리를 쿼리 파라미터에 반영
+  
+  router.push({ query: { ...route.query, category } });
+};
 const categories = ["예금", "적금"];
 const selectedCategory = ref(categories[0]);
+
+// 선택된 카테고리에 따른 상품 필터링
+const filteredProductsByCategory = computed(() => {
+  if (selectedCategory.value === "예금") {
+    return productStore.products.deposits || [];
+  } else if (selectedCategory.value === "적금") {
+    return productStore.products.savings || [];
+  }
+  return [];
+});
 
 const route = useRoute();
 const router = useRouter();
@@ -102,29 +123,28 @@ const router = useRouter();
 // 쿼리 파라미터에 따라 selectedCategory 업데이트 함수
 const updateSelectedCategoryFromRoute = () => {
   const queryCategory = route.query.category;
+
   if (categories.includes(queryCategory)) {
     selectedCategory.value = queryCategory;
+    console.log("selectedCategory 업데이트됨:", selectedCategory.value);
   } else {
-    selectedCategory.value = categories[0]; // 기본값 설정
+    selectedCategory.value = categories[0];
+    console.log("유효하지 않은 카테고리, 기본값 설정:", selectedCategory.value);
   }
 };
-
-// 컴포넌트가 마운트될 때 초기화
-onMounted(() => {
-  updateSelectedCategoryFromRoute();
-});
 
 // 라우트의 쿼리 파라미터 변경 감시
 watch(
   () => route.query.category,
-  () => {
+  (newCategory, oldCategory) => {
+    console.log("쿼리 파라미터 변경:", { newCategory, oldCategory });
     updateSelectedCategoryFromRoute();
   }
 );
 
-const banks = ref(banksData);
-const savingsBanks = ref(savingsBanksData);
-const bankList = computed(() => [...banks.value, ...savingsBanks.value]);
+watch(filteredProductsByCategory, (newVal) => {
+  console.log("필터링된 상품 리스트 업데이트:", newVal);
+});
 
 const selectedBanks = ref([]); // 선택된 은행 목록
 const showFilterModal = ref(false); // 필터 모달 상태
@@ -148,50 +168,29 @@ const productTypes = {
 const preferences = ["비대면 가입", "은행 앱 사용", "급여 연동", "추천, 쿠폰"];
 const selectedPreferences = ref([]);
 
-const activeFilters = computed(() => {
+const generateBankFilters = (bankList, selectedBankIds, label) => {
+  if (selectedBankIds.length === bankList.length && bankList.length > 0) {
+    return [label];
+  }
+  return selectedBankIds
+    .map((bankId) => bankList.find((bank) => bank.id === bankId)?.name)
+    .filter(Boolean);
+};
+
+const activeFiltersWithBanks = computed(() => {
+  const bankFilters = generateBankFilters(banks.value, selectedBanks.value, "은행 전체");
+  const savingsBankFilters = generateBankFilters(
+    savingsBanks.value,
+    selectedBanks.value,
+    "저축은행 전체"
+  );
+
   const durationFilters = filters.value.durations.map((duration) => `기간: ${duration}`);
   const typeFilters = filters.value.types.map((type) => `상품 유형: ${type}`);
   const preferenceFilters = selectedPreferences.value.map((pref) => `우대 조건: ${pref}`);
-  return [...durationFilters, ...typeFilters, ...preferenceFilters];
+
+  return [...bankFilters, ...savingsBankFilters, ...durationFilters, ...typeFilters, ...preferenceFilters];
 });
-
-// 선택된 은행을 필터 목록에 추가
-const activeFiltersWithBanks = computed(() => {
-  const bankFilters = [];
-
-  // 은행 전체 선택 여부 확인
-  const selectedBankIds = selectedBanks.value.filter((bankId) =>
-    banks.value.some((bank) => bank.id === bankId)
-  );
-  if (selectedBankIds.length === banks.value.length && banks.value.length > 0) {
-    bankFilters.push("은행 전체");
-  } else {
-    const selectedBankNames = selectedBankIds.map(
-      (bankId) => banks.value.find((bank) => bank.id === bankId)?.name
-    );
-    bankFilters.push(...selectedBankNames);
-  }
-
-  // 저축은행 전체 선택 여부 확인
-  const selectedSavingsBankIds = selectedBanks.value.filter((bankId) =>
-    savingsBanks.value.some((bank) => bank.id === bankId)
-  );
-  if (
-    selectedSavingsBankIds.length === savingsBanks.value.length &&
-    savingsBanks.value.length > 0
-  ) {
-    bankFilters.push("저축은행 전체");
-  } else {
-    const selectedSavingsBankNames = selectedSavingsBankIds.map(
-      (bankId) => savingsBanks.value.find((bank) => bank.id === bankId)?.name
-    );
-    bankFilters.push(...selectedSavingsBankNames);
-  }
-
-  return [...bankFilters, ...activeFilters.value];
-});
-
-const filteredProducts = ref([]);
 
 // 필터 업데이트 함수
 const updateFilters = (newFilters) => {
@@ -206,14 +205,7 @@ const updatePreferences = (newPreferences) => {
 // 선택된 은행 업데이트 함수
 const updateSelectedBanks = (banks) => {
   selectedBanks.value = banks;
-};
-
-// 카테고리 선택 함수
-const selectCategory = (category) => {
-  selectedCategory.value = category;
-  // 선택한 카테고리를 쿼리 파라미터에 반영
-  router.push({ query: { ...route.query, category } });
-};
+}
 
 // 은행 선택 토글 함수
 const toggleBank = (bank) => {
@@ -235,7 +227,7 @@ const removeFilter = (filter) => {
   selectedPreferences.value = selectedPreferences.value.filter(
     (pref) => `우대 조건: ${pref}` !== filter
   );
-
+  
   if (filter === "은행 전체") {
     selectedBanks.value = selectedBanks.value.filter(
       (bankId) => !banks.value.some((bank) => bank.id === bankId)
@@ -247,21 +239,31 @@ const removeFilter = (filter) => {
   } else {
     selectedBanks.value = selectedBanks.value.filter((bankId) => {
       const bankName =
-        bankList.value.find((bank) => bank.id === bankId)?.name || bankId;
+      bankList.value.find((bank) => bank.id === bankId)?.name || bankId;
       return bankName !== filter;
     });
   }
 };
 
-// 필터 초기화 함수
-const resetFilters = () => {
-  filters.value = { durations: [], types: [] };
-  selectedPreferences.value = [];
-  selectedBanks.value = [];
-  showFilterModal.value = false;
+const initialFilterState = {
+  filters: { durations: [], types: [] },
+  selectedPreferences: [],
+  selectedBanks: [],
+  showFilterModal: false,
 };
+
+const resetFilters = () => {
+  Object.assign(filters.value, initialFilterState.filters);
+  selectedPreferences.value = [...initialFilterState.selectedPreferences];
+  selectedBanks.value = [...initialFilterState.selectedBanks];
+  showFilterModal.value = initialFilterState.showFilterModal;
+};
+
+onMounted(() => {
+  updateSelectedCategoryFromRoute();
+  productStore.fetchProducts();
+});
 </script>
 
 <style scoped>
-/* 추가적인 스타일이 필요한 경우 여기에 작성하세요 */
 </style>
