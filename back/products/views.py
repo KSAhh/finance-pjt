@@ -13,7 +13,7 @@ from rest_framework.authentication import TokenAuthentication
 
 
 from .models import DepositProduct, SavingProduct, ProductOption, UserProduct
-from .serializers import DepositSavingSerializer, ProductOptionSerializer, UserProductSerializer
+from .serializers import DepositSavingSerializer, ProductOptionSerializer, UserProductSerializer, DepositSavingDetailSerializer
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -52,7 +52,10 @@ def save_products(request):
                 if result.get("err_cd", {}) != "000":
                     print(f"Failed for {product_type}, topFinGrpNo={top_fin_grp_no}, pageNo={page_no}")
                     continue
-            
+                
+                if PRODUCT_TYPES == "deposit" and TOP_FIN_GRP_NO_LIST == "020000":
+                    print(result)
+                    
                 # API 응답 성공 - 상품, 옵션 데이터 가져오기
                 product_list = result.get("baseList", [])   # 상품목록
                 option_list = result.get("optionList", [])  # 옵션목록
@@ -110,6 +113,11 @@ def save_products(request):
 
                         # 옵션 객체 생성 및 저장
                         ProductOption.objects.create(
+                            # GenericForeignKey 필드 설정
+                            content_type=ContentType.objects.get_for_model(product),
+                            object_id=product.id,
+
+                            # 기존
                             product=product,
                             intr_rate_type_nm=option.get("intr_rate_type_nm", "Unknown"),
                             save_trm=option.get("save_trm", -1),
@@ -122,19 +130,23 @@ def save_products(request):
 
 
 # 전체 상품 목록 조회 (GET)
-# 고객 가입 상품 저장 (POST)
 @api_view(["GET"])
 def product_list(request):
     if request.method == "GET":
-        deposit_products = DepositProduct.objects.all()
-        saving_products = SavingProduct.objects.all()
+        deposit_products = DepositProduct.objects.prefetch_related("options").all()
+        saving_products = SavingProduct.objects.prefetch_related("options").all()
         if deposit_products or saving_products:
-            deposit_serializer = DepositSavingSerializer(deposit_products, many=True)
-            saving_serializer = DepositSavingSerializer(saving_products, many=True)
-            # deposit_serializer = ProductSerializer(deposit_products, many=True)
-            # saving_serializer = ProductSerializer(saving_products, many=True)
-            detail = {"deposits" : deposit_serializer.data, "savings": saving_serializer.data}
+            deposit_serializer = DepositSavingDetailSerializer(deposit_products, many=True)
+            saving_serializer = DepositSavingDetailSerializer(saving_products, many=True)
+            
+            detail = {
+                "deposits" : deposit_serializer.data,
+                "savings": saving_serializer.data,
+            }
             return Response(detail, status=status.HTTP_200_OK)
+
+
+
         return Response({"detail" : "조회 가능한 상품이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
     # 상품 데이터 저장 (POST)
     # if request.method == "POST":
@@ -147,6 +159,7 @@ def product_list(request):
 # 단일 상품 조회 (GET)
 @api_view(["GET"])
 def product_detail(request, product_pk, product_type):
+
     if request.method == "GET":
         """
         특정 금융상품의 옵션 데이터 조회
@@ -210,6 +223,7 @@ def user_product_list(request):
         products = get_list_or_404(UserProduct, user=request.user)
         serializer = UserProductSerializer(products, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     elif request.method == "POST":
         """
         유저가 가입한 금융상품 저장.

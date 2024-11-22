@@ -34,8 +34,8 @@ class SavingProduct(AbstractProduct):
 # 금융상품 옵션
 class ProductOption(models.Model):
     # GenericForeignKey를 위한 필드
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE) # 객체를 참조하려는 모델
+    object_id = models.PositiveIntegerField() # 특정 모델 객체의 pk 값
     product = GenericForeignKey('content_type', 'object_id')
 
     # 옵션 데이터 - 공통
