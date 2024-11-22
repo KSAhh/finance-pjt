@@ -17,6 +17,7 @@ from .serializers import DepositSavingSerializer, ProductOptionSerializer, UserP
 
 from django.contrib.contenttypes.models import ContentType
 
+from datetime import date, datetime
 
 FSS_API_KEY = settings.FSS_API_KEY
 BASE_URL = "http://finlife.fss.or.kr/finlifeapi/"
@@ -144,9 +145,6 @@ def product_list(request):
                 "savings": saving_serializer.data,
             }
             return Response(detail, status=status.HTTP_200_OK)
-
-
-
         return Response({"detail" : "조회 가능한 상품이 없습니다."}, status=status.HTTP_404_NOT_FOUND)
     # 상품 데이터 저장 (POST)
     # if request.method == "POST":
@@ -233,12 +231,15 @@ def user_product_list(request):
         product_pk = product_data.get("product_pk") 
         deposit_product = None
         saving_product = None
-        # requeset.data에 product_pk가 포함되어 있어야 연동 가능
+
+        # DB내 상품과 연동
         if product_pk != None:
             if product_type == "예금" or product_type == "deposit":
                 deposit_product = DepositProduct.objects.filter(pk=product_pk).first()
-            elif product_type == "저축" or product_type == "saving":
+            elif product_type == "적금" or product_type == "saving":
                 saving_product = SavingProduct.objects.filter(pk=product_pk).first()
+            elif product_type != "기타":
+                return Response({"detail" : "지원가능한 타입의 상품이 아닙니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         # 동일 은행, 같은 상품인 경우 저장하지 않음
         fin_prdt_nm = product_data.get("fin_prdt_nm")
@@ -252,9 +253,9 @@ def user_product_list(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 # 유저 상품 단일 조회 (GET)
-# 유저 상품 수정 (PATCH)
+# 유저 상품 수정 (PUT)
 # 유저 상품 삭제 (DELETE)
-@api_view(["GET", "PATCH", "DELETE"])
+@api_view(["GET", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 def user_product_detail(request, product_pk):
     product = get_object_or_404(UserProduct, pk=product_pk)
@@ -267,7 +268,7 @@ def user_product_detail(request, product_pk):
         serializer = UserProductSerializer(product)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    elif request.method == "PATCH":
+    elif request.method == "PUT":
 
         # 상품의 타입에 따라 수정 가능한 필드를 제한
         product_type = product.product_type
@@ -275,9 +276,31 @@ def user_product_detail(request, product_pk):
 
         # 연동된 상품이 있는 경우, 데이터 일부 변경만 가능
         if product.deposit_product or product.saving_product:
-            if 'kor_co_nm' in data or 'fin_prdt_nm' in data:
-                return Response({"detail": "연동된 상품이 있어 금융기관과 상품명이 변경될 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
-        # 연동된 상품 없는 경우, 변경 가능 필드 증가
+            if 'kor_co_nm' in data or 'fin_prdt_nm' in data or 'product_type' in data:
+                return Response({"detail": "연동된 상품이 있어 금융기관과 상품명을 변경할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 지정된 타입만 저장
+        print(data)
+        print(data.get("product_type"), "?")
+        if data.get("product_type", product_type) not in ["예금", "deposit", "적금", "saving", "기타", "etc", ""]:
+            return Response({"detail" : "지원가능한 타입의 상품이 아닙니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        # 날짜제한
+        # 시작일 : 미래일 지정 불가 & 만료일보다 미래일 지정불가
+        start_date = data.get("start_date", product.start_date)
+        end_date = data.get("end_date", product.end_date)
+
+        # 현재 날짜 확인
+        # 문자열을 datetime.date로 변환
+        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        if end_date is not None:
+            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+        if start_date > date.today():
+            return Response({"detail" : "start_date는 미래일자를 지정할 수 없습니다."})
+        if end_date and start_date > end_date:
+            return Response({"detail" : "start_date는 end_date보다 미래일 수 없습니다."})
 
         serializer = UserProductSerializer(product, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
