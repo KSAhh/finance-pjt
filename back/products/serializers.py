@@ -19,6 +19,7 @@ class DepositSavingSerializer(serializers.ModelSerializer):
             return "saving"
         return "unknown"
 
+
 # 옵션
 class ProductOptionSerializer(serializers.ModelSerializer):
     class DepositSavingTitleSerializer(serializers.ModelSerializer):
@@ -26,11 +27,9 @@ class ProductOptionSerializer(serializers.ModelSerializer):
             model = DepositProduct
             fields = ['kor_co_nm', 'fin_prdt_nm']
 
-    product = DepositSavingTitleSerializer(read_only=True) # # SavingProduct도 동일 구조
     class Meta:
         model = ProductOption
         fields = [
-            "product",
             "intr_rate_type_nm",
             "save_trm",
             "intr_rate",
@@ -39,10 +38,16 @@ class ProductOptionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+# 상품 - 예금 & 적금 + 옵션
+class DepositSavingDetailSerializer(serializers.ModelSerializer):
+    options = ProductOptionSerializer(many=True, read_only=True)
+    class Meta:
+        model = DepositProduct # 예금, 적금 필드 동일하므로 Deposit 사용
+        fields = '__all__'   # options 필드 포함
 
 # 유저가입 상품
 class UserProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProduct
         fields = "__all__"
-        read_only_fields = ['id', 'user', 'deposit_product', 'saving_product', 'etc_product']
+        read_only_fields = ['id', 'user', 'deposit_product', 'saving_product']
