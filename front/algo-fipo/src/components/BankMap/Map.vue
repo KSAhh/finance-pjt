@@ -147,19 +147,28 @@
       return;
     }
   
-    ps.keywordSearch(keyword.value, (data, status) => {
-      if (status === kakao.maps.services.Status.OK) {
-        const firstResult = data[0];
-        const center = new kakao.maps.LatLng(firstResult.y, firstResult.x);
-        mapInstance.setCenter(center);
-        searchBanksInBounds();
+    ps.keywordSearch(keyword.value, placesSearchCB);
+  }
+
+  const placesSearchCB = (data, status, pagination) => {
+    if (status === kakao.maps.services.Status.OK) {
+        displayPlaces(data)
       } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
         alert("키워드 검색 결과가 없습니다.");
       } else {
         alert("검색 중 오류가 발생했습니다.");
       }
-    });
-  };
+  }
+
+  const displayPlaces = (places) => {
+    
+
+    const firstResult = data[0];
+    const center = new kakao.maps.LatLng(firstResult.y, firstResult.x);
+    mapInstance.setCenter(center);
+    searchBanksInBounds();
+  }
+
   
   // 지도 초기화
   const initializeMap = async () => {
