@@ -62,8 +62,8 @@ import SB_DAISHIN_Symbol from "@/assets/BankLogo/SB_DAISHIN_Symbol.png";
 import SB_DAOL_Symbol from "@/assets/BankLogo/SB_DAOL_Symbol.png";
 import SB_DB_Symbol from "@/assets/BankLogo/SB_DB_Symbol.png";
 import SB_DH_Symbol from "@/assets/BankLogo/SB_DH_Symbol.png";
-import SB_DW_Symbol from "@/assets/BankLogo/SB_DONGWONJEIL_Symbol.png";
-import SB_DONGWOON_Symbol from "@/assets/BankLogo/SB_DONGWONJEIL_Symbol.png";
+import SB_DONGWONJEIL_Symbol from "@/assets/BankLogo/SB_DONGWONJEIL_Symbol.png";
+// import SB_DONGWOON_Symbol from "@/assets/BankLogo/SB_DONGWONJEIL_Symbol.png";
 import SB_DONGYANG_Symbol from "@/assets/BankLogo/SB_DONGYANG_Symbol.png";
 import SB_DOUBLE_Symbol from "@/assets/BankLogo/SB_DOUBLE_Symbol.png";
 import SB_DREAM_Symbol from "@/assets/BankLogo/SB_DREAM_Symbol.png";
@@ -101,6 +101,7 @@ import SB_SSINPLUS_Symbol from "@/assets/BankLogo/SB_SSINPLUS_Symbol.png";
 import SB_INCHEON_Symbol from "@/assets/BankLogo/SB_INCHEON_Symbol.png";
 import SB_ANYANG_Symbol from "@/assets/BankLogo/SB_ANYANG_Symbol.png";
 import SB_MUSTSAMIL_Symbol from "@/assets/BankLogo/SB_MUSTSAMIL_Symbol.png";
+// import SB_DAEWON_Symbol from "@/assets/BankLogo/SB_DAEWON_Symbol.png";
 
 
 
@@ -109,19 +110,19 @@ import SB_MUSTSAMIL_Symbol from "@/assets/BankLogo/SB_MUSTSAMIL_Symbol.png";
 
 // 은행 데이터
 export const banks = [
-    { id: "BK_KB_Symbol", name: "KB국민", logo: KB},
+    { id: "BK_KB_Symbol", name: "국민", logo: KB},
     { id: "BK_SHINHAN_Symbol", name: "신한", logo: SINHAN },
     { id: "BK_HANA_Symbol", name: "하나", logo: HANA },
     { id: "BK_WOORI_Symbol", name: "우리", logo: URI },
-    { id: "BK_NH_Symbol", name: "NH농협", logo: NH },
-    { id: "BK_IBK_Symbol", name: "IBK기업", logo: IBK },
-    { id: "BK_KDB_Symbol", name: "KDB산업", logo: KDB },
+    { id: "BK_NH_Symbol", name: "농협", logo: NH },
+    { id: "BK_IBK_Symbol", name: "중소기업은행", logo: IBK },
+    { id: "BK_KDB_Symbol", name: "한국산업은행", logo: KDB },
     { id: "BK_CU_Symbol", name: "신협", logo: SINHY },
     { id: "BK_SC_Symbol", name: "SC제일", logo: SC },
     { id: "BK_EPOST_Symbol", name: "우정사업본부", logo: POST },
     { id: "BK_BUSAN_Symbol", name: "부산", logo: BS },
     { id: "BK_DAEGU_Symbol", name: "iM뱅크", logo: IM },
-    { id: "BK_SH_Symbol", name: "SH수협", logo: SH },
+    { id: "BK_SH_Symbol", name: "수협", logo: SH },
     { id: "BK_KYOUNGNAM_Symbol", name: "경남", logo: KN },
     { id: "BK_KAKAO_Symbol", name: "카카오뱅크", logo: KAKAO },
     { id: "BK_KWANGJU_Symbol", name: "광주", logo: GJ },
@@ -133,35 +134,35 @@ export const banks = [
   
   // 저축은행 데이터
   export const savingsBanks = [
-    { id: "SB_BNK_Symbol", name: "BNK저축", logo: SB_BNK_Symbol },
+    { id: "SB_BNK_Symbol", name: "비엔케이저축", logo: SB_BNK_Symbol },
     { id: "SB_CK_Symbol", name: "CK저축", logo: SB_CK_Symbol },
-    { id: "SB_DB_Symbol", name: "DB저축", logo: SB_DB_Symbol },
-    { id: "SB_DH_Symbol", name: "DH저축", logo: SB_DH_Symbol },
+    { id: "SB_DB_Symbol", name: "디비저축", logo: SB_DB_Symbol },
+    { id: "SB_DH_Symbol", name: "디에이치저축", logo: SB_DH_Symbol },
     { id: "SB_HB_Symbol", name: "HB저축", logo: SB_HB_Symbol },
-    { id: "SB_IBK_Symbol", name: "IBK저축", logo: SB_IBK_Symbol },
-    { id: "SB_JT_Symbol", name: "JT저축", logo: SB_JT_Symbol },
-    { id: "SB_JTCHINAE_Symbol", name: "JT친애저축", logo: SB },
-    { id: "SB_KB_Symbol", name: "KB저축", logo: KB },
-    { id: "SB_NH_Symbol", name: "NH저축", logo: NH },
-    { id: "SB_OK_Symbol", name: "OK저축", logo: SB_OK_Symbol },
-    { id: "SB_OSB_Symbol", name: "OSB저축", logo: SB_OSB_Symbol },
-    { id: "SB_SBI_Symbol", name: "SBI저축", logo: SBI },
-    { id: "SB_SNT_Symbol", name: "SNT저축", logo: SB_SNT_Symbol },
+    { id: "SB_IBK_Symbol", name: "아이비케이저축", logo: SB_IBK_Symbol },
+    { id: "SB_JT_Symbol", name: "제이티저축", logo: SB_JT_Symbol },
+    { id: "SB_JTCHINAE_Symbol", name: "제이티친애저축", logo: SB },
+    { id: "SB_KB_Symbol", name: "케이비저축", logo: KB },
+    { id: "SB_NH_Symbol", name: "엔에이치저축", logo: NH },
+    { id: "SB_OK_Symbol", name: "오케이저축", logo: SB_OK_Symbol },
+    { id: "SB_OSB_Symbol", name: "오에스비저축", logo: SB_OSB_Symbol },
+    { id: "SB_SBI_Symbol", name: "에스비아이저축", logo: SBI },
+    { id: "SB_SNT_Symbol", name: "에스앤티저축", logo: SB_SNT_Symbol },
     { id: "SB_COREA_Symbol", name: "고려저축", logo: SB_COREA_Symbol },
     { id: "SB_KOOKJE_Symbol", name: "국제저축", logo: SB_KOOKJE_Symbol },
     { id: "SB_KUMHWA_Symbol", name: "금화저축", logo: SB_KUMHWA_Symbol },
     { id: "SB_NAMYANG_Symbol", name: "남양저축", logo: SB_NAMYANG_Symbol },
     { id: "SB_DAOL_Symbol", name: "다올저축", logo: SB_DAOL_Symbol },
-    { id: "SB_DAEMYUNG_Symbol", name: "대명저축", logo: SB_DAEMYUNG_Symbol },
-    { id: "SB_DAEBAEK_Symbol", name: "대백저축", logo: SB },
+    { id: "SB_DAEMYUNG_Symbol", name: "대명상호저축", logo: SB_DAEMYUNG_Symbol },
+    // { id: "SB_DAEBAEK_Symbol", name: "대백저축", logo: SB },
     { id: "SB_DAISHIN_Symbol", name: "대신저축", logo: SB_DAISHIN_Symbol },
-    { id: "SB_DAEAH_Symbol", name: "대아저축", logo: SB },
-    { id: "SB_DAEWON_Symbol", name: "대원저축", logo: SB_DAEWON_Symbol },
+    { id: "SB_DAEAH_Symbol", name: "대아상호저축", logo: SB_DAEAH_Symbol },
+    { id: "SB_DAEWON_Symbol", name: "대원상호저축", logo: SB_DAEWON_Symbol },
     { id: "SB_DAEHAN_Symbol", name: "대한저축", logo: SB_DAEHAN_Symbol },
     { id: "SB_DOUBLE_Symbol", name: "더블저축", logo: SB_DOUBLE_Symbol },
     { id: "SB_THEK_Symbol", name: "더케이저축", logo: SB_THEK_Symbol },
     { id: "SB_DONGYANG_Symbol", name: "동양저축", logo: SB_DONGYANG_Symbol },
-    // { id: "SB_DONGWONJEIL_Symbol", name: "동원제일저축", logo: SB_DONGWONJEIL_Symbol },
+    { id: "SB_DONGWONJEIL_Symbol", name: "동원제일저축", logo: SB_DONGWONJEIL_Symbol },
     { id: "SB_DREAM_Symbol", name: "드림저축", logo: SB_DREAM_Symbol },
     { id: "SB_RAON_Symbol", name: "라온저축", logo: SB_RAON_Symbol },
     { id: "SB_MUSTSAMIL_Symbol", name: "머스트삼일", logo: SB_MUSTSAMIL_Symbol },
@@ -173,7 +174,7 @@ export const banks = [
     { id: "SB_SAMHO_Symbol", name: "삼호저축", logo: SB_SAMHO_Symbol },
     { id: "SB_SSIN_Symbol", name: "상상인저축", logo: SB_SSIN_Symbol },
     { id: "SB_SSINPLUS_Symbol", name: "상상인플러스", logo: SB_SSINPLUS_Symbol },
-    { id: "SB_SERAM_Symbol", name: "세람저축", logo: SB_SERAM_Symbol },
+    { id: "SB_SERAM_Symbol", name: "세람상호저축", logo: SB_SERAM_Symbol },
     { id: "SB_CENTRAL_Symbol", name: "센트럴저축", logo: SB_CENTRAL_Symbol },
     { id: "SB_SOLBRAIN_Symbol", name: "솔브레인저축", logo: SB_SOLBRAIN_Symbol },
     { id: "SB_SMART_Symbol", name: "스마트저축", logo: SB_SMART_Symbol },
@@ -184,7 +185,7 @@ export const banks = [
     { id: "SB_ANGUK_Symbol", name: "안국저축", logo: SB_ANGUK_Symbol },
     { id: "SB_ANYANG_Symbol", name: "안양저축", logo: SB_ANYANG_Symbol },
     { id: "SB_ACUON_Symbol", name: "애큐온저축", logo: SB_ACUON_Symbol },
-    { id: "SB_MS_Symbol", name: "엠에스저축", logo: SB_MS_Symbol },
+    { id: "SB_MS_Symbol", name: "엠에스상호저축", logo: SB_MS_Symbol },
     { id: "SB_YOUNGJIN_Symbol", name: "영진저축", logo: SB_YOUNGJIN_Symbol },
     { id: "SB_YEKARAM_Symbol", name: "예가람저축", logo: SB_YEKARAM_Symbol },
     { id: "SB_OHSUNG_Symbol", name: "오성저축", logo: SB },
@@ -192,7 +193,7 @@ export const banks = [
     { id: "SB_WOORITOUJA_Symbol", name: "우리투자", logo: URI },
     { id: "SB_WOORI_Symbol", name: "우리저축", logo: URI },
     { id: "SB_WELCOME_Symbol", name: "웰컴저축", logo: SB_WELCOME_Symbol },
-    { id: "SB_UNION_Symbol", name: "유니온저축", logo: SB_UNION_Symbol },
+    { id: "SB_UNION_Symbol", name: "유니온상호저축", logo: SB_UNION_Symbol },
     { id: "SB_YUANTA_Symbol", name: "유안타저축", logo: SB_YUANTA_Symbol },
     { id: "SB_YOONGCHANG_Symbol", name: "융창저축", logo: SB_YOONGCHANG_Symbol },
     { id: "SB_INSUNG_Symbol", name: "인성저축", logo: SB_INSUNG_Symbol },
@@ -206,22 +207,22 @@ export const banks = [
     { id: "SB_KIWOOM_Symbol", name: "키움저축", logo: SB_KIWOOM_Symbol },
     { id: "SB_PEPPER_Symbol", name: "페퍼저축", logo: SB_PEPPER_Symbol },
     { id: "SB_PYUNGTAEK_Symbol", name: "평택저축", logo: SB_PYUNGTAEK_Symbol },
-    { id: "SB_PURUN_Symbol", name: "푸른저축", logo: SB_PURUN_Symbol },
+    { id: "SB_PURUN_Symbol", name: "푸른상호저축", logo: SB_PURUN_Symbol },
     { id: "SB_HANA_Symbol", name: "하나저축", logo: HANA },
     { id: "SB_KOREAINVEST_Symbol", name: "한국투자저축", logo: HANTU },
     { id: "SB_HANSUNG_Symbol", name: "한성저축", logo: SB_HANSUNG_Symbol },
     { id: "SB_HANWHA_Symbol", name: "한화저축", logo: SB_HANWHA_Symbol },
     { id: "SB_HEUNGKUK_Symbol", name: "흥국저축", logo: HG },
-    { id: "SB_YOUNGJIN_Symbol", name: "영진저축", logo: SB_YOUNGJIN_Symbol },
+    // { id: "SB_YOUNGJIN_Symbol", name: "영진저축", logo: SB_YOUNGJIN_Symbol },
     // { id: "SB_SAMSUNG_Symbol", name: "삼성저축", logo: SB_SAMSUNG_Symbol },
     { id: "SB_OHTOO_Symbol", name: "오투저축", logo: SB_OHTOO_Symbol },
     { id: "SB_OHSUNG_Symbol", name: "오성저축", logo: SB_OHSUNG_Symbol },
-    { id: "SB_JTCHINE_Symbol", name: "JT친애저축", logo: SB_JTCHINE_Symbol },
-    { id: "SB_DONGWOON_Symbol", name: "동원저축", logo: SB_DONGWOON_Symbol },
-    { id: "SB_DW_Symbol", name: "대원저축", logo: SB_DW_Symbol },
+    // { id: "SB_JTCHINE_Symbol", name: "JT친애저축", logo: SB_JTCHINE_Symbol },
+    // { id: "SB_DONGWOON_Symbol", name: "동원저축", logo: SB_DONGWOON_Symbol },
+    // { id: "SB_DAEWON_Symbol", name: "대원저축", logo: SB_DAEWON_Symbol },
     { id: "SB_DAEBAEK_Symbol", name: "대백저축", logo: SB_DAEBAEK_Symbol },
-    { id: "SB_DAEAH_Symbol", name: "대아저축", logo: SB_DAEAH_Symbol },
-    { id: "SB_BNK_Symbol", name: "BNK저축", logo: SB_BNK_Symbol },
-    { id: "SB_DAEBAEK_Symbol", name: "대백저축", logo: SB_DAEBAEK_Symbol },
+    // { id: "SB_DAEAH_Symbol", name: "대아저축", logo: SB_DAEAH_Symbol },
+    // { id: "SB_BNK_Symbol", name: "BNK저축", logo: SB_BNK_Symbol },
+    // { id: "SB_DAEBAEK_Symbol", name: "대백저축", logo: SB_DAEBAEK_Symbol },
   ];
   
