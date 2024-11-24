@@ -21,7 +21,7 @@ import FinanceInfoEdit from "@/components/MyInfoEdit/FinanceInfoEdit.vue";
 import DataAuthorization from "@/components/MyInfoEdit/DataAuthorization.vue";
 import Notifications from "@/components/MyInfoEdit/Notifications.vue";
 import AccountDeletion from "@/components/MyInfoEdit/AccountDeletion.vue";
-
+import ExchangeView from "@/views/ExchangeView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -113,42 +113,47 @@ const router = createRouter({
       component: MyInfomationEditView,
       meta: { requiresAuth: true }, // 인증 요구
     },
-      {
-        path: "/myinfoedit/contact-management",
-        name: "ContactManagement",
-        component: ContactManagement,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/password-edit",
-        name: "PasswordEdit",
-        component: PasswordEdit,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/finance-info-edit",
-        name: "FinanceInfoEdit",
-        component: FinanceInfoEdit,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/data-authorization",
-        name: "DataAuthorization",
-        component: DataAuthorization,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/notifications",
-        name: "Notifications",
-        component: Notifications,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/account-deletion",
-        name: "AccountDeletion",
-        component: AccountDeletion,
-        meta: { requiresAuth: true },
-      },
+    {
+      path: "/myinfoedit/contact-management",
+      name: "ContactManagement",
+      component: ContactManagement,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/password-edit",
+      name: "PasswordEdit",
+      component: PasswordEdit,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/finance-info-edit",
+      name: "FinanceInfoEdit",
+      component: FinanceInfoEdit,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/data-authorization",
+      name: "DataAuthorization",
+      component: DataAuthorization,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/notifications",
+      name: "Notifications",
+      component: Notifications,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/account-deletion",
+      name: "AccountDeletion",
+      component: AccountDeletion,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/exchange-rate",
+      name: "ExchangeView",
+      component: ExchangeView,
+    },
 ]});
 
 router.beforeEach((to, from, next) => {
