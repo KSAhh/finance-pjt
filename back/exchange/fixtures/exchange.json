@@ -1,0 +1,232 @@
+[
+  {
+    "id": 1,
+      "cur_unit": "AED",
+      "ttb": "376.83",
+      "tts": "384.44",
+      "cur_to_krw": "380.64",
+      "cur_nm": "아랍에미리트 디르함",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 2,
+      "cur_unit": "AUD",
+      "ttb": "900.98",
+      "tts": "919.19",
+      "cur_to_krw": "910.09",
+      "cur_nm": "호주 달러",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 3,
+      "cur_unit": "BHD",
+      "ttb": "3672.08",
+      "tts": "3746.27",
+      "cur_to_krw": "3709.18",
+      "cur_nm": "바레인 디나르",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 4,
+      "cur_unit": "BND",
+      "ttb": "1028.2",
+      "tts": "1048.97",
+      "cur_to_krw": "1038.59",
+      "cur_nm": "브루나이 달러",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 5,
+      "cur_unit": "CAD",
+      "ttb": "990.38",
+      "tts": "1010.39",
+      "cur_to_krw": "1000.39",
+      "cur_nm": "캐나다 달러",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 6,
+      "cur_unit": "CHF",
+      "ttb": "1561.06",
+      "tts": "1592.59",
+      "cur_to_krw": "1576.83",
+      "cur_nm": "스위스 프랑",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 7,
+      "cur_unit": "CNH",
+      "ttb": "190.92",
+      "tts": "194.77",
+      "cur_to_krw": "192.85",
+      "cur_nm": "위안화",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 8,
+      "cur_unit": "DKK",
+      "ttb": "194.38",
+      "tts": "198.31",
+      "cur_to_krw": "196.35",
+      "cur_nm": "덴마아크 크로네",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 9,
+      "cur_unit": "EUR",
+      "ttb": "1449.86",
+      "tts": "1479.15",
+      "cur_to_krw": "1464.51",
+      "cur_nm": "유로",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 10,
+      "cur_unit": "GBP",
+      "ttb": "1742.26",
+      "tts": "1777.45",
+      "cur_to_krw": "1759.86",
+      "cur_nm": "영국 파운드",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 11,
+      "cur_unit": "HKD",
+      "ttb": "177.83",
+      "tts": "181.42",
+      "cur_to_krw": "179.63",
+      "cur_nm": "홍콩 달러",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 12,
+      "cur_unit": "IDR",
+      "ttb": "8.69",
+      "tts": "8.86",
+      "cur_to_krw": "8.78",
+      "cur_nm": "인도네시아 루피아",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 13,
+      "cur_unit": "JPY",
+      "ttb": "896.94",
+      "tts": "915.06",
+      "cur_to_krw": "906",
+      "cur_nm": "일본 옌",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 14,
+      "cur_unit": "KRW",
+      "ttb": "0",
+      "tts": "0",
+      "cur_to_krw": "1",
+      "cur_nm": "한국 원",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 15,
+      "cur_unit": "KWD",
+      "ttb": "4498.56",
+      "tts": "4589.45",
+      "cur_to_krw": "4544.01",
+      "cur_nm": "쿠웨이트 디나르",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 16,
+      "cur_unit": "MYR",
+      "ttb": "309.98",
+      "tts": "316.25",
+      "cur_to_krw": "313.12",
+      "cur_nm": "말레이지아 링기트",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 17,
+      "cur_unit": "NOK",
+      "ttb": "124.99",
+      "tts": "127.52",
+      "cur_to_krw": "126.26",
+      "cur_nm": "노르웨이 크로네",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 18,
+      "cur_unit": "NZD",
+      "ttb": "811.02",
+      "tts": "827.41",
+      "cur_to_krw": "819.22",
+      "cur_nm": "뉴질랜드 달러",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 19,
+      "cur_unit": "SAR",
+      "ttb": "368.64",
+      "tts": "376.09",
+      "cur_to_krw": "372.37",
+      "cur_nm": "사우디 리얄",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 20,
+      "cur_unit": "SEK",
+      "ttb": "125.15",
+      "tts": "127.68",
+      "cur_to_krw": "126.42",
+      "cur_nm": "스웨덴 크로나",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 21,
+      "cur_unit": "SGD",
+      "ttb": "1028.2",
+      "tts": "1048.97",
+      "cur_to_krw": "1038.59",
+      "cur_nm": "싱가포르 달러",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 22,
+      "cur_unit": "THB",
+      "ttb": "39.85",
+      "tts": "40.66",
+      "cur_to_krw": "40.26",
+      "cur_nm": "태국 바트",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  },
+  {
+    "id": 23,
+      "cur_unit": "USD",
+      "ttb": "1384.11",
+      "tts": "1412.08",
+      "cur_to_krw": "1398.1",
+      "cur_nm": "미국 달러",
+      "krw_to_cur": "0.71",
+      "updated_at":"2024-11-22"
+  }
+]

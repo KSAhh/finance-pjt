@@ -34,6 +34,9 @@ urlpatterns = [
 
     # Products API
     path("api/v1/products/", include("products.urls")),
+
+    # exchange API
+    path("api/v1/exchange/", include("exchange.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
