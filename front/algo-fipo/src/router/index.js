@@ -10,6 +10,7 @@ import LoanPageView from "@/views/LoanPageView.vue";
 import MyPageView from "@/views/MyPageView.vue";
 import FAQView from "@/views/FAQView.vue";
 import CustomerSupportView from "@/views/CustomerSupportView.vue";
+import CustomerSupportDetailView from "@/views/CustomerSupportDetailView.vue";
 import BankMapView from "@/views/BankMapView.vue";
 import MyCommentsView from "@/views/MyCommentsView.vue";
 import MyFinancialProductView from "@/views/MyFinancialProductView.vue";
@@ -83,6 +84,11 @@ const router = createRouter({
       path: '/cs',
       name: 'CustomerSupport',
       component: CustomerSupportView,
+    },
+    {
+      path: '/cs/:article_pk',
+      name: 'CustomerSupportDetail',
+      component: CustomerSupportDetailView,
     },
     {
       path: '/bankmap',
