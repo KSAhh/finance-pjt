@@ -23,7 +23,7 @@
     <ul class="list-none p-0 m-0">
       <li v-for="place in paginatedList" :key="place.index" class="flex items-center p-3 border-b border-gray-200 hover:bg-gray-100">
         <div class="mr-2">
-          <span class="inline-block w-8 h-8 bg-blue-500 text-white text-center leading-8 font-bold rounded-full" :class="'marker_' + (place.index + 1)"></span>
+          <span class="inline-block w-8 h-8 bg-blue-500 text-white text-center leading-8 font-bold rounded-full" :class="'marker_' + (place.index + 1)">{{ place.index+1 }}</span>
         </div>
         <div class="flex-1">
           <h5 class="text-lg font-semibold text-gray-800">{{ place.name }}</h5>
@@ -92,15 +92,13 @@
     });
   };
   
-
-
   // 마커 관리 함수
   const removeAllMarkers = () => {
     markers.forEach((marker) => marker.setMap(null)); // 모든 마커를 지도에서 제거
     markers.length = 0; // 배열 초기화
   };
-  
-  const displayMarker = (place) => {
+
+  const displayMarker = (place, index) => {
     const imageSrc = customMapMarker
     const imageSize = new kakao.maps.Size(40, 55) // 마커이미지의 크기
     const imageOption = {offset: new kakao.maps.Point(22, 69)} // 마커의 좌표와 일치시킬 이미지 안에서의 좌표
@@ -112,26 +110,22 @@
       position: new kakao.maps.LatLng(place.y, place.x),
       image: markerImage,
     });
-    markers.push(marker);
 
     const infoWindow = new kakao.maps.InfoWindow({
       content: `
         <p style="width: 100%; padding:5px 25px 5px 5px; font-size:12px; white-space: nowrap; display:inline-block; ">
-          ${place.place_name}
+          ${index+1}. ${place.place_name}
         </p>
       `,
       zIndex: 1,
       removable : true
     });
+    markers.push(marker)
 
     kakao.maps.event.addListener(marker, "click", () => {
       infoWindow.open(mapInstance, marker);
     });
-
-    kakao.maps.event.addListener(infoWindow, "click", () => {
-      infoWindow.close()
-    })
-  };
+}
 
 
   // 은행 검색 (마커표시)
@@ -145,9 +139,9 @@
           removeAllMarkers();
   
           const bounds = mapInstance.getBounds();
-          data.forEach((place) => {
+          data.forEach((place, index) => {
             const position = new kakao.maps.LatLng(place.y, place.x);
-            displayMarker(place);
+            displayMarker(place, index);
           });
 
           listEl.value = data.map((place, index) => ({
