@@ -25,6 +25,7 @@ KAKAO_API_KEY = env("KAKAO_API_KEY")                # 카카오로그인
 DJANGO_SECRET_KEY = env("DJANGO_SECRET_KEY")
 FSS_API_KEY = env("FSS_API_KEY")                                # 금융감독원
 KAKAO_JS_KEY = env("KAKAO_JS_KEY")                              # 카카오 JS
+KOREAEXIM_API_KEY = env("KOREAEXIM_API_KEY") # 한국수출입은행
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     "accounts",
     "articles",
     "products",
+    "exchange",
     
     # third party
     "corsheaders",               # CORS header
