@@ -27,7 +27,7 @@ const createChart = () => {
   }
 
   // 데이터 준비
-  const labels = store.exchanges.map((exchange) => exchange.cur_unit);
+  const labels = store.exchanges.map((exchange) => exchange.cur_nm);
   const data = store.exchanges.map((exchange) => exchange.cur_to_krw);
 
   chartInstance = new Chart(chartCanvas.value, {
