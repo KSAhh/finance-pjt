@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from allauth.account.adapter import DefaultAccountAdapter
+from django.contrib.auth import get_user_model
+
 # from .managers import UserManager
 
 # 유저
@@ -22,6 +24,15 @@ class User(AbstractUser):
     def __str__(self):
         return self.nickname if self.nickname else f"User({self.username})" # 닉네임이 없으면 로그인 ID 반환
 
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
+    gender = models.CharField(max_length=10, choices=[("남", "Male"), ("여", "Female")]) # 성별
+    birth_date = models.DateField() # 출생일
+    monthly_income = models.IntegerField() # 월 평균 소득
+    monthly_expense = models.IntegerField() # 월 평균 소비
+    total_assets = models.IntegerField()  # 총 자산
+    # 총 자산
 
 # allauth 유저 조회 - adapter 커스텀
 class CustomAccountAdapter(DefaultAccountAdapter):
