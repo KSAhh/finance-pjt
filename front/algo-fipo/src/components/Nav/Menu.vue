@@ -84,6 +84,9 @@ const navigateToMainPage = (label) => {
     else if (label === "은행 지도") {
     router.push({ name: "BankMap"});
   }
+    else if (label === "환율") {
+    router.push({ name: "ExchangeView" })
+  }
 };
 </script>
 
