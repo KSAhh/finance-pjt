@@ -33,6 +33,7 @@ def save_exchange(request):
     if not response:  # data가 빈 배열, 빈 객체 또는 None일 경우
         print("API 요청 성공, 하지만 반환된 데이터가 없습니다.")
         return Response({'detail': f"{searchdate}기준 비영업일의 데이터, 혹은 영업당일 11시 이전에 해당일의 데이터는 제공하지 않습니다."}, status=status.HTTP_204_NO_CONTENT)
+    print("단계1", response)
 
     # 환율 데이터 저장
     for data in response:
@@ -41,6 +42,7 @@ def save_exchange(request):
         ttb = float(data.get('ttb', "0").replace(",", ""))
         tts = float(data.get('tts', "0").replace(",", ""))
 
+        print("단계2", data, deal_bas_r, ttb, tts)
 
         # 100 단위 기준 통화 처리(일본, 인도네시아)
         if "(100)" in data.get("cur_unit"):
@@ -48,19 +50,22 @@ def save_exchange(request):
             deal_bas_r = round(deal_bas_r / 100, 4)
             ttb = round(ttb / 100, 4)
             tts = round(tts / 100, 4)
+            print("단계3", data, deal_bas_r, ttb, tts)
 
         # 한화 1000원당 해당 통화 가격 계산
         if deal_bas_r > 0:
             krw_to_cur = round(1000 / deal_bas_r, 2)
-            cur_to_krw = round(deal_bas_r, 2)  # 외국 통화 1단위 -> 한화
+            # cur_to_krw = round(deal_bas_r, 2)  # 외국 통화 1단위 -> 한화
             data['krw_to_cur'] = krw_to_cur
-            data['cur_to_krw'] = cur_to_krw
+            # data['cur_to_krw'] = cur_to_krw
         else: # 환율 정보가 없으면 DB에 저장하지 않음
             continue
-        
-        print(data)
+        print("단계4", data, krw_to_cur)
+
         # 통화 코드 기준으로 DB에 존재 여부 확인
         exchange_rate = ExchangeRate.objects.filter(cur_unit=data.get('cur_unit')).first()
+        print("단계5", exchange_rate)
+        
         # 존재한다면
         if exchange_rate:
             # 갱신 날짜 체크 -> 최신 데이터로 갱신
@@ -69,6 +74,8 @@ def save_exchange(request):
                 rate_serializer = ExchangeRatesSerializer(instance=exchange_rate, data=data)
                 if rate_serializer.is_valid(raise_exception=True):
                     rate_serializer.save(updated_at=searchdate)
+                    print("단계6", rate_serializer.data)
+
         # 존재하지 않으면 추가
         else:
             ExchangeRate.objects.create(
@@ -80,6 +87,8 @@ def save_exchange(request):
                 krw_to_cur=data.get("krw_to_cur"),
                 updated_at=searchdate,
             )
+            print("단계7")
+
     return Response({"detail": f"Update date: {searchdate} Successfully saved."}, status=status.HTTP_201_CREATED)
 
 

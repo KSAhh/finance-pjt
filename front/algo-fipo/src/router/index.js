@@ -6,6 +6,7 @@ import CallBack from "@/components/KakaoLogin/CallBack.vue";
 import SignUpView from "@/views/SignUpView.vue";
 import FindPasswordView from "@/views/FindPasswordView.vue";
 import SavingsPage from "@/views/SavingsPage.vue";
+import SavingDetail from "@/views/SavingDetail.vue";
 import LoanPageView from "@/views/LoanPageView.vue";
 import MyPageView from "@/views/MyPageView.vue";
 import FAQView from "@/views/FAQView.vue";
@@ -63,6 +64,11 @@ const router = createRouter({
       path: "/saving",
       name: "SavingsPage",
       component: SavingsPage,
+    },
+    {
+      path: '/saving/:id',
+      name: 'SavingsDetail',
+      component: SavingDetail,
     },
     {
       path: '/loans',

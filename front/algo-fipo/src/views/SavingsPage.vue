@@ -122,7 +122,7 @@ import FilterModal from "@/components/Savings/SavingPage/FilterModal.vue";
 import FilterSelector from "@/components/Savings/SavingPage/FilterSelector.vue";
 import SelectedFilters from "@/components/Savings/SavingPage/SelectedFilters.vue";
 import ProductList from "@/components/Savings/SavingPage/ProductList.vue";
-import { useProductStore } from "@/stores/productstore";
+import { useProductStore } from "@/stores/productStore";
 import { useBankNameStore } from "@/stores/banknamestore";
 const route = useRoute();
 const router = useRouter();

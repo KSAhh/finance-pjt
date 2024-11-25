@@ -13,6 +13,7 @@
       v-for="product in paginatedProducts"
       :key="product.id"
       class="border border-gray-300 rounded-lg p-4 shadow-sm"
+      @click="goToDetail(product.id)"
       >
       <h4 class="font-medium text-lg">{{ product.fin_prdt_nm }}</h4>
         <p class="text-sm text-gray-500">{{ product.kor_co_nm }}</p>
@@ -38,6 +39,9 @@
 
 <script setup>
 import { computed, defineProps, defineEmits, ref, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+const router = useRouter()
+const route = useRoute()
 
 const props = defineProps({
   products: {
@@ -60,6 +64,13 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:currentPage']);
+
+const category = route.query.category
+
+// 상세페이지 이동
+const goToDetail = (id) => {
+  router.push({ name: 'SavingsDetail', params: { id: id }, query: { category: category },})
+}
 
 // 총 페이지 수 계산
 const totalPages = computed(() => {
