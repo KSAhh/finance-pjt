@@ -20,13 +20,16 @@
           <!-- 기타 -->
           <MyProductList
             title="기타"
-            :products="loanProducts"
+            :products="etcProducts"
           />
       </div>
   
       <!-- Chart.js 표시부 -->
       <div class="grid grid-cols-1 gap-8 mt-8">
-        <MyProductChart :products="allProductsForChart" />
+        <MyProductChart 
+        :depositProducts="depositProducts"
+        :savingProducts="savingProducts"
+        :etcProducts="etcProducts" />
       </div>
 
       <!-- 하단 안내 -->
@@ -63,13 +66,13 @@
 
 const depositProducts = computed (() => store.userProducts.deposits)
 const savingProducts = computed (() => store.userProducts.savings)
-const loanProducts = computed (() => store.userProducts.etc)
+const etcProducts = computed (() => store.userProducts.etc)
 // 모든 상품을 하나의 배열로 합치기 (차트용)
-const allProductsForChart = computed(() => [
-  ...store.userProducts.deposits,
-  ...store.userProducts.savings,
-  ...store.userProducts.etc,
-])
+// const allProductsForChart = computed(() => [
+//   ...store.userProducts.deposits,
+//   ...store.userProducts.savings,
+//   ...store.userProducts.etc,
+// ])
 
 </script>
 
