@@ -62,7 +62,8 @@ class UserProduct(models.Model):
     kor_co_nm = models.CharField(max_length=255)                 # 금융회사명
     fin_prdt_nm = models.CharField(max_length=255)               # 금융 상품명
     balance = models.IntegerField(blank=True, default=0)  # 상품에 남은 잔액
-    
+    intr_rate = models.DecimalField(max_digits=5, decimal_places=2, default=-1.00)          # 저축 금리 [소수점 2자리]
+
     # 개월 수 선택 필드
     DURATION_CHOICES = [
         (1, "1개월"),

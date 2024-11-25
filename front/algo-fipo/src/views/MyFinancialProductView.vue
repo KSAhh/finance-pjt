@@ -25,16 +25,13 @@
       </div>
   
       <!-- Chart.js 표시부 -->
-      <div class="grid grid-cols-3 gap-8 mt-8">
-        <div class="bg-gray-200 h-64 flex items-center justify-center">
-          <span>chart.js표시부</span>
-        </div>
-        <div class="bg-gray-200 h-64 flex items-center justify-center">
-          <span>chart.js표시부</span>
-        </div>
-        <div class="bg-gray-200 h-64 flex items-center justify-center">
-          <span>chart.js표시부</span>
-        </div>
+      <div class="grid grid-cols-1 gap-8 mt-8">
+        <MyProductChart :products="allProductsForChart" />
+      </div>
+
+      <!-- 하단 안내 -->
+      <div class="mt-8 text-center text-gray-500 text-sm">
+        밑 구분선은 반응형으로 마지막 요소 밑으로
       </div>
   
       <!-- 하단 안내 -->
@@ -48,6 +45,7 @@
   import { ref, onMounted, computed } from 'vue';
   import { useProductStore } from '@/stores/productStore'
   import MyProductList from '@/components/mypage/MyProductList.vue';
+  import MyProductChart from '@/components/mypage/MyProductChart.vue';
 
   const store = useProductStore()
   
@@ -66,7 +64,12 @@
 const depositProducts = computed (() => store.userProducts.deposits)
 const savingProducts = computed (() => store.userProducts.savings)
 const loanProducts = computed (() => store.userProducts.etc)
-console.log("유저가입상품: ", store.userProducts)
+// 모든 상품을 하나의 배열로 합치기 (차트용)
+const allProductsForChart = computed(() => [
+  ...store.userProducts.deposits,
+  ...store.userProducts.savings,
+  ...store.userProducts.etc,
+])
 
 </script>
 

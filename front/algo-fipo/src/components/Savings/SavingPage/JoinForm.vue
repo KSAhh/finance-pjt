@@ -41,18 +41,30 @@
       <div>
         <label class="block text-sm font-medium">가입 기간 (개월)</label>
         <select v-model="form.duration_months" class="input">
-          <option v-for="month in durationOptions" :key="month" :value="month">
-            {{ month }}개월
+          <option
+            v-for="option in options"
+            :key="option.save_trm"
+            :value="option.save_trm"
+          >
+            {{ option.save_trm }}개월
           </option>
         </select>
       </div>
+
+
+      <!-- 기본 금리 -->
+      <div>
+        <label class="block text-sm font-medium">기본 금리</label>
+        <input type="text" :value="form.intr_rate ? `${form.intr_rate}%` : '선택된 가입 기간에 해당 없음'" readonly class="input bg-gray-100">
+      </div>
+
 
       <!-- 제출 버튼 -->
       <div class="flex justify-end">
         <button
           type="submit"
           class="btn-submit"
-          :disabled="form.balance <= 0"
+          :disabled="form.balance < 0"
         >
           제출
         </button>
@@ -61,7 +73,7 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 
@@ -69,23 +81,40 @@ const route = useRoute();
 const router = useRouter();
 
 const today = new Date().toISOString().split("T")[0];
-const durationOptions = [1, 3, 6, 12, 24, 36];
+
+// JSON으로 전달된 options 파싱
+const options = JSON.parse(route.query.options || "[]");
 
 // 폼 데이터 초기화
 const form = ref({
   product_type: route.query.product_type || "예금",
   balance: 0,
   start_date: today,
-  duration_months: 36,
+  duration_months: options[0]?.save_trm || 35,
   product_pk: route.query.product_pk || "",
   kor_co_nm: route.query.kor_co_nm || "",
   fin_prdt_nm: route.query.fin_prdt_nm || "",
-});
+  intr_rate: options[0]?.intr_rate || null,
+})
+// watch를 사용해 duration_months 변경 감지
+watch(
+  () => form.value.duration_months,
+  (newDuration) => {
+    const selectedOption = options.find(
+      (option) => option.save_trm === newDuration
+    );
+    form.value.intr_rate = selectedOption ? selectedOption.intr_rate : null;
+  },
+  { immediate: true }
+)
+
+
 
 // 폼 제출
 const API_URL = import.meta.env.VITE_API_BASE_URL
 
 const submitForm = async () => {
+
   await axios.post(`${API_URL}/api/v1/products/user/`, form.value, {
     headers: {Authorization: `Token ${localStorage.getItem("key")}`}
   })
@@ -97,7 +126,7 @@ const submitForm = async () => {
   })
   .catch((err) => {
     console.log("가입 실패:", err)
-    alert("가입에 실패했습니다.")
+    alert(err.response?.data?.detail || "동일한 상품은 재가입이 불가합니다.")
   })
 }
 </script>
@@ -119,4 +148,3 @@ const submitForm = async () => {
   cursor: pointer;
 }
 </style>
-const response = await axios.post(`${API_URL}/api/v1/products/user/`, form.value);
