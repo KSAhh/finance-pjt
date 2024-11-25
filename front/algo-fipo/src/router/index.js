@@ -7,6 +7,7 @@ import SignUpView from "@/views/SignUpView.vue";
 import FindPasswordView from "@/views/FindPasswordView.vue";
 import SavingsPage from "@/views/SavingsPage.vue";
 import SavingDetail from "@/views/SavingDetail.vue";
+import JoinForm from "@/components/Savings/SavingPage/JoinForm.vue";
 import LoanPageView from "@/views/LoanPageView.vue";
 import MyPageView from "@/views/MyPageView.vue";
 import FAQView from "@/views/FAQView.vue";
@@ -69,6 +70,12 @@ const router = createRouter({
       path: '/saving/:id',
       name: 'SavingsDetail',
       component: SavingDetail,
+    },
+    {
+      path: '/join',
+      name: 'JoinForm',
+      component: JoinForm,
+      meta: { requiresAuth: true }, // 로그인 필수 설정
     },
     {
       path: '/loans',

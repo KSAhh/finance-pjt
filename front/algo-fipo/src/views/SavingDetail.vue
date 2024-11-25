@@ -1,9 +1,27 @@
 <template>
-    <div>
-    <h1 class="text-2xl font-bold mb-6">상품 상세 정보</h1>
+  <div>
+    <div class="flex items-center justify-between mb-6">
+      <!-- 제목 -->
+      <h1 class="text-2xl font-bold">상품 상세 정보</h1>
+      <!-- 가입하기 버튼 -->
+      <button
+        v-if="isLogin"
+        @click="openJoinModal"
+        class="btn-submit"
+      >
+        가입하기
+      </button>
+    </div>
     <div v-if="product">
-      <!-- 기본 정보 -->
-      <div class="border rounded-lg p-4 mb-6 shadow-sm">
+        <JoinModal v-if="showJoinModal" 
+          :product="product" 
+          :category="category"
+          @close="showJoinModal = false"
+          />
+    
+    <!-- 기본 정보 -->
+    <div class="border rounded-lg p-4 mb-6 shadow-sm">
+        
         <p><strong>상품명:</strong> {{ product.fin_prdt_nm }}</p>
         <p><strong>기관명:</strong> {{ product.kor_co_nm }}</p>
         <p><strong>가입 방법:</strong> {{ formattedJoinWay(product.join_way) }}</p>
@@ -18,11 +36,11 @@
           <span v-html="formattedEtcNote"></span>
         </p>
         <p><strong>업데이트:</strong> {{ formatDate(product.fin_co_subm_day) }}</p>
-      </div>
+    </div>
 
       <!-- 옵션 캐러셀 -->
-      <h2 class="text-xl font-semibold mb-4">상품 옵션</h2>
-      <div class="overflow-x-auto">
+    <h2 class="text-xl font-semibold mb-4">상품 옵션</h2>
+    <div class="overflow-x-auto">
         <div class="flex space-x-4">
           <div
             v-for="(option, index) in product.options"
@@ -38,28 +56,43 @@
             </p>
           </div>
         </div>
-      </div>
     </div>
+  </div>
+  <!-- <div v-else>
+    <p>상품 데이터를 불러오는 중입니다...</p>
+  </div> -->
 
-    <div v-else>
-      <p>상품 데이터를 불러오는 중입니다...</p>
-    </div>
 
-
-    <!-- 뒤로 가기 버튼 -->
-    <button
-      @click="goBack"
-      class="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-    >
-      목록으로 돌아가기
-    </button>
+  <!-- 뒤로 가기 버튼 -->
+  <button
+    @click="goBack"
+    class="mt-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 border"
+  >
+    목록으로 돌아가기
+  </button>
   </div>
 </template>
   
 <script setup>
-  import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
-  import { useRoute, useRouter } from 'vue-router';
-  import { useProductStore } from '@/stores/productstore';
+  import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+  import { useProductStore } from '@/stores/productStore'
+  import { useNavBarStore } from '@/stores/navBarStore'
+  import JoinForm from '@/components/Savings/SavingPage/JoinForm.vue'
+
+  const isLogin = useNavBarStore().isLoggedIn
+  // 가입 창
+  const openJoinModal = () => {
+    const query = new URLSearchParams({
+      product_type: route.query.category === "예금" ? "예금" : "적금",
+      product_pk: product.value.id,
+      kor_co_nm: product.value.kor_co_nm,
+      fin_prdt_nm: product.value.fin_prdt_nm,
+    }).toString();
+
+    const url = `/join?${query}`;
+    window.open(url, "_blank", "width=600,height=700,scrollbars=yes");
+  };
   
   const route = useRoute();
   const router = useRouter();
@@ -169,5 +202,29 @@ const formattedEtcNote = computed(() => {
 
   </script>
   <style scoped>
+  .btn-submit {
+  display: inline-block;
+  background-color: #4caf50; /* 기본 배경색: 녹색 */
+  color: white; /* 텍스트 색상 */
+  font-size: 1.2rem; /* 글자 크기 */
+  font-weight: bold; /* 글자 굵기 */
+  padding: 0.8rem 1.6rem; /* 내부 여백 */
+  border-radius: 8px; /* 둥근 모서리 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 약간의 그림자 */
+  transition: all 0.3s ease; /* 호버 시 부드러운 애니메이션 */
+  border: none;
+  cursor: pointer;
+}
+
+.btn-submit:hover {
+  background-color: #45a049; /* 호버 시 더 어두운 녹색 */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* 그림자 증가 */
+  transform: translateY(-2px); /* 살짝 위로 이동하는 효과 */
+}
+
+.btn-submit:active {
+  transform: translateY(0); /* 클릭 시 원래 위치로 돌아옴 */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 클릭 시 그림자 원래대로 */
+}
 </style>
   
