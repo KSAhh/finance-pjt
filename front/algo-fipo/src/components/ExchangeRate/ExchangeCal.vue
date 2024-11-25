@@ -1,5 +1,12 @@
 <template>
-    <h2 class="text-2xl font-bold mb-6">환율 계산기</h2>
+    <!-- 제목과 버튼을 같은 높이로 배치 -->
+    <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold">환율 계산기</h2>
+    <button @click="swapCurrencies" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      <i class="fa-solid fa-arrows-rotate"></i> 단위 전환
+    </button>
+  </div>
+
 
     <!-- 기존 단위 선택 -->
     <label class="block mb-4">
@@ -60,19 +67,19 @@ const exchanges = computed(() => store.exchanges); // computed로 반응성 보�
 
 // 데이터 가져오기
 onMounted(async () => {
-  
   await store.getExchangeRate()
-
   // 기본값 설정 (KRW로 초기화)
   const krwExchange = exchanges.value.find((exchange) => exchange.cur_unit === "KRW")
   const usdExchange = exchanges.value.find((exchange) => exchange.cur_unit === "USD")
   if (usdExchange) {
-    toCurrency.value = krwExchange // 기본값을 USD로 설정
+    toCurrency.value = usdExchange // 기본값을 USD로 설정
   if (krwExchange) {
-    fromCurrency.value = usdExchange
+    fromCurrency.value = krwExchange
   }
   }
 })
+console.log("store.exchanges" ,store.exchanges);
+
 
 // 계산된 금액
 const calculatedAmount = computed(() => {
@@ -82,7 +89,7 @@ const calculatedAmount = computed(() => {
 
   if (fromCurrency.value.cur_unit === "KRW") {
     // KRW -> 외화
-    return (amount.value * fromCurrency.value.krw_to_cur / 1000).toFixed(2);
+    return (amount.value * toCurrency.value.krw_to_cur / 1000).toFixed(2);
   } else if (toCurrency.value.cur_unit === "KRW") {
     // 외화 -> KRW
     return (amount.value * fromCurrency.value.cur_to_krw).toFixed(2);
@@ -103,6 +110,12 @@ const formatNumber = (num) => {
       useGrouping: true,
     });
 }
+
+const swapCurrencies = () => {
+  const temp = fromCurrency.value; // 임시 변수에 fromCurrency 저장
+  fromCurrency.value = toCurrency.value; // fromCurrency를 toCurrency로 변경
+  toCurrency.value = temp; // toCurrency를 임시 변수 값으로 변경
+};
 
 
 </script>

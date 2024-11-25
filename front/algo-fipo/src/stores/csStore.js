@@ -5,26 +5,29 @@ import axios from 'axios'
 
 export const useCsStore = defineStore("cs", () => {
   const articles = ref([])
-  const comments = ref([])
+  const comments = ref({})
   const token = ref(null)
   const API_URL = "http://127.0.0.1:8000"
 
-  // 데이터 다운로드
+  // 글 데이터 가져오기
   const getArticles = (async () => {
     await axios.get(`${API_URL}/api/v1/articles/`)
     .then(res => {
-      console.log(res)
       articles.value = res.data
-      // articles.value = res.data.map(article => {
-      //   if (article.image) {
-      //     article.image = `${API_URL}${article.image}`;
-      //   }
-      //   return article;
-      // })
-      console.log(articles.value)
     })
     .catch(err => console.log(err))
   })
 
-  return { articles, comments, getArticles }
+  // 댓글 데이터 가져오기
+  const getComments = (async (article_pk) => {
+    await axios.get(`${API_URL}/api/v1/articles/${article_pk}/`)
+    .then(res => {
+      console.log(res.data)
+      comments.value[article_pk] = res.data.comments
+      console.log(comments.value)
+    })
+    .catch(err => console.log(err))
+  })
+
+  return { articles, comments, getArticles, getComments }
 }, { persist: true})
