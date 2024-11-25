@@ -13,7 +13,7 @@
       </button>
     </div>
     <div v-if="product">
-        <JoinModal v-if="showJoinModal" 
+        <JoinForm v-if="showJoinModal" 
           :product="product" 
           :category="category"
           @close="showJoinModal = false"
@@ -81,6 +81,7 @@
   import JoinForm from '@/components/Savings/SavingPage/JoinForm.vue'
 
   const isLogin = useNavBarStore().isLoggedIn
+  const showJoinModal = ref(false)
   // 가입 창
   const openJoinModal = () => {
     const query = new URLSearchParams({
