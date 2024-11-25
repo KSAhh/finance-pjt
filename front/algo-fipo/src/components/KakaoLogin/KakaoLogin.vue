@@ -11,7 +11,7 @@ import axios from "axios";
 import { useNavBarStore } from "@/stores/navBarStore"; // Pinia Store for NavBar
 
 // Kakao JavaScript SDK Key
-const KAKAO_LOGIN_JS_KEY = import.meta.env.VITE_KAKAO_LOGIN_JS_KEY;
+const KAKAO_LOGIN_JS_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
 
 const navBarStore = useNavBarStore();
 

@@ -17,7 +17,7 @@ Chart.register(...registerables);
 
 const store = useExchangeStore();
 const chartCanvas = ref(null); // 차트를 렌더링할 캔버스
-let chartInstance = null; // Chart.js 인스턴스
+let chartInstance = null // Chart.js 인스턴스
 
 
 // 차트 생성 함수

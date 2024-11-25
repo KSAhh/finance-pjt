@@ -32,7 +32,7 @@ class UserProfile(models.Model):
     monthly_income = models.IntegerField() # 월 평균 소득
     monthly_expense = models.IntegerField() # 월 평균 소비
     total_assets = models.IntegerField()  # 총 자산
-    # 총 자산
+    is_mydata_consent = models.BooleanField(default=False) # 마이데이터 동의 여부
 
 # allauth 유저 조회 - adapter 커스텀
 class CustomAccountAdapter(DefaultAccountAdapter):

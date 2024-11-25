@@ -6,19 +6,13 @@
       <!-- 가입하기 버튼 -->
       <button
         v-if="isLogin"
-        @click="openJoinModal"
+        @click="openJoinForm"
         class="btn-submit"
       >
         가입하기
       </button>
     </div>
     <div v-if="product">
-        <JoinForm v-if="showJoinModal" 
-          :product="product" 
-          :category="category"
-          @close="showJoinModal = false"
-          />
-    
     <!-- 기본 정보 -->
     <div class="border rounded-lg p-4 mb-6 shadow-sm">
         
@@ -78,22 +72,21 @@
   import { useRoute, useRouter } from 'vue-router'
   import { useProductStore } from '@/stores/productStore'
   import { useNavBarStore } from '@/stores/navBarStore'
-  import JoinForm from '@/components/Savings/SavingPage/JoinForm.vue'
 
   const isLogin = useNavBarStore().isLoggedIn
-  const showJoinModal = ref(false)
   // 가입 창
-  const openJoinModal = () => {
+  const openJoinForm = () => {
     const query = new URLSearchParams({
       product_type: route.query.category === "예금" ? "예금" : "적금",
       product_pk: product.value.id,
       kor_co_nm: product.value.kor_co_nm,
       fin_prdt_nm: product.value.fin_prdt_nm,
+      options: JSON.stringify(product.value.options), // JSON 문자열로 변환
     }).toString();
 
     const url = `/join?${query}`;
     window.open(url, "_blank", "width=600,height=700,scrollbars=yes");
-  };
+  }
   
   const route = useRoute();
   const router = useRouter();
@@ -133,8 +126,8 @@
 
   // 페이지 벗어날 때 sessionStorage 데이터 제거
     onBeforeUnmount(() => {
-    sessionStorage.removeItem("product");
-    console.log("sessionStorage product 데이터 삭제됨.");
+      sessionStorage.removeItem("product");
+      console.log("sessionStorage product 데이터 삭제됨.");
     });
 
   
