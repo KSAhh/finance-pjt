@@ -11,7 +11,7 @@
         <h5 class="text-lg font-semibold text-gray-800">{{ article.title }}</h5>
         <span class="text-sm text-gray-500">{{ formatDate(article.created_at) }}</span>
       </div>
-      <p class="text-sm text-gray-600 mb-2 line-clamp-2">{{ article.article_body }}</p>
+      <p class="text-sm text-gray-600 mb-2 trim-box">{{ article.article_body }}</p>
       <div class="flex items-center justify-between text-sm text-gray-500">
         <span>작성자: <span class="font-medium text-gray-800">{{ article.author_nickname }}</span></span>
         <RouterLink 
@@ -26,7 +26,9 @@
 </template>
 
 <script setup>
-import { RouterLink, RouterView } from 'vue-router';
+import { RouterLink, RouterView } from 'vue-router'
+import { truncate } from 'lodash'
+import { watch, ref } from 'vue'
 
 defineProps({
   article: Object,
@@ -54,5 +56,10 @@ const formatDate = (date) => {
 </script>
 
 <style scoped>
-
+/* 본문 글자수 제한이 추가로 필요할 경우 */
+p.text-sm {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 </style>

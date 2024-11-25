@@ -4,10 +4,10 @@
       <div v-if="products && products.length > 0">
             <ul class="divide-y divide-gray-300">
                 <MyProductListItem
-                v-for="product in products"
-                :key="product.id"
-                :product="product"
-                />
+                    v-for="product in products"
+                    :key="product.id"
+                    :product="product"
+                    />
             </ul>
         </div>
         <div v-else class="text-gray-500 text-sm">
