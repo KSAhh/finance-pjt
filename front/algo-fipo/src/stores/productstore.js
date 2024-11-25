@@ -4,10 +4,20 @@ import { defineStore } from 'pinia';
 import axios from 'axios';
 
 export const useProductStore = defineStore("productStore", () => {
+  
+  // 전체상품
   const products = ref({
     deposits: [],
     savings: [],
   })
+
+  // 유저 가입상품
+  const userProducts = ref({
+    deposits: [],
+    savings: [],
+    etc: [],
+  })
+
   const isLoading = ref(false)
   const error = ref(null)
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -31,42 +41,36 @@ export const useProductStore = defineStore("productStore", () => {
       isLoading.value = false
     })
   }
-  return { products, isLoading, error, fetchProducts}
+
+  // 유저가 가입한 상품데이터 가져오기
+  const getUserProducts = async () => {
+    const token = localStorage.getItem("key")
+    if (!token) {
+      console.error("토큰이 존재하지 않습니다.")
+      return
+    }
+
+    await axios.get(`${API_BASE_URL}/api/v1/products/user/`, {
+      headers: { Authorization: `Token ${token}`}
+    })
+    .then((res) => {
+      const deposits = []
+      const savings = []
+      const etc = []
+
+      res.data.forEach((product) => {
+          if (product.product_type === "예금") {
+            deposits.push(product)
+          } else if (product.product_type === "적금") {
+            savings.push(product)
+          } else {
+            etc.push(product)
+          }
+      });
+      userProducts.value = { deposits, savings, etc, }
+      console.log("store에 저장된 유저 가입 상품 데이터:", userProducts.value);
+    })
+    .catch((err) => console.log(err))
+  }
+  return { products, isLoading, error, fetchProducts, userProducts, getUserProducts}
 })
-
-// 기존
-// import { defineStore } from "pinia";
-// import axios from "axios";
-
-// const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-// export const useProductStore = defineStore("productStore", {
-//     state: () => ({
-//       products: {
-//         deposits: [],
-//         savings: [],
-//       },
-//       isLoading: false,
-//       error: null,
-//     }),
-  
-//     actions: {
-//       async fetchProducts() {
-//         this.isLoading = true;
-//         this.error = null;
-  
-//         try {
-//           const response = await axios.get(`${API_BASE_URL}/api/v1/products/`);
-//           this.products = {
-//             deposits: response.data.deposits || [],
-//             savings: response.data.savings || [],
-//           };
-//         } catch (err) {
-//           console.error("API 요청 중 오류 발생:", err.message);
-//           this.error = err.message;
-//         } finally {
-//           this.isLoading = false;
-//         }
-//       },
-//     },
-//   });

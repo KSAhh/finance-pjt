@@ -70,7 +70,6 @@ const router = useRouter();
 
 const today = new Date().toISOString().split("T")[0];
 const durationOptions = [1, 3, 6, 12, 24, 36];
-const balanceError = ref("")
 
 // 폼 데이터 초기화
 const form = ref({
