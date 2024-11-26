@@ -1,5 +1,5 @@
 <template>
-  <ul class="hidden sm:flex text-base md:text-lg lg:text-xl tracking-wide whitespace-nowrap relative">
+  <ul class="hidden sm:flex text-base md:text-lg lg:text-xl tracking-wide whitespace-nowrap">
     <MenuItem
       v-for="(item, index) in menuItems"
       :key="index"
@@ -13,6 +13,7 @@
     />
   </ul>
 </template>
+
 
 <script setup>
 import { reactive, ref } from "vue";
@@ -92,11 +93,74 @@ const navigateToMainPage = (label) => {
 
 
 <style scoped>
+
+/* ul > li::before {
+  content: "";
+  position: absolute;
+  inset: -12px -8px;
+  z-index: -1;
+  background-color: transparent;
+}
+ul > li {
+  position: relative;
+  overflow: hidden; 
+  font-weight: bold;
+}
+
+ul > li::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #0048e8;
+  transition: all 0.3s ease; 
+  transform: translateX(-50%);
+}
+
+ul > li:hover::after {
+  width: 80%; 
+}
+
+ul > li {
+  padding: 0 10px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+} */
+
 ul > li::before {
   content: "";
   position: absolute;
-  inset: -12px -8px; /* 위아래로 12px, 좌우로 8px 확장 */
+  inset: 0;
   z-index: -1;
-  background-color: transparent; /* 시각적 변경 없음 */
 }
+
+ul > li {
+  position: relative;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+ul > li::after {
+  content: "";
+  position: absolute;
+  bottom: 11px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #0048e8;
+  transition: width 0.3s ease; /* left는 고정, width만 애니메이션 적용 */
+  transform: translateX(-50%);
+}
+
+ul > li:hover::after {
+  width: 70%; /* 호버 시 밑줄 확장 */
+}
+
+
 </style>

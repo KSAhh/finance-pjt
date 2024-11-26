@@ -26,7 +26,7 @@
 
     <!-- 햄버거 메뉴 -->
     <div class="absolute right-4 top-4 sm:static">
-      <HamburgerMenu class="w-8 h-8" />
+      <HamburgerMenu class="w-8 h-8 " />
     </div>
   </nav>
 </template>
@@ -44,3 +44,4 @@ import LogoutButton from "./Nav/LogoutButton.vue";
 const navBarStore = useNavBarStore()
 const isLoggedIn = computed(() => navBarStore.isLoggedIn)
 </script>
+
