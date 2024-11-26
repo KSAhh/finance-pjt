@@ -86,7 +86,8 @@
           },
         });
         // 삭제 후 다른 페이지로 이동 (예: 메인 페이지)
-        window.location.href = '/';
+        router.push({name: 'CustomerSupport'})
+         
       } catch (error) {
         console.error('글 삭제 실패:', error);
         alert('글 삭제 중 오류가 발생했습니다.');

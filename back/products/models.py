@@ -1,11 +1,13 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta # 정확한 개월 수 계산
  
-from django.contrib.auth import get_user_model
-User = get_user_model()
 
 # 금융상품 - 공통
 class AbstractProduct(models.Model):
@@ -16,7 +18,7 @@ class AbstractProduct(models.Model):
     mtrt_int = models.TextField(default="Unknown")                                  # 만기 후 이자율 조건 설명
     spcl_cnd = models.TextField(default="Unknown")                                  # 우대 조건
     join_deny = models.IntegerField(default=1)                                      # 가입 제한(1: 제한없음, 2:서민전용, 3:일부제한)
-    join_member = models.TextField(default="실명의 개인")                            # 가입대상
+    join_member = models.TextField(default="실명의 개인")                              # 가입대상
     etc_note = models.TextField(default="Unknown")                                  # 기타 유의사항
     fin_co_subm_day = models.CharField(max_length=12, default="000000000000")       # 금융회사 제출일 (YYYYMMDDHH24MI 형식)
     max_limit = models.DecimalField(max_digits=15, decimal_places=2, default=0.00) # 최고한도

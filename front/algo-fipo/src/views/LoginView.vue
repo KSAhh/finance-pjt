@@ -120,7 +120,7 @@ const handleFormSubmit = async () => {
 
       localStorage.setItem("key", token);
       // localStorage.setItem("fullname", fullname);
-      // localStorage.setItem("nickname", nickname);
+      localStorage.setItem("nickname", nickname);
       // navBarStore.login(fullname);
       navBarStore.login(nickname);
 
