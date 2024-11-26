@@ -94,6 +94,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
     ],
+
+    # 직렬화 과정에서 DecimalField를 문자열로 변환하지 않도록
+    'COERCE_DECIMAL_TO_STRING': False, 
+
 }
 
 # REST-AUTH registration 기본 Serializer

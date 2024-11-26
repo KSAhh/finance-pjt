@@ -4,7 +4,7 @@ from dj_rest_auth.serializers import UserDetailsSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-
+from .models import UserProfile
 
 UserModel = get_user_model()
 
@@ -69,4 +69,9 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             return make_password(value)
         return value
 
-
+# 유저 금융 프로필
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = "__all__"
+        read_only_fields = ["user"]
