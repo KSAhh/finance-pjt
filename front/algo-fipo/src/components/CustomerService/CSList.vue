@@ -1,6 +1,7 @@
 <template>
     <div class="max-w-screen-xl p-6 min-h-screen">
       <div class="space-y-4">
+        
         <CSListItem 
           v-for="article in paginatedArticles"
           :key="article.id"

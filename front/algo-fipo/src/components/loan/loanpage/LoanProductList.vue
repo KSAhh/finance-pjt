@@ -1,4 +1,4 @@
-<!-- src/components/loan/loanpage/ProductList.vue -->
+<!-- src/components/loan/loanpage/LoanProductList.vue -->
 <template>
     <div class="product-list">
       <!-- 상품 목록 렌더링 로직 -->

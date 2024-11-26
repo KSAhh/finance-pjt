@@ -29,15 +29,31 @@ export const useProductStore = defineStore("productStore", () => {
 
     await axios.get(`${API_BASE_URL}/api/v1/products/`)
     .then((res) => {
+      console.log("응답값1 - res.data.deposits.options있음", res.data)
+
+      // products.value = {
+      //   deposits: res.data.deposits || [],
+      //   savings: res.data.savings || [],
+      // }
       products.value = {
-        deposits: res.data.deposits || [],
-        savings: res.data.savings || [],
-      }
+        deposits: (res.data.deposits || []).map((deposit) => ({
+          ...deposit,
+          options: Array.isArray(deposit.options) ? deposit.options : [], // options가 배열이 아닐 경우 빈 배열로 초기화
+        })),
+        savings: (res.data.savings || []).map((saving) => ({
+          ...saving,
+          options: Array.isArray(saving.options) ? saving.options : [], // options가 배열이 아닐 경우 빈 배열로 초기화
+        })),
+      };
+      
+      console.log("저장된 값", products.value.deposits[0])
+      console.log("응답값2 - res.data.deposits.options없음", res.data)
     })
     .catch((err) => {
       console.log("API 요청 중 오류 발생:", err)
     })
     .finally(() => {
+      console.log("먼저 로딩 상태")
       isLoading.value = false
     })
   }

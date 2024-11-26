@@ -15,7 +15,7 @@
     <!-- User Status-based Menu -->
     <div class="flex items-center space-x-4 mr-4">
       <template v-if="isLoggedIn">
-        <span v-if="navBarStore.userNickname" class="text-gray-600">{{ navBarStore.userNickname }}</span>
+        <span class="text-gray-600">{{ navBarStore.userNickname }} 님 안녕하세요</span>
         <LogoutButton />
       </template>
       <template v-else>
@@ -33,7 +33,7 @@
 
 <script setup>
 import { useNavBarStore } from "@/stores/navBarStore"
-import { computed } from "vue";
+import { computed, onMounted, watchEffect, ref  } from "vue";
 import Logo from "./Nav/Logo.vue";
 import Menu from "./Nav/Menu.vue";
 import LoginButton from "./Nav/LoginButton.vue";
@@ -43,5 +43,7 @@ import LogoutButton from "./Nav/LogoutButton.vue";
 
 const navBarStore = useNavBarStore()
 const isLoggedIn = computed(() => navBarStore.isLoggedIn)
+const nickname = computed(() => navBarStore.userNickname)
+
 </script>
 

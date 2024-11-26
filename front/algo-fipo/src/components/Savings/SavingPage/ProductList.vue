@@ -97,6 +97,11 @@ const props = defineProps({
   },
 });
 
+watch(() => props.products, (newProducts) => {
+  console.log("ProductList.vue의 products가 업데이트됨: ", newProducts);
+});
+
+
 const emit = defineEmits(['update:currentPage']);
 
 const category = route.query.category
@@ -176,7 +181,8 @@ const allSaveTerms = (options) => {
 watch(
   () => props.products,
   (newProducts) => {
-    console.log('props.products 변경됨:', newProducts);
+    console.log('props.products 변경됨: ', newProducts[0]);
+
   },
   { immediate: true }
 );

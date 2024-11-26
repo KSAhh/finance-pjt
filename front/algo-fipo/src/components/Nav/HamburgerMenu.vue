@@ -38,7 +38,8 @@ const goToMyPage = (item) => {
   if (item === "마이페이지") {
     router.push({ name: "MyPage" });
   } else if (item === "자주하는 질문") {
-    router.push({ name: "FAQ" }); // 필요 시 다른 라우터 추가
+    // router.push({ name: "FAQ" });
+    router.push({ name: "CustomerSupport" }); // 필요 시 다른 라우터 추가
   } else if (item === "고객센터") {
     router.push({ name: "CustomerSupport" });
   }

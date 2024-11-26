@@ -10,7 +10,8 @@
                     글 작성하기
                 </button>
             </div>
-            <CSList :current-page="currentPage" :articles-per-page="articlesPerPage" @changePage="changePage" />            
+          <div v-if="articlesPerPage" class="text-center text-gray-500 py-6">작성된 문의가 없습니다.</div>
+          <CSList v-else :current-page="currentPage" :articles-per-page="articlesPerPage" @changePage="changePage" />            
         </div>
     </div>
 </template>

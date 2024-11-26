@@ -30,7 +30,13 @@
         수정하기
       </button>
     </form>
+    <button @click="goToMyInfo"
+          type="submit"
+          class="bg-blue-500 text-white px-4 py-2 mt-5 rounded-lg shadow-md hover:bg-blue-600 transition"
+        >이전으로
+      </button>
   </div>
+
 </template>
 
 <script setup>
@@ -69,6 +75,10 @@ const updateUserInfo = async () => {
   router.push('/myinfoedit'); // 수정 후 마이페이지 목록으로 이동
 
 };
+  const goToMyInfo = () => {
+      router.push('/myinfoedit')
+    };
+
 </script>
 
 <style scoped>

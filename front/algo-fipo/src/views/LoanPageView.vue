@@ -10,7 +10,7 @@
 
     <!-- 상품 목록 -->
     <div class="w-full max-w-5xl mt-8">
-      <ProductList :filters="selectedFilters" />
+      <LoanProductList :filters="selectedFilters" />
     </div>
   </div>
   </template>
@@ -19,7 +19,7 @@
   import { ref, watch, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import FilterSection from '@/components/loan/loanpage/FilterSection.vue';
-  import ProductList from '@/components/loan/loanpage/ProductList.vue';
+  import LoanProductList from '@/components/loan/loanpage/LoanProductList.vue';
   
   const route = useRoute();
   const router = useRouter();
