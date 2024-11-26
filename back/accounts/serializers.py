@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from dj_rest_auth.serializers import UserDetailsSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from .models import UserProfile
@@ -51,7 +52,7 @@ class CustomUserDetailsSerializer(UserDetailsSerializer):
             extra_fields.append('profile_image')
         model = UserModel
         fields = ('pk', *extra_fields)
-        read_only_fields = ('email',)
+        read_only_fields = ('email', 'date_joined')
 
 # 회원정보 수정용
 class UpdateUserSerializer(serializers.ModelSerializer):

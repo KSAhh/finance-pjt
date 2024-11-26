@@ -20,6 +20,7 @@ from .models import UserProfile
 User = get_user_model()
 
 
+# 유저탈퇴
 class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated]
 

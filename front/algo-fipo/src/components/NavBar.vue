@@ -15,7 +15,7 @@
     <!-- User Status-based Menu -->
     <div class="flex items-center space-x-4 mr-4">
       <template v-if="isLoggedIn">
-        <span class="text-gray-600">{{ navBarStore.userNickname }} 님 안녕하세요</span>
+        <span class="text-gray-600">{{ navBarStore.userNickname }}</span>
         <LogoutButton />
       </template>
       <template v-else>
@@ -43,7 +43,9 @@ import LogoutButton from "./Nav/LogoutButton.vue";
 
 const navBarStore = useNavBarStore()
 const isLoggedIn = computed(() => navBarStore.isLoggedIn)
-const nickname = computed(() => navBarStore.userNickname)
+const nickname = ref(localStorage.getItem('nickname'))
+nickname.value = computed(() => localStorage.getItem('nickname'))
+nickname.value = computed(() => navBarStore.nickname)
 
 </script>
 

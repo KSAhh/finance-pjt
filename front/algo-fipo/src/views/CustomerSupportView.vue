@@ -10,7 +10,8 @@
                     글 작성하기
                 </button>
             </div>
-          <div v-if="articlesPerPage" class="text-center text-gray-500 py-6">작성된 문의가 없습니다.</div>
+            <div v-if="isLoading" class="text-center text-gray-500 py-6">로딩 중입니다...</div>
+            <div v-else-if="hasNoArticles" class="text-center text-gray-500 py-6">작성된 문의가 없습니다.</div>
           <CSList v-else :current-page="currentPage" :articles-per-page="articlesPerPage" @changePage="changePage" />            
         </div>
     </div>
@@ -20,15 +21,20 @@
 import CSList from '@/components/CustomerService/CSList.vue'
 import { useCsStore } from '@/stores/csStore'
 import { useRouter } from 'vue-router';
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 
 const store = useCsStore()
 const router = useRouter()
-onMounted( () => {
-    store.getArticles()
+
+const hasNoArticles = computed(() => !isLoading.value && store.articles.length === 0);
+const isLoading = ref(true);
+const isLoggedIn = !!localStorage.getItem('key')
+onMounted( async() => {
+    isLoading.value = true;
+    await store.getArticles()
+    isLoading.value = false;
 })
 
-const isLoggedIn = !!localStorage.getItem('key')
 
 const currentPage = ref(1);
 const articlesPerPage = 10; // 페이지당 표시할 글 수
@@ -43,6 +49,9 @@ const changePage = (page) => {
 const goToCreateArticle = () => {
     router.push('/cs/create'); // 새로운 글 작성 페이지로 이동
 };
+
+
+
 
 </script>
 
