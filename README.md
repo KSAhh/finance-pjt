@@ -94,9 +94,6 @@ https://github.com/user-attachments/assets/57ca6a89-642a-4c86-91a4-0b8f93efd3fe
 - **Framework**: Django REST Framework
 - **Database**: SQLite
 - **Language**: Python
-- ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=Python&logoColor=white)
-- ![Django](https://img.shields.io/badge/Django-092E20?style=flat-square&logo=Django&logoColor=white)
-- ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat-square&logo=SQLite&logoColor=white)
 
 <img src="https://skillicons.dev/icons?i=githubactions" width="48" height="48" alt="GitHub Actions"/>
 

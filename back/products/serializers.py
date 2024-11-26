@@ -38,6 +38,8 @@ class ProductOptionSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = fields
 
+        
+
 # 상품 - 예금 & 적금 + 옵션
 class DepositSavingDetailSerializer(serializers.ModelSerializer):
     options = ProductOptionSerializer(many=True, read_only=True)
@@ -51,3 +53,37 @@ class UserProductSerializer(serializers.ModelSerializer):
         model = UserProduct
         fields = "__all__"
         read_only_fields = ['id', 'user', 'deposit_product', 'saving_product', "end_date"]
+
+# 추천상품
+# 옵션
+class ProductRecommendSeriazlier(serializers.ModelSerializer):
+    product = serializers.SerializerMethodField()  # 연결된 상품 정보 추가
+
+    class Meta:
+        model = ProductOption
+        fields = [
+            "intr_rate_type_nm",
+            "save_trm",
+            "intr_rate",
+            "intr_rate2",
+            "rsrv_type_nm",
+            "product",  # 연결된 상품 정보
+        ]
+        read_only_fields = fields
+
+    def get_product(self, obj):
+        # GenericForeignKey로 연결된 product 정보 반환
+        product = obj.product
+        if isinstance(product, DepositProduct):
+            return {
+                "type": "deposit",
+                "name": product.fin_prdt_nm,
+                "company": product.kor_co_nm,
+            }
+        elif isinstance(product, SavingProduct):
+            return {
+                "type": "saving",
+                "name": product.fin_prdt_nm,
+                "company": product.kor_co_nm,
+            }
+        return None

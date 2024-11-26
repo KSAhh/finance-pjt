@@ -44,6 +44,10 @@ const menuItems = reactive([
     label: "환율",
     dropdownContent: ["환율 조회"],
   },
+  {
+    label: "상품 추천",
+    dropdownContent: ["상품 추천"],
+  },
 ]);
 
 // 드롭다운 열기
@@ -71,6 +75,12 @@ const handleItemClick = (item) => {
       (content) => content.label === item.label
     )?.category;
     router.push({ name: "BankMap", query: { category } });
+  }
+  else if (selectedItem.label === "상품 추천") {
+    const category = selectedItem.dropdownContent.find(
+      (content) => content.label === item.label
+    )?.category;
+    router.push({ name: "TopRates" });
   }
   closeDropdown(); // 드롭다운 닫기
 };
