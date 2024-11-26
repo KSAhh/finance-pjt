@@ -21,7 +21,7 @@
   
   // 메뉴 항목 정의
   const menuItems = ref([
-    { label: "내 연락처 관리", route: "/myinfoedit/contact-management" },
+    { label: "내 정보 수정", route: "/myinfoedit/contact-management" },
     { label: "비밀번호 수정", route: "/myinfoedit/password-edit" },
     { label: "내 금융정보 수정", route: "/myinfoedit/finance-info-edit" },
     { label: "마이데이터 권한", route: "/myinfoedit/data-authorization" },

@@ -15,7 +15,7 @@
           <input
             v-model="formData.username"
             type="text"
-            placeholder="사용자 이름"
+            placeholder="아이디 또는 이메일"
             class="w-full border border-gray-300 rounded px-4 py-2 text-gray-700 focus:outline-none focus:ring focus:border-blue-500"
             required
           />
@@ -56,7 +56,7 @@
           <input
             v-model="formData.nickname"
             type="text"
-            placeholder="별명"
+            placeholder="닉네임"
             class="w-full border border-gray-300 rounded px-4 py-2 text-gray-700 focus:outline-none focus:ring focus:border-blue-500"
             required
           />
@@ -139,7 +139,7 @@ const signup = async () => {
     const token = response.data.key;
     if (token) {
       localStorage.setItem("key", token);
-      localStorage.setItem("fullname", formData.value.fullname);
+      // localStorage.setItem("fullname", formData.value.nickname);
       axios.defaults.headers.common["Authorization"] = `Token ${token}`;
       alert("회원가입이 성공적으로 완료되었습니다!");
       router.push({ name: "MainView" }); // router.push로 라우팅
@@ -157,7 +157,7 @@ const signup = async () => {
       confirmPassword: "",
       nickname: "",
       fullname: "",
-    };
+    }
   }
 };
 </script>

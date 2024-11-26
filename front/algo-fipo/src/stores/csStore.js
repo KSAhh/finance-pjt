@@ -19,8 +19,8 @@ export const useCsStore = defineStore("cs", () => {
     .catch(err => console.log(err))
   })
 
-  // 댓글 데이터 가져오기
-  const getComments = (async (articlePk) => {
+  // 댓글 + 글 데이터 가져오기
+  const getArticle = (async (articlePk) => {
     await axios.get(`${API_URL}/api/v1/articles/${articlePk}/`)
     .then(res => {
       console.log(res.data)
@@ -56,5 +56,33 @@ export const useCsStore = defineStore("cs", () => {
     })
     .catch((err) => console.log("글 작성 실패", err))
   })
-  return { articles, comments, getArticles, getComments, article, createArticle }
+
+  // 글 수정하기
+  const updateArticle = async (articlePk, articleData) => {
+    const token = localStorage.getItem('key');
+    try {
+      const formData = new FormData();
+      formData.append('title', articleData.title);
+      formData.append('article_body', articleData.article_body);
+      if (articleData.image) formData.append('image', articleData.image); // 이미지 추가
+      formData.append('is_private', articleData.is_private);
+
+      const response = await axios.put(
+        `${API_URL}/api/v1/articles/${articlePk}/`, formData,
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            'Content-Type': 'multipart/form-data', // 멀티파트 설정
+          },
+        }
+      );
+      console.log('글 수정 성공:', response.data);
+    } catch (error) {
+      console.error('글 수정 실패:', error.response?.data || error.message);
+      throw error;
+    }
+  };
+
+
+  return { articles, comments, getArticles, getArticle, article, createArticle, updateArticle }
 }, { persist: true})

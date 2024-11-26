@@ -75,7 +75,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted } from "vue"
+import { useUserStore } from "@/stores/user"
+const userStore = useUserStore()
 
 // 상태
 const selectedContent = ref(null);
@@ -93,8 +95,15 @@ const serviceList = [
   { label: "?" },
 ];
 
-// 애니메이션 초기화
-onMounted(() => {
+onMounted(async() => {
+  // 유저정보 가져오기
+  await userStore.getUserInfo()
+  const userInfo = userStore.userInfo
+  if (userInfo.nickname) {
+    localStorage.setItem("nickname", userInfo.nickname)
+  }
+
+  // 애니메이션 초기화
   showFirstSentence.value = true;
   setTimeout(() => {
     showSecondSentence.value = true;
