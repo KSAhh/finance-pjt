@@ -19,7 +19,7 @@ const processLogin = async () => {
     const response = await axios.post("http://localhost:8000/accounts/social/kakao/login/", {
       code,
     });
-
+    
     const token = response.data.token;
     if (!token) {
       throw new Error("서버에서 토큰을 받아오지 못했습니다.");

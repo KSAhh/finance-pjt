@@ -67,9 +67,16 @@ const kakaoLoginBtn = async () => {
         const key = Array.isArray(serverResponse.data.key)
           ? serverResponse.data.key[0]?.key
           : serverResponse.data.key;
+        
+        // Extract userId from Server Response
+        const userId = Array.isArray(serverResponse.data.user_id)
 
         if (!key) {
           throw new Error("서버 응답에 key가 없습니다.");
+        }
+
+        if (!userId) {
+          throw new Error("서버 응답에 user_id가 없습니다.")
         }
 
         // Store Token and Full Name in Local Storage

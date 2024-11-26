@@ -1,9 +1,12 @@
 <template>
-  <div class="border rounded-lg shadow-md p-4 bg-white flex items-start">
-    <img 
-      v-if="article.image" 
-      :src="article.image" 
-      alt="article image" 
+  <div
+    v-if="!article.is_private || article.author === currentUserId"
+    class="border rounded-lg shadow-md p-4 bg-white flex items-start"
+  >
+    <img
+      v-if="article.image"
+      :src="article.image"
+      alt="article image"
       class="w-12 h-12 rounded-full object-cover mr-4"
     />
     <div class="flex-1">
@@ -11,10 +14,13 @@
         <h5 class="text-lg font-semibold text-gray-800">{{ article.title }}</h5>
         <span class="text-sm text-gray-500">{{ formatDate(article.created_at) }}</span>
       </div>
+      <p v-if="article.is_private && article.author === currentUserId" class="text-sm text-red-500">
+        비공개 글입니다.
+      </p>
       <p class="text-sm text-gray-600 mb-2 trim-box">{{ truncatedArticleBody }}</p>
       <div class="flex items-center justify-between text-sm text-gray-500">
         <span>작성자: <span class="font-medium text-gray-800">{{ article.author_nickname }}</span></span>
-        <RouterLink 
+        <RouterLink
           :to="{ name: 'CustomerSupportDetail', params: { article_pk: article.id }}"
           class="text-blue-500 hover:underline"
         >
@@ -25,13 +31,19 @@
   </div>
 </template>
 
+
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import { truncate } from 'lodash'
-import { watch, ref } from 'vue'
+import { watch, ref, computed, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
 
 const props = defineProps({
   article: Object,
+})
+
+onMounted( async () => {
+  await userStore.getUserInfo() // 사용자 정보 가져오기
 })
 
 // 날짜 포맷 함수
@@ -42,6 +54,9 @@ const formatDate = (date) => {
     day: "2-digit",
   })
 }
+
+const userStore = useUserStore()
+const currentUserId = computed(() => userStore.userInfo.pk) // 현재 사용자 ID
 
 const truncatedArticleBody = ref("");
 watch(
