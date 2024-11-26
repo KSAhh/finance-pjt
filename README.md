@@ -90,49 +90,31 @@ https://github.com/user-attachments/assets/57ca6a89-642a-4c86-91a4-0b8f93efd3fe
 ---
 
 ## 🔧 기술 스택
-### Backend
-- **Framework**: Django REST Framework
-- **Database**: SQLite
-- **Language**: Python
-
-<img src="https://skillicons.dev/icons?i=githubactions" width="48" height="48" alt="GitHub Actions"/>
-
-<img src="https://skillicons.dev/icons?i=python" width="48" height="48" alt="Python"/>
-<img src="https://skillicons.dev/icons?i=django" width="48" height="48" alt="Django"/>
-<img src="https://skillicons.dev/icons?i=sqlite" width="48" height="48" alt="SQLite"/>
-
-[![My Skills](https://skillicons.dev/icons?i=python,nodejs,figma,django,sqlite,&theme=light&perline=5)](https://skillicons.dev)
+### Backend & Database
+[![My Skills](https://skillicons.dev/icons?i=python,nodejs,django,sqlite,&theme=light&perline=5)](https://skillicons.dev)
 
 ### Frontend
-- **Framework**: Vue3
-- **State Management**: Pinia
-- **Styling**: Tailwind CSS
+[![My Skills](https://skillicons.dev/icons?i=html,css,js,vue,figma,tailwind&theme=light&perline=6)](https://skillicons.dev)
+
+
 - **Visualization**: Chart.js
 - **HTTP Client**: Axios
-- ![Vue.js](https://img.shields.io/badge/Vue.js-4FC08D?style=flat-square&logo=Vue.js&logoColor=white)
-- ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-06B6D4?style=flat-square&logo=TailwindCSS&logoColor=white)
-- ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=Chart.js&logoColor=white)
 
-[![My Skills](https://skillicons.dev/icons?i=html,css,js,vue,tailwind&theme=light&perline=5)](https://skillicons.dev)
-
-
-
-<img src="https://skillicons.dev/icons?i=vue" width="48" height="48" alt="Vue.js"/>
-<img src="https://skillicons.dev/icons?i=tailwind" width="48" height="48" alt="Tailwind CSS"/>
-<img src="https://skillicons.dev/icons?i=css" width="48" height="48" alt="CSS"/>
-<img src="https://skillicons.dev/icons?i=javascript" width="48" height="48" alt="JavaScript"/>
-<img src="https://skillicons.dev/icons?i=chartjs" width="48" height="48" alt="Chart.js"/>
-
-
+### 협업 Tools
 [![My Skills](https://skillicons.dev/icons?i=git,notion,github,githubactions&theme=light&perline=5)](https://skillicons.dev)
-
 
 ### External APIs
 - **한국수출입은행 API**
 - **카카오 API**
 - **금융감독원 API**
 
----
+--- 
+
+## ⚙ ERD
+
+![image](https://github.com/user-attachments/assets/c8024d12-9090-4aa5-9312-27ab66da0408)
+
+
 ---
 
 ## 📂 디렉터리 구조
@@ -145,7 +127,8 @@ finance-pjt/
 │   ├── exchange/          - 환율 계산기
 │   ├── products/          - 금융상품
 │   ├── raw_data/          - 금융상품 데이터
-│   └── requirements.txt   - 의존성 파일
+│   ├── requirements.txt   - 의존성 파일
+│   └── 추천알고리즘        - 추천 알고리즘 전처리 (+ 생성형 AI)
 ├── front/
 │   ├── algo-fipo/
 │   │   ├── src/
@@ -161,42 +144,69 @@ finance-pjt/
 └── README.md
 ```
 
---- 
-
-## ⚙ ERD
-![ERD 다이어그램](링크 또는 파일 업로드)
-
----
-
 ## 🧩 컴포넌트 구조
-NavBar: 네비게이션 바
-BankMap: 지도 기반 은행 검색
-CustomerService: 고객센터
-ExchangeRate: 환율 계산기
-Savings: 예적금 금리 비교
-LoanPage: 대출 관련 서비스
-(이미지 첨부)
+
+- NavBar: 네비게이션 바
+- BankMap: 지도 기반 은행 검색
+- CustomerService: 고객센터
+- ExchangeRate: 환율 계산기
+- Savings: 예적금 금리 비교
+- LoanPage: 대출 관련 서비스
 
 ---
+
 
 ## 📈 투자 추천 알고리즘 원리
-데이터 수집
-금융상품 시세, 주가지수 데이터를 외부 API를 통해 수집합니다.
-추세 분석
-특정 기간 동안의 데이터를 분석하여 상승/하락 추세를 예측합니다.
-사용자 맞춤 추천
-사용자의 투자 성향(위험 선호도 등)을 기반으로 최적의 투자 상품을 추천합니다.
+1. 예적금 데이터 수집 (금융상품정보공시API)
+2. 각 상품별 spcl_intr 필드 전처리
+3. 마이데이터 기반 사용자 그룹화 (더미데이터 생성)
+  - 나이
+  - 직업
+  - 월 평균 소득
+  - 월 평균 소비
+  - 총 자산
+  - 마이데이터 동의 여부
+4. 금융 상품 추천
+  - 마이데이터 활용 동의 → 개인정보 그룹화하여 추천
+  - 마이데이터 활용 비동의 → 기본금리 기반 상위 항목 추천
 
 ---
 
 ## 📝 개발일지
-1주차
-프로젝트 초기 세팅: Django, Vue3 환경 구축
-API 연동: 금융감독원, 카카오 맵 API 테스트
-2주차
-주요 기능 개발
-예적금 금리 비교, 환율 계산기
-알고리즘 로직 설계
+1주차 ()
+- 프로젝트 초기 세팅: Django, Vue3 환경 구축
+- API 연동: 금융감독원, 카카오 맵 API 테스트
+2주차 ()
+- 주요 기능 개발
+- 예적금 금리 비교, 환율 계산기
+- 알고리즘 로직 설계
+3주차 ()
+- 디자인 적용
+- 프론트 적용
+
+
+## 📅 개발 일정
+**Branch History 기반 정리**
+### 1주차
+- 프로젝트 구조 설계 및 초기 세팅
+  - Django REST Framework와 Vue3를 기반으로 백엔드와 프론트엔드 분리
+  - 초기 디렉터리 구조 구성
+
+### 2주차
+- 주요 기능 구현 착수
+  - 예적금 금리 비교 기능
+  - 사용자 프로필 관리 기능
+
+### 3주차
+- 신혼여행 환율 계산기 개발
+  - 한국수출입은행 환율 정보 API 연동
+  - 환율 계산 로직 구현
+
+### 4주차
+- 근처 은행 검색 및 금융 상품 추천 기능 추가
+  - 카카오 맵 API를 활용하여 사용자 위치 기반 은행 검색
+  - 알고리즘 기반 금융 상품 추천 로직 개발
+
 
 ---
 
@@ -220,41 +230,15 @@ API 호출 최적화: 다중 호출 문제를 Axios 인터셉터로 해결
 $ cd front/algo-fipo
 $ npm install
 $ npm run dev
-# $ npm install
-# $ npm insatll axios
-# $ npm install 테일윈드????
-# $ npm i vue3-kakao-maps (해당 라이브러리 사용하는지 최종 확인 필)
 
 # Backend
 $ cd back
 $ pip install -r requirements.txt
 $ python manage.py makemigrations
 $ python manage.py migrate
-$ python manage.py loaddata data.json
+$ python manage.py loaddata exchange.json products.json
 $ python manage.py runserver
 
 ```
-
-## 📅 개발 일정
-**Branch History 기반 정리**
-### 1주차
-- 프로젝트 구조 설계 및 초기 세팅
-  - Django REST Framework와 Vue3를 기반으로 백엔드와 프론트엔드 분리
-  - 초기 디렉터리 구조 구성
-
-### 2주차
-- 주요 기능 구현 착수
-  - 예적금 금리 비교 기능
-  - 사용자 프로필 관리 기능
-
-### 3주차
-- 신혼여행 환율 계산기 개발
-  - 한국수출입은행 환율 정보 API 연동
-  - 환율 계산 로직 구현
-
-### 4주차
-- 근처 은행 검색 및 금융 상품 추천 기능 추가
-  - 카카오 맵 API를 활용하여 사용자 위치 기반 은행 검색
-  - 알고리즘 기반 금융 상품 추천 로직 개발
 
 ---
