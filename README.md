@@ -3,17 +3,43 @@
 > **재테크를 효율적으로 관리할 수 있는 서비스**  
 > 결혼 후 자가 마련과 신혼여행을 준비하는 사용자들을 대상으로 예적금 금리비교, 환율 계산기, 근처 은행 검색, 그리고 사용자 맞춤형 금융 상품 추천 서비스를 제공합니다.
 
+
 ---
 
 ## 🚀 프로젝트 목표
 - 금융상품 데이터 기반 예금 및 적금 금리 비교 서비스 구성
-- 환율 정보 API를 활용한 환율 계산 서비스 구성
+  유저의 마이데이터 기반 금융 추천 알고리즘 구성
+- 환율 정보 API를 활용한 환율 계산 서비스 및 차트 구성
 - 지도 API를 활용한 은행 검색 서비스 구성
-- 일반상품시세(금, 석유)와 주가지수 시세(KOSPI, KOSDAQ 등) API를 활용한 차트 서비스 구성
-- 시세 데이터 추세 분석을 통한 투자 추천 알고리즘 구성
-- 커뮤니티 서비스 추가로 사용자 소통 강화
+- 고객센터 서비스로 사용성 개선
 
 ---
+
+### 상품가입 및 가입상품 조회
+
+https://github.com/user-attachments/assets/501fc567-ab5c-4688-8932-1a557ad0df97
+
+### 환율계산
+
+https://github.com/user-attachments/assets/95aa4d90-ef9d-4697-8bc1-d3d993a8ed63
+
+### 근처 은행 지도
+
+https://github.com/user-attachments/assets/9b1a28f8-d9b1-49f6-8494-11e338fba79b
+
+### 고객센터 글 작성
+
+https://github.com/user-attachments/assets/69ba0383-3f3a-47eb-afb1-c51a1c3c3433
+
+### 고객객센터 글 수정
+
+https://github.com/user-attachments/assets/9d203b0e-8913-4f34-9ff8-bd55129ecc9d
+
+### 고객센터 댓글작성
+
+https://github.com/user-attachments/assets/57ca6a89-642a-4c86-91a4-0b8f93efd3fe
+
+
 
 ## 📅 개발기간
 **2024년 11월 18일 ~ 2024년 11월 26일**
@@ -26,16 +52,16 @@
     <td align="center">
       <a href="https://github.com/KSAhh">
         <img src="https://avatars.githubusercontent.com/KSAhh" width="150px;" alt="KSAhh"/>
-        <br/><sub><b>KSAhh</b><br></sub>
-        <p>김수아 / Backend(Django), Frontend(Vue), Git 규칙 지정</p>
+        <br/><sub><b>KSAhh / 김수아</b><br></sub>
       </a>
+      <p>Backend(Django), Frontend(Vue), Git 규칙 지정, API 설계, ERD 설계</p>
     </td>
     <td align="center">
       <a href="https://github.com/sadtearcat">
         <img src="https://avatars.githubusercontent.com/sadtearcat" width="150px;" alt="sadtearcat"/>
-        <br/><sub><b>sadtearcat</b><br></sub>
-        <p>백지원 / Frontend(Vue), 상품 추천 알고리즘 개발</p>
+        <br/><sub><b>sadtearcat / 백지원</b><br></sub>
       </a>
+      <p>Frontend(Vue), UI 디자인, 상품 추천 알고리즘 개발</p>
     </td>
   </tr>
 </table>
