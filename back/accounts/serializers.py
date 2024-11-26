@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from dj_rest_auth.serializers import UserDetailsSerializer
 from dj_rest_auth.registration.serializers import RegisterSerializer
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from .models import UserProfile
