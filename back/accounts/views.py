@@ -1,5 +1,6 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
+from django.shortcuts import get_list_or_404, get_object_or_404, render
 
 # 회원가입
 from rest_framework.authtoken.models import Token
@@ -10,10 +11,12 @@ from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
 # 회원탈퇴/정보수정
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UpdateUserSerializer
+from .serializers import UpdateUserSerializer, UserProfileSerializer
+from rest_framework.decorators import api_view, permission_classes
 
 from django.contrib.auth import get_user_model
 
+from .models import UserProfile
 User = get_user_model()
 
 
@@ -84,3 +87,34 @@ class KakaoLogin(SocialLoginView):
             
             token = Token.objects.create(user=new_user)
             return Response({'key': token.key, "detail": "회원가입 성공"}, status=status.HTTP_201_CREATED)
+
+# 유저 금융자산
+@api_view(["GET", "PUT", "POST", "DELETE"])
+@permission_classes([IsAuthenticated])
+def assets(request):
+
+    if request.method == "POST":
+        # 유저 정보 작성
+        if UserProfile.objects.filter(user=request.user).exists():
+            return Response({"detail" : "이전에 작성된 프로필이 존재합니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = UserProfileSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    profile = get_object_or_404(UserProfile, user=request.user)
+    if request.method == "GET":
+        # 유저 정보 조회
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    elif request.method == "PUT":
+        serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    elif request.method == "DELETE":
+        profile.delete()
+        return Response({"detail": "Successfully deleted."}, status=status.HTTP_204_NO_CONTENT)

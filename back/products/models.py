@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from datetime import date
-
+from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta # 정확한 개월 수 계산
+ 
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -15,7 +16,7 @@ class AbstractProduct(models.Model):
     mtrt_int = models.TextField(default="Unknown")                                  # 만기 후 이자율 조건 설명
     spcl_cnd = models.TextField(default="Unknown")                                  # 우대 조건
     join_deny = models.IntegerField(default=1)                                      # 가입 제한(1: 제한없음, 2:서민전용, 3:일부제한)
-    join_member = models.TextField(default="실명의 개인")                              # 가입대상
+    join_member = models.TextField(default="실명의 개인")                            # 가입대상
     etc_note = models.TextField(default="Unknown")                                  # 기타 유의사항
     fin_co_subm_day = models.CharField(max_length=12, default="000000000000")       # 금융회사 제출일 (YYYYMMDDHH24MI 형식)
     max_limit = models.DecimalField(max_digits=15, decimal_places=2, default=-1.00) # 최고한도
@@ -30,12 +31,6 @@ class DepositProduct(AbstractProduct):
 # 금융상품 - 적금 전용필드
 class SavingProduct(AbstractProduct):
     options = GenericRelation('ProductOption')  # GenericRelation 추가 (역참조 위함)
-
-
-# 가입 방법
-class JoinWay(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="join_ways")
-    way = models.CharField(max_length=255)
 
 
 # 금융상품 옵션
@@ -66,9 +61,25 @@ class UserProduct(models.Model):
 
     kor_co_nm = models.CharField(max_length=255)                 # 금융회사명
     fin_prdt_nm = models.CharField(max_length=255)               # 금융 상품명
-    balance = models.DecimalField(max_digits=20, decimal_places=0)  # 상품에 남은 잔액
-    start_date = models.DateField(blank=True, default=date(1, 1, 1))    # 상품 가입일 (기본값 : 서기 1년 1월 1일)
-    end_date = models.DateField(blank=True, default=date(9999, 12, 31))      # 상품 만기일 (기본값 : 서기 9999년 12월 31일)
+    balance = models.IntegerField(blank=True, default=0)  # 상품에 남은 잔액
+    
+    # 개월 수 선택 필드
+    DURATION_CHOICES = [
+        (1, "1개월"),
+        (3, "3개월"),
+        (6, "6개월"),
+        (12, "12개월"),
+        (24, "24개월"),
+        (36, "36개월"),
+    ]
+    duration_months = models.IntegerField(choices=DURATION_CHOICES, default=36)  # 기본값: 36개월
+    start_date = models.DateField(blank=True, default=date.today)    # 상품 가입일 (기본값 : 오늘)
+    end_date = models.DateField(blank=True)      # 상품 만기일 (기본값 : 36개월 후)
+    
+    def save(self, *args, **kwargs):
+        # 종료일 자동 계산
+        self.end_date = self.start_date + relativedelta(months=self.duration_months)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         product_name = (
