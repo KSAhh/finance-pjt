@@ -16,9 +16,9 @@
         </ul>
         <div
           v-else
-          class="no-comments text-center text-base text-gray-500 font-medium mt-10"
+          class="no-comments text-base text-gray-500 font-medium "
         >
-          문의내역이 없습니다.
+          서비스 준비중입니다.
         </div>
       </div>
     </div>

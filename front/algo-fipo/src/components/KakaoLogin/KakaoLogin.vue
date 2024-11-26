@@ -9,9 +9,11 @@
 <script setup>
 import axios from "axios";
 import { useNavBarStore } from "@/stores/navBarStore"; // Pinia Store for NavBar
+import { useRouter } from "vue-router";
+const router = useRouter();
 
 // Kakao JavaScript SDK Key
-const KAKAO_LOGIN_JS_KEY = import.meta.env.VITE_KAKAO_LOGIN_JS_KEY;
+const KAKAO_LOGIN_JS_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
 
 const navBarStore = useNavBarStore();
 
@@ -67,14 +69,13 @@ const kakaoLoginBtn = async () => {
         const key = Array.isArray(serverResponse.data.key)
           ? serverResponse.data.key[0]?.key
           : serverResponse.data.key;
-
+        
         if (!key) {
           throw new Error("서버 응답에 key가 없습니다.");
         }
 
         // Store Token and Full Name in Local Storage
         localStorage.setItem("key", key);
-        localStorage.setItem("fullname", response.kakao_account.profile.nickname);
 
         // Set Axios Authorization Header
         axios.defaults.headers.common["Authorization"] = `Token ${key}`;
@@ -84,7 +85,8 @@ const kakaoLoginBtn = async () => {
         navBarStore.login(response.kakao_account.profile.nickname);
 
         // Redirect to Main Page
-        window.location.href = "/";
+        // window.location.href = "/";
+        router.push({ name: "MainView" });
       },
       fail: (error) => {
         console.error("Kakao 로그인 실패:", error);
@@ -94,7 +96,7 @@ const kakaoLoginBtn = async () => {
     console.error("Kakao 로그인 과정에서 오류 발생:", error);
     // 오류 발생 시 세션 데이터 초기화
     localStorage.removeItem("key");
-    localStorage.removeItem("fullname");
+    // localStorage.removeItem("fullname");
     window.Kakao.Auth.setAccessToken(null);
   }
 };

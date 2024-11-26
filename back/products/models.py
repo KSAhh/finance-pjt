@@ -21,7 +21,7 @@ class AbstractProduct(models.Model):
     join_member = models.TextField(default="실명의 개인")                              # 가입대상
     etc_note = models.TextField(default="Unknown")                                  # 기타 유의사항
     fin_co_subm_day = models.CharField(max_length=12, default="000000000000")       # 금융회사 제출일 (YYYYMMDDHH24MI 형식)
-    max_limit = models.DecimalField(max_digits=15, decimal_places=2, default=-1.00) # 최고한도
+    max_limit = models.DecimalField(max_digits=15, decimal_places=2, default=0.00) # 최고한도
 
     class Meta:
         abstract = True  # 부모 클래스는 테이블 생성 안 함
@@ -44,8 +44,8 @@ class ProductOption(models.Model):
 
     # 옵션 데이터 - 공통
     intr_rate_type_nm = models.CharField(max_length=100, default="Unknown")                 # 저축금리 유형명 / ex) 단리, 복리 
-    save_trm = models.IntegerField(default=-1)                                              # 저축 기간 [단위: 개월]
-    intr_rate = models.DecimalField(max_digits=5, decimal_places=2, default=-1.00)          # 저축 금리 [소수점 2자리]
+    save_trm = models.IntegerField(default=0)                                              # 저축 기간 [단위: 개월]
+    intr_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)          # 저축 금리 [소수점 2자리]
     intr_rate2 = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)          # 최고 우대금리 [소수점 2자리]
     
     # 옵션 데이터 - 적금
@@ -64,7 +64,8 @@ class UserProduct(models.Model):
     kor_co_nm = models.CharField(max_length=255)                 # 금융회사명
     fin_prdt_nm = models.CharField(max_length=255)               # 금융 상품명
     balance = models.IntegerField(blank=True, default=0)  # 상품에 남은 잔액
-    
+    intr_rate = models.DecimalField(max_digits=5, decimal_places=2, default=-1.00)          # 저축 금리 [소수점 2자리]
+
     # 개월 수 선택 필드
     DURATION_CHOICES = [
         (1, "1개월"),

@@ -1,8 +1,8 @@
 <template>
-    <div>
-<Map/>
+  <div class="max-w-8xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-10 mb-20">
+    <Map/>
   </div>
-  </template>
+</template>
   
 <script setup>
 import Map from '@/components/BankMap/Map.vue';  

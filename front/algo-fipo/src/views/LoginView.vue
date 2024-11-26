@@ -113,14 +113,16 @@ const handleFormSubmit = async () => {
       axios.defaults.headers.common["Authorization"] = `Token ${token}`;
 
       const userResponse = await axios.get("http://127.0.0.1:8000/accounts/user/");
-      const fullname = userResponse.data.fullname || "사용자 이름 없음";
+      // const fullname = userResponse.data.fullname || "사용자 이름 없음";
+      const nickname = userResponse.data.nickname || "사용자 별명 없음";
       // const nickname = userResponse.data.nickname
 
 
       localStorage.setItem("key", token);
-      localStorage.setItem("fullname", fullname);
-      // localStorage.setItem("nickname", nickname);
-      navBarStore.login(fullname);
+      // localStorage.setItem("fullname", fullname);
+      localStorage.setItem("nickname", nickname);
+      // navBarStore.login(fullname);
+      navBarStore.login(nickname);
 
       router.push({ name: "MainView" });
     } catch (error) {

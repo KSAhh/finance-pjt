@@ -108,9 +108,9 @@ def save_products(request):
                             continue
 
                         # `intr_rate` 값 검증 및 기본값 설정
-                        intr_rate = option.get("intr_rate", -1.00)
+                        intr_rate = option.get("intr_rate", 0.00)
                         if intr_rate in [None, ""]:
-                            intr_rate = -1.00
+                            intr_rate = 0.00
 
                         # 옵션 객체 생성 및 저장
                         ProductOption.objects.create(

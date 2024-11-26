@@ -1,19 +1,25 @@
 <!-- src/views/LoanPageView.vue -->
 <template>
-    <div class="bg-gray-50 min-h-screen">
-      <!-- 필터 섹션 -->
-      <FilterSection class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-10" @filter-changed="onFilterChanged" :initial-category="initialCategory" />
-  
-      <!-- 상품 목록 -->
-      <ProductList :filters="selectedFilters" />
+  <div class="bg-gray-50 min-h-screen flex flex-col items-center">
+    <!-- 필터 섹션 -->
+    <FilterSection
+      class="w-full max-w-5xl bg-white rounded-lg shadow-lg p-8 mt-10"
+      @filter-changed="onFilterChanged"
+      :initial-category="initialCategory"
+    />
+
+    <!-- 상품 목록 -->
+    <div class="w-full max-w-5xl mt-8">
+      <LoanProductList :filters="selectedFilters" />
     </div>
+  </div>
   </template>
   
   <script setup>
   import { ref, watch, onMounted } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import FilterSection from '@/components/loan/loanpage/FilterSection.vue';
-  import ProductList from '@/components/loan/loanpage/ProductList.vue';
+  import LoanProductList from '@/components/loan/loanpage/LoanProductList.vue';
   
   const route = useRoute();
   const router = useRouter();
