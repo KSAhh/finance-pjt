@@ -1,8 +1,6 @@
 from django.urls import path, include
 from .views import KakaoLogin, DeleteUserView, UpdateUserView
-from . import views
-
-app_name = "accounts"
+app_name = 'accounts'
 
 urlpatterns = [
     path("signup/", include("dj_rest_auth.registration.urls")),         # 일반 회원가입 
