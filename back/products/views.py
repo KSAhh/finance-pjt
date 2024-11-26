@@ -247,6 +247,10 @@ def user_product_list(request):
         if UserProduct.objects.filter(fin_prdt_nm=fin_prdt_nm, kor_co_nm=kor_co_nm).exists():
             return Response({"detail": "동일한 상품이 이미 등록되어있습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # 잔액이 음수인 경우 저장하지 않음
+        if int(product_data.get("balance", 0)) < 0: 
+            return Response({"detail" : "balance 값은 0이상이어야 합니다."}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = UserProductSerializer(data=product_data)
         if serializer.is_valid(raise_exception=True):
             serializer.save(user=request.user, deposit_product=deposit_product, saving_product=saving_product)
@@ -280,29 +284,31 @@ def user_product_detail(request, product_pk):
                 return Response({"detail": "연동된 상품이 있어 금융기관과 상품명을 변경할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         # 지정된 타입만 저장
-        print(data)
         print(data.get("product_type"), "?")
         if data.get("product_type", product_type) not in ["예금", "deposit", "적금", "saving", "기타", "etc", ""]:
-            return Response({"detail" : "지원가능한 타입의 상품이 아닙니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail" : "지원가능한 타입(예금, 적금, 기타)의 상품이 아닙니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         
         # 날짜제한
-        # 시작일 : 미래일 지정 불가 & 만료일보다 미래일 지정불가
+        # 시작일 : 미래일 지정 불가
         start_date = data.get("start_date", product.start_date)
-        end_date = data.get("end_date", product.end_date)
 
         # 현재 날짜 확인
-        # 문자열을 datetime.date로 변환
-        start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
-        if end_date is not None:
-            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
-
+        # 문자열인 경우만 datetime.date로 변환
+        try:
+            if isinstance(start_date, str):
+                start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        except ValueError as e:
+            return Response({"detail": "날짜 형식(%Y-%m-%d)이 맞지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
         if start_date > date.today():
-            return Response({"detail" : "start_date는 미래일자를 지정할 수 없습니다."})
-        if end_date and start_date > end_date:
-            return Response({"detail" : "start_date는 end_date보다 미래일 수 없습니다."})
+            return Response({"detail" : "start_date는 오늘보다 미래를 지정할 수 없습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = UserProductSerializer(product, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    elif request.method == "DELETE":
+        product.delete()
+        product.save()
+        return Response({"detail" : "Successfully deleted."}, status=status.HTTP_204_NO_CONTENT)

@@ -5,6 +5,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta # 정확한 개월 수 계산
+ 
+
 # 금융상품 - 공통
 class AbstractProduct(models.Model):
     kor_co_nm = models.CharField(max_length=255, default="Unknown")                 # 금융회사명
@@ -59,9 +63,25 @@ class UserProduct(models.Model):
 
     kor_co_nm = models.CharField(max_length=255)                 # 금융회사명
     fin_prdt_nm = models.CharField(max_length=255)               # 금융 상품명
-    balance = models.DecimalField(max_digits=20, decimal_places=0)  # 상품에 남은 잔액
-    start_date = models.DateField(null=True, blank=True)    # 상품 가입일
-    end_date = models.DateField(null=True, blank=True)      # 상품 만기일
+    balance = models.IntegerField(blank=True, default=0)  # 상품에 남은 잔액
+    
+    # 개월 수 선택 필드
+    DURATION_CHOICES = [
+        (1, "1개월"),
+        (3, "3개월"),
+        (6, "6개월"),
+        (12, "12개월"),
+        (24, "24개월"),
+        (36, "36개월"),
+    ]
+    duration_months = models.IntegerField(choices=DURATION_CHOICES, default=36)  # 기본값: 36개월
+    start_date = models.DateField(blank=True, default=date.today)    # 상품 가입일 (기본값 : 오늘)
+    end_date = models.DateField(blank=True)      # 상품 만기일 (기본값 : 36개월 후)
+    
+    def save(self, *args, **kwargs):
+        # 종료일 자동 계산
+        self.end_date = self.start_date + relativedelta(months=self.duration_months)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         product_name = (

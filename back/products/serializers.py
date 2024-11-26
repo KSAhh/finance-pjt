@@ -50,4 +50,4 @@ class UserProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProduct
         fields = "__all__"
-        read_only_fields = ['id', 'user', 'deposit_product', 'saving_product']
+        read_only_fields = ['id', 'user', 'deposit_product', 'saving_product', "end_date"]
