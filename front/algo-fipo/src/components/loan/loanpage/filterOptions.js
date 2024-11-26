@@ -51,7 +51,7 @@ export const jobOptions = [
     {
       name: '은행',
       companies: [
-        { id: 'BNK경남은행', name: 'BNK경남은행' },
+        { id: 'BNK경남은행', name: 'BNK경남은행' , logo: () => import('@/assets/BankLogo/bankName=경남.svg')},
         { id: 'BNK부산은행', name: 'BNK부산은행' },
         { id: 'IBK기업은행', name: 'IBK기업은행' },
         { id: 'KB국민은행', name: 'KB국민은행' },
