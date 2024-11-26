@@ -57,6 +57,10 @@ const props = defineProps({
     type: Number,
     default: 5,
   },
+  isLoading: {
+    type: Boolean,
+    required: true,
+  },
 });
 
 const emit = defineEmits(['update:currentPage']);

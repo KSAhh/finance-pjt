@@ -365,12 +365,24 @@ const removeFilter = (filter) => {
   filters.value.durations = filters.value.durations.filter(
     (duration) => `기간: ${duration}` !== filter
   );
+<<<<<<< HEAD
   // filters.value.types = filters.value.types.filter(
   //   (type) => `상품 유형: ${type}` !== filter
   // );
+=======
+  filters.value.types = filters.value.types.filter(
+    (type) => `상품 유형: ${type}` !== filter
+  );
+<<<<<<< HEAD
+>>>>>>> develop
   // selectedPreferences.value = selectedPreferences.value.filter(
   //   (pref) => `우대 조건: ${pref}` !== filter
   // );
+=======
+  selectedPreferences.value = selectedPreferences.value.filter(
+    (pref) => `우대 조건: ${pref}` !== filter
+  );
+>>>>>>> develop
   
   if (filter === "은행 전체") {
     selectedBanks.value = selectedBanks.value.filter(
