@@ -1,15 +1,14 @@
 <template>
   <h1 class="text-2xl font-bold text-center my-5">주변 은행 찾기<hr class="my-2"></h1>
   <!-- 지도 컨테이너 -->
-  <div id="page-container" class="flex flex-col md:flex-row justify-between items-start max-w-7xl mx-auto gap-8">
-  <div ref="mapContainer" class="map-container w-full md:w-3/4 h-[70vh] border border-gray-300 relative mb-6 md:mb-24"></div>
-  <!-- 검색 입력 및 결과 -->
-  <div class="flex flex-col gap-4 md:w-1/3">
-    <div class="flex flex-col justify-start gap-2">
-      <select v-model="selectedBank" class="p-2 border border-gray-300 rounded-md">
+  <div id="page-container" class="flex flex-col md:flex-row justify-between items-start max-w-7xl mx-auto gap-5">
+    <div ref="mapContainer" class="map-container w-full md:w-3/4 h-[70vh] border border-gray-300 relative mb-6 md:mb-24"></div>
+    <!-- 검색 입력 및 결과 -->
+    <div class="flex flex-col gap-4 md:w-1/3">
+      <div class="flex items-center justify-center gap-2">
+        <select v-model="selectedBank" class="p-2 border border-gray-300 rounded-md">
           <option value="">전체 은행</option>
           <option value="국민은행">국민은행</option>
-          <option value="농협은행">농협은행</option>
           <option value="신한은행">신한은행</option>
           <option value="우리은행">우리은행</option>
           <option value="하나은행">하나은행</option>
@@ -235,75 +234,5 @@ onMounted(() => {
 </script>
 
 <style scoped>
-#page-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px; /* 두 영역 사이 간격 */
-}
-
-@media (min-width: 768px) {
-  #page-container {
-    flex-direction: row;
-    gap: 60px; /* 큰 화면에서는 더 넓은 간격 */
-  }
-}
-
-.map-container {
-  flex: 1;
-  min-height: 70vh; /* 지도 기본 높이 */
-  border: 1px solid #ccc;
-}
-
-.flex-col {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* 세로 정렬 상단 */
-  gap: 10px;
-}
-
-ul {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-li {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  gap: 10px;
-}
-
-input, select {
-  width: 100%;
-  max-width: 300px;
-  box-sizing: border-box;
-}
-
-@media (min-width: 768px) {
-  input, select {
-    max-width: 100%; /* 큰 화면에서는 가로 폭 조정 */
-  }
-}
-
-
-button {
-  padding: 10px 15px;
-  font-size: 14px;
-}
-
-.flex {
-  flex-wrap: wrap; /* 좁은 화면에서는 버튼이 여러 줄로 정렬 */
-  justify-content: center;
-  gap: 10px;
-}
-
-@media (min-width: 768px) {
-  .flex {
-    flex-wrap: nowrap; /* 큰 화면에서는 한 줄로 정렬 */
-  }
-}
-
+/* 필요한 스타일을 추가하세요 */
 </style>
