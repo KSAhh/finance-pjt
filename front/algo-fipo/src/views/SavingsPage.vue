@@ -183,6 +183,7 @@ const filteredProductsByCategory = computed(() => {
   } else if (selectedCategory.value === "적금") {
     return productStore.products.savings || [];
   }
+<<<<<<< HEAD
   console.log(filteredProductsByCategory.value)
   return [];
 });
@@ -238,6 +239,13 @@ const sortedProducts = computed(() => {
   });
 });
 
+=======
+  return [];
+});
+
+const route = useRoute();
+const router = useRouter();
+>>>>>>> develop
 
 // 쿼리 파라미터에 따라 selectedCategory 업데이트 함수
 const updateSelectedCategoryFromRoute = () => {
@@ -300,6 +308,29 @@ const generateBankFilters = (bankList, selectedBankIds, label) => {
   return selectedBankIds
     .map((bankId) => bankList.find((bank) => bank.id === bankId)?.name)
     .filter(Boolean);
+<<<<<<< HEAD
+=======
+};
+
+const activeFiltersWithBanks = computed(() => {
+  const bankFilters = generateBankFilters(banks.value, selectedBanks.value, "은행 전체");
+  const savingsBankFilters = generateBankFilters(
+    savingsBanks.value,
+    selectedBanks.value,
+    "저축은행 전체"
+  );
+
+  const durationFilters = filters.value.durations.map((duration) => `기간: ${duration}`);
+  const typeFilters = filters.value.types.map((type) => `상품 유형: ${type}`);
+  const preferenceFilters = selectedPreferences.value.map((pref) => `우대 조건: ${pref}`);
+
+  return [...bankFilters, ...savingsBankFilters, ...durationFilters, ...typeFilters, ...preferenceFilters];
+});
+
+// 필터 업데이트 함수
+const updateFilters = (newFilters) => {
+  filters.value = newFilters;
+>>>>>>> develop
 };
 
 const activeFiltersWithBanks = computed(() => {
@@ -358,9 +389,15 @@ const removeFilter = (filter) => {
   filters.value.types = filters.value.types.filter(
     (type) => `상품 유형: ${type}` !== filter
   );
+<<<<<<< HEAD
   // selectedPreferences.value = selectedPreferences.value.filter(
   //   (pref) => `우대 조건: ${pref}` !== filter
   // );
+=======
+  selectedPreferences.value = selectedPreferences.value.filter(
+    (pref) => `우대 조건: ${pref}` !== filter
+  );
+>>>>>>> develop
   
   if (filter === "은행 전체") {
     selectedBanks.value = selectedBanks.value.filter(
