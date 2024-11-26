@@ -37,11 +37,11 @@ const menuItems = reactive([
   },
   {
     label: "은행 지도",
-    dropdownContent: ["주변 은행 찾기", "상품 2", "상품 3"],
+    dropdownContent: ["주변 은행 찾기"],
   },
   {
     label: "환율",
-    dropdownContent: ["환율 상품 1", "환율 상품 2", "환율 상품 3"],
+    dropdownContent: ["환율 조회"],
   },
 ]);
 

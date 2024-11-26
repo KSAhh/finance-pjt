@@ -1,37 +1,47 @@
 <template>
-    <li class="py-4 flex flex-col border rounded-lg shadow-sm px-4 bg-white">
-      <p><strong>상품명:</strong> {{ product.fin_prdt_nm }}</p>
-      <p><strong>기관명:</strong> {{ product.kor_co_nm }}</p>
-      <p><strong>가입 기간:</strong> {{ product.duration_months }}개월</p>
-      <p><strong>예치 금액:</strong> {{ formatCurrency(product.balance) }}</p>
-      <p><strong>가입일:</strong> {{ product.start_date }}</p>
-      <p><strong>만기일:</strong> {{ product.end_date }}</p>
-    </li>
-  </template>
-  
-  <script setup>
-  defineProps({
-    product : Object,
-  })
-      const formatCurrency = (value) => {
-        return new Intl.NumberFormat("ko-KR", {
-          style: "currency",
-          currency: "KRW",
-        }).format(value);
-      };
+  <li class="p-6 flex flex-col border rounded-lg shadow-lg bg-white hover:shadow-xl transition">
+    <div class="mb-4">
+      <h3 class="text-lg font-bold text-gray-800 mb-2">{{ product.fin_prdt_nm }}</h3>
+      <p class="text-sm text-gray-500">{{ product.kor_co_nm }}</p>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <p class="text-sm font-semibold text-gray-700">가입 기간</p>
+        <p class="text-sm text-gray-600">{{ product.duration_months }}개월</p>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-700">예치 금액</p>
+        <p class="text-sm text-gray-600">{{ formatCurrency(product.balance) }}</p>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-700">금리</p>
+        <p class="text-sm text-gray-600">{{ product.intr_rate }}%</p>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-700">가입일</p>
+        <p class="text-sm text-gray-600">{{ product.start_date }}</p>
+      </div>
+      <div>
+        <p class="text-sm font-semibold text-gray-700">만기일</p>
+        <p class="text-sm text-gray-600">{{ product.end_date }}</p>
+      </div>
+    </div>
+  </li>
+</template>
 
-    //   {
-        // 미사용데이터
-    //     "id": 1,
-    //     "product_type": "예금",
-    //     "duration_months": 36,
-    //     "user": 11,
-    //     "deposit_product": 107,
-    //     "saving_product": null
-    // }
-  </script>
-  
-  <style scoped>
-  /* Tailwind CSS 사용 */
-  </style>
-  
+<script setup>
+defineProps({
+  product: Object,
+});
+
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat("ko-KR", {
+    style: "currency",
+    currency: "KRW",
+  }).format(value);
+};
+</script>
+
+<style scoped>
+/* Tailwind CSS 사용 */
+</style>

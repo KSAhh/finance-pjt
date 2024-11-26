@@ -3,19 +3,14 @@
     v-if="!article.is_private || article.author === currentUserId"
     class="border rounded-lg shadow-md p-4 bg-white flex items-start"
   >
-    <img
-      v-if="article.image"
-      :src="article.image"
-      alt="article image"
-      class="w-12 h-12 rounded-full object-cover mr-4"
-    />
+
     <div class="flex-1">
       <div class="flex justify-between items-center mb-2">
         <h5 class="text-lg font-semibold text-gray-800">{{ article.title }}</h5>
         <span class="text-sm text-gray-500">{{ formatDate(article.created_at) }}</span>
       </div>
       <p v-if="article.is_private && article.author === currentUserId" class="text-sm text-red-500">
-        비공개 글입니다.
+        내가 작성한 비밀 글
       </p>
       <p class="text-sm text-gray-600 mb-2 trim-box">{{ truncatedArticleBody }}</p>
       <div class="flex items-center justify-between text-sm text-gray-500">
@@ -65,7 +60,7 @@ watch(
     if (newArticle && newArticle.article_body) {
       // 본문을 truncate로 자르기
       truncatedArticleBody.value = truncate(newArticle.article_body, {
-        length: 100, // 최대 길이
+        length: 30, // 최대 길이
         omission: "...", // 생략 표시
       });
     } else {

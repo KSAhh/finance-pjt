@@ -14,6 +14,7 @@ import FAQView from "@/views/FAQView.vue";
 import CustomerSupportView from "@/views/CustomerSupportView.vue";
 import CustomerSupportDetailView from "@/views/CustomerSupportDetailView.vue";
 import CSListCreate from "@/components/CustomerService/CSListCreate.vue"
+import CustomerSupportEditView from "@/views/CustomerSupportEditView.vue"
 import BankMapView from "@/views/BankMapView.vue";
 import MyCommentsView from "@/views/MyCommentsView.vue";
 import MyFinancialProductView from "@/views/MyFinancialProductView.vue";
@@ -25,7 +26,8 @@ import FinanceInfoEdit from "@/components/MyInfoEdit/FinanceInfoEdit.vue";
 import DataAuthorization from "@/components/MyInfoEdit/DataAuthorization.vue";
 import Notifications from "@/components/MyInfoEdit/Notifications.vue";
 import AccountDeletion from "@/components/MyInfoEdit/AccountDeletion.vue";
-import ExchangeView from "@/views/ExchangeView.vue";
+import ExchangeView from "@/views/ExchangeView.vue"
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -105,9 +107,16 @@ const router = createRouter({
       component: CustomerSupportDetailView,
     },
     {
+      path: '/cs/:article_pk/edit',
+      name: 'CustomerSupportEditView',
+      component: CustomerSupportEditView,
+      meta: {requiresAuth: true }, // 로그인 필요
+    },
+    {
       path: '/cs/create',
       name: 'CSListCreate',
       component: CSListCreate,
+      meta: {requiresAuth: true }, // 로그인 필요
     },
     {
       path: '/bankmap',

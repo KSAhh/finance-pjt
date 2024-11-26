@@ -25,22 +25,23 @@
       </div>
   
       <!-- Chart.js 표시부 -->
-      <div class="grid grid-cols-1 gap-8 mt-8">
-        <MyProductChart 
-        :depositProducts="depositProducts"
-        :savingProducts="savingProducts"
-        :etcProducts="etcProducts" />
-      </div>
+      <div class="grid grid-cols-3 gap-8 mt-8">
+      <MyProductChart
+        :products="depositProducts"
+        chartTitle="예금 금리 비교"
+      />
+      <MyProductChart
+        :products="savingProducts"
+        chartTitle="적금 금리 비교"
+      />
+      <MyProductChart
+        :products="etcProducts"
+        chartTitle="기타 상품 금리 비교"
+      />
+    </div>
 
-      <!-- 하단 안내 -->
-      <div class="mt-8 text-center text-gray-500 text-sm">
-        밑 구분선은 반응형으로 마지막 요소 밑으로
-      </div>
-  
-      <!-- 하단 안내 -->
-      <div class="mt-8 text-center text-gray-500 text-sm">
-        밑 구분선은 반응형으로 마지막 요소 밑으로
-      </div>
+
+
     </div>
   </template>
   

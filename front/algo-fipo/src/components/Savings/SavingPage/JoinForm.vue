@@ -46,7 +46,7 @@
             :key="option.save_trm"
             :value="option.save_trm"
           >
-            {{ option.save_trm }}개월
+            {{ option.save_trm }}개월 ({{ option.intr_rate }}%, {{ option.intr_rate_type_nm }})
           </option>
         </select>
       </div>
@@ -90,13 +90,14 @@ const form = ref({
   product_type: route.query.product_type || "예금",
   balance: 0,
   start_date: today,
-  duration_months: options[0]?.save_trm || 35,
+  duration_months: options[0]?.save_trm || null,
   product_pk: route.query.product_pk || "",
   kor_co_nm: route.query.kor_co_nm || "",
   fin_prdt_nm: route.query.fin_prdt_nm || "",
   intr_rate: options[0]?.intr_rate || null,
 })
-// watch를 사용해 duration_months 변경 감지
+
+// duration_months 변경 감지
 watch(
   () => form.value.duration_months,
   (newDuration) => {
@@ -126,7 +127,7 @@ const submitForm = async () => {
   })
   .catch((err) => {
     console.log("가입 실패:", err)
-    alert(err.response?.data?.detail || "동일한 상품은 재가입이 불가합니다.")
+    alert(err.response?.data?.detail ||  "가입 실패")
   })
 }
 </script>
