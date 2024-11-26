@@ -36,6 +36,7 @@
       </div>
     </section>
 
+    <div class="w-full max-w-screen-2xl mx-auto p-6">
     <!-- Main Content -->
     <div class="flex flex-col md:flex-row items-stretch px-4 sm:px-6 md:px-8 lg:px-12">
       <!-- 파란 박스 -->
@@ -54,7 +55,7 @@
             v-for="(service, index) in serviceList"
             :key="index"
             @click="selectedContent = service.label"
-            class="cursor-pointer hover:underline"
+            class="cursor-pointer hover:bg-[#003bb5] hover:text-white hover:font-extrabold transition-all duration-300 py-2 px-4 rounded-lg"
           >
             {{ service.label }}
           </li>
@@ -62,15 +63,38 @@
       </div>
 
       <!-- 노란 박스 -->
-      <div class="w-full md:w-2/3 bg-[#ffd700] p-6 md:rounded-r min-h-[400px]">
-        <p v-if="selectedContent" class="text-[clamp(0.875rem, 2vw, 1.25rem)]">
-          {{ selectedContent }} 서비스 내용입니다.
+      <div class="w-full md:w-2/3 bg-[#ffd700] p-8 md:rounded-r min-h-[400px] flex flex-col justify-center items-start shadow-lg">
+        <h2 class="text-2xl md:text-3xl font-semibold text-gray-800 mb-4">
+          {{ selectedContent || "서비스를 선택해 주세요." }}
+        </h2>
+        <p v-if="selectedContent === '개인 맞춤형 추천'" class="text-gray-700 text-lg leading-relaxed">
+          사용자 데이터를 기반으로 최적화된 금융 상품을 추천합니다. <br />
+          AI 알고리즘을 활용해 다양한 조건을 분석하여 최적의 선택을 제공합니다.
         </p>
-        <p v-else class="text-[clamp(0.875rem, 2vw, 1.25rem)]">
-          서비스를 선택해 주세요.
+        <p v-else-if="selectedContent === '개인 맞춤 정보 입력형'" class="text-gray-700 text-lg leading-relaxed">
+          사용자가 입력한 정보를 기반으로 적합한 금융 상품을 제안합니다. <br />
+          직접 선택과 입력을 통해 보다 세밀한 필터링이 가능합니다.
+        </p>
+        <p v-else-if="selectedContent === '기본 필터형'" class="text-gray-700 text-lg leading-relaxed">
+          단순 필터링을 통해 상품을 비교하고 선택할 수 있습니다. <br />
+          금리, 기간, 최소 금액 등 기본 정보를 중심으로 결과를 확인하세요.
+        </p>
+        <p v-else-if="selectedContent === '환율 계산 서비스'" class="text-gray-700 text-lg leading-relaxed">
+          실시간 환율 정보를 제공하며, 환율 변동 내역과 주요 통화 간 비교도 가능합니다. <br />
+          해외 송금이나 외환 거래에 유용한 도구입니다.
+        </p>
+        <p v-else-if="selectedContent === '은행 지도 서비스'" class="text-gray-700 text-lg leading-relaxed">
+          현재 위치 기반으로 가까운 은행 지점을 안내합니다. <br />
+          지점별 운영 시간, ATM 위치 및 추가 서비스 정보를 확인할 수 있습니다.
+        </p>
+        <p v-else-if="selectedContent === '기타 서비스'" class="text-gray-700 text-lg leading-relaxed">
+          더 많은 정보와 기능이 추가될 예정입니다. 기대해 주세요!
         </p>
       </div>
     </div>
+  </div>
+
+
   </div>
 </template>
 
@@ -87,12 +111,12 @@ const showThirdSentence = ref(false);
 
 // 서비스 목록
 const serviceList = [
-  { label: "개인 맞춤형 어드밴스드" },
-  { label: "개인 맞춤형 정보 입력형" },
+  { label: "개인 맞춤형 추천" },
+  { label: "개인 맞춤 정보 입력형" },
   { label: "기본 필터형" },
   { label: "환율 계산 서비스" },
   { label: "은행 지도 서비스" },
-  { label: "?" },
+  { label: "기타 서비스" },
 ];
 
 onMounted(async() => {
@@ -214,6 +238,7 @@ onMounted(async() => {
   opacity: 0;
 }
 
+
 .animate-left-to-right {
   animation: left-to-right 0.7s ease-in-out forwards;
 }
@@ -224,5 +249,18 @@ onMounted(async() => {
 
 .animate-fade-in {
   animation: fade-in 2s ease-in-out forwards;
+}
+
+/* 파란 박스 호버 효과 */
+ul li {
+  font-family: 'Inter', sans-serif;
+}
+
+ul li:hover {
+  background-color: #003bb5;
+  color: #ffffff;
+  font-weight: 800;
+  transition: all 0.3s ease-in-out;
+  border-radius: 8px;
 }
 </style>
