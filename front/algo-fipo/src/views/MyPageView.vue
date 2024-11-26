@@ -86,13 +86,13 @@
       </div> -->
   
       <div class="mt-8">
-        <h3 class="font-bold text-lg mb-2">무슨무슨항목</h3>
+        <h3 class="font-bold text-lg mb-2">알림목록</h3>
         <ul class="divide-y divide-gray-300">
-          <li v-for="n in 12" :key="n" class="py-4 flex items-center text-sm">
+          <li v-for="n in 1" :key="n" class="py-4 flex items-center text-sm">
             <div class="w-8 h-8 bg-indigo-200 rounded-full flex items-center justify-center">
-              <span class="text-indigo-600 font-bold">A</span>
+              <span class="text-indigo-600 font-bold">!</span>
             </div>
-            <span class="ml-4">List item {{ n }}</span>
+            <span class="ml-4">알림이 없습니다.</span>
           </li>
         </ul>
       </div>

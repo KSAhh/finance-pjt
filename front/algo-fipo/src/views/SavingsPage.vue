@@ -28,13 +28,14 @@
           <FilterSelector
           :filters="filters"
           :period-options="periodOptions"
-          :product-types="productTypes"
           :selected-category="selectedCategory"
           :interest-rate-types="interestRateTypes"
           :join-methods="joinMethods"
           @update-filters="updateFilters"
-          @update-preferences="updatePreferences"
           />
+          <!-- :product-types="productTypes"
+          @update-preferences="updatePreferences" -->
+
   </div>
   <!-- :preferences="preferences"
   :selected-preferences="selectedPreferences" (위 필터섹션에서 제외)--> 
@@ -104,10 +105,13 @@
 
       <!-- 상품 리스트 -->
       <ProductList
+       v-if="!productStore.isLoading && sortedProducts.length > 0"
         :products="sortedProducts"
         :isLoading="productStore.isLoading"
         v-model:currentPage="currentPage"
         :itemsPerPage="itemsPerPage" />
+        <p v-else-if="productStore.isLoading" class="text-center">상품 데이터를 불러오는 중입니다...</p>
+        <p v-else class="text-center text-gray-500">조회된 상품이 없습니다.</p>
     </div>
   </div>
 </template>
@@ -139,13 +143,23 @@ const interestRateTypes = ["단리", "복리"];
 // 가입 방법 옵션
 const joinMethods = ["영업점", "인터넷", "스마트폰", "전화(텔레뱅킹)", "Unknown"];
 
+const selectedBanks = ref([]); // 선택된 은행 목록
 
 const sortState = ref({
   intr_rate: 'asc', // 기본값: 기본 저축금리순 오름차순
   intr_rate2: null, // 최고 우대금리순: 선택되지 않음
 });
 
+const showFilterModal = ref(false); // 필터 모달 상태
 
+const periodOptions = ["1", "3", "6", "12", "24", "36"];
+
+const filters = ref({
+  durations: [], // 기간 필터
+  // types: [], // 상품 유형 필터
+  interestRateTypes: [], // 단리/복리 필터
+  joinMethods: [], // 가입 방법 필터
+});
 
 const toggleSort = (key) => {
   // 1. 다른 키는 초기화
@@ -160,11 +174,6 @@ const toggleSort = (key) => {
 };
 
 
-
-
-
-
-
 const selectCategory = (category) => {
   console.log("선택된 카테고리:", category); // 콘솔에 로그 출력
   selectedCategory.value = category;
@@ -177,6 +186,7 @@ const selectedCategory = ref(categories[0]);
 
 // 선택된 카테고리에 따른 상품 필터링
 const filteredProductsByCategory = computed(() => {
+  
   if (selectedCategory.value === "예금") {
     return productStore.products.deposits || [];
   } else if (selectedCategory.value === "적금") {
@@ -187,9 +197,9 @@ const filteredProductsByCategory = computed(() => {
 });
 
 
+
 const sortedProducts = computed(() => {
   const currentProducts = filteredProductsByCategory.value;
-
   // 활성화된 정렬 키와 방향 가져오기 (기본값: intr_rate, asc)
   const sortKey = Object.keys(sortState.value).find((key) => sortState.value[key]) || "intr_rate";
   const sortOrder = sortState.value[sortKey] || "asc";
@@ -197,40 +207,39 @@ const sortedProducts = computed(() => {
   // 1. 필터링
   const filteredProducts = currentProducts.filter((product) => {
   
-  // 은행 이름 필터링
-  const bankMatch =
-  selectedBanks.value.length === 0 || // 은행 필터가 없거나
-  selectedBanks.value.some((selectedBankId) => {
-    const bankData = [...banks.value, ...savingsBanks.value];
-    const selectedBank = bankData.find((bank) => bank.id === selectedBankId);
-    return selectedBank && product.kor_co_nm.includes(selectedBank.name); // 포함 관계 확인
-  });
-  
+    // 은행 이름 필터링
+    const bankMatch =
+    selectedBanks.value.length === 0 || // 은행 필터가 없거나
+    selectedBanks.value.some((selectedBankId) => {
+      const bankData = [...banks.value, ...savingsBanks.value];
+      const selectedBank = bankData.find((bank) => bank.id === selectedBankId);
+      return selectedBank && product.kor_co_nm.includes(selectedBank.name); // 포함 관계 확인
+    });
+    
     // 기간 필터링
-  const durationMatch = 
-    filters.value.durations.length === 0 || // 필터가 없거나
-    product.options.some((option) =>
-      filters.value.durations.includes(String(option.save_trm)) // save_trm이 필터 조건에 포함
-    );
+    const durationMatch = 
+      filters.value.durations.length === 0 || // 필터가 없거나
+      product.options.some((option) =>
+        filters.value.durations.includes(String(option.save_trm)) // save_trm이 필터 조건에 포함
+      );
 
-  // 단리/복리 필터링
-  const rateTypeMatch =
-    filters.value.interestRateTypes.length === 0 || // 필터가 없거나
-    product.options.some((option) =>
-      filters.value.interestRateTypes.includes(option.intr_rate_type_nm) // intr_rate_type_nm이 필터 조건에 포함
-    );
+    // 단리/복리 필터링
+    const rateTypeMatch =
+      filters.value.interestRateTypes.length === 0 || // 필터가 없거나
+      product.options.some((option) =>
+        filters.value.interestRateTypes.includes(option.intr_rate_type_nm) // intr_rate_type_nm이 필터 조건에 포함
+      );
 
-  // 가입 방법 필터링
-  const joinWayMatch =
-    filters.value.joinMethods.length === 0 || // 필터가 없거나
-    filters.value.joinMethods.some((method) => 
-      product.join_way.includes(method) // join_way 배열 중 하나라도 조건에 포함
-    );
+    // 가입 방법 필터링
+    const joinWayMatch =
+      filters.value.joinMethods.length === 0 || // 필터가 없거나
+      filters.value.joinMethods.some((method) => 
+        product.join_way.includes(method) // join_way 배열 중 하나라도 조건에 포함
+      );
 
-  // 최종 매칭 결과
-  return bankMatch && durationMatch && rateTypeMatch && joinWayMatch;
+    // 최종 매칭 결과
+    return bankMatch && durationMatch && rateTypeMatch && joinWayMatch;
   });
-
 
   // 2. 정렬
   return [...filteredProducts].sort((a, b) => {
@@ -271,20 +280,13 @@ watch(
 );
 
 watch(filteredProductsByCategory, (newVal) => {
-  console.log("필터링된 상품 리스트 업데이트:", newVal);
+  console.log("필터링된 상품 리스트 업데이트:", newVal[0])
+});
+watch(sortedProducts, (newVal) => {
+  console.log("정렬된 상품 리스트: ", newVal[0]);
 });
 
-const selectedBanks = ref([]); // 선택된 은행 목록
-const showFilterModal = ref(false); // 필터 모달 상태
 
-const periodOptions = ["1", "3", "6", "12", "24", "36"];
-
-const filters = ref({
-  durations: [], // 기간 필터
-  // types: [], // 상품 유형 필터
-  interestRateTypes: [], // 단리/복리 필터
-  joinMethods: [], // 가입 방법 필터
-});
 
 // const productTypes = {
 //   예금: ["특판", "방문없이가입", "누구나가입"],
@@ -409,10 +411,14 @@ const resetFilters = () => {
 //   showFilterModal.value = initialFilterState.showFilterModal;
 // };
 
-onMounted(() => {
+onMounted(async () => {
   updateSelectedCategoryFromRoute();
-  productStore.fetchProducts();
+  console.log("초기 상태의 productStore.products:", productStore.products);
+
+  await productStore.fetchProducts();
+  console.log("fetchProducts 호출 후의 productStore.products:", productStore.products);
 });
+console.log("상태확인",productStore.products.deposits)
 </script>
 
 <style scoped>

@@ -28,8 +28,6 @@
   </script>
   
   <style scoped>
-  .product-item {
-    /* Tailwind CSS를 사용하여 스타일링 */
-  }
+
   </style>
   

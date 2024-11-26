@@ -124,7 +124,7 @@ onMounted(async() => {
   await userStore.getUserInfo()
   const userInfo = userStore.userInfo
   if (userInfo.nickname) {
-    localStorage.setItem("nickname", userInfo.nickname)
+    await localStorage.setItem("nickname", userInfo.nickname)
   }
 
   // 애니메이션 초기화

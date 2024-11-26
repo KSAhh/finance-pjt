@@ -34,7 +34,7 @@
           <p class="text-gray-700"><strong>우대 조건:</strong> {{ product.spcl_cnd }}</p>
           <p class="text-gray-700"><strong>가입 제한:</strong> {{ joinDenyText(product.join_deny) }}</p>
           <p class="text-gray-700"><strong>가입 대상:</strong> {{ product.join_member }}</p>
-          <p class="text-gray-700"><strong>최고 한도:</strong> {{ formatCurrency(product.max_limit) }}</p>
+          <p class="text-gray-700"><strong>최고 한도:</strong> {{ formatCurrency(product.max_limit) }} / 월</p>
         </div>
         <div class="mt-4 border-t pt-4">
           <p class="text-gray-700"><strong>기타 유의사항:</strong><br />
@@ -191,7 +191,7 @@ const formatCurrency = (value) => {
 // \n을 <br>로 변환
 const formattedMtrtInt = computed(() => {
     if (!product.value || !product.value.mtrt_int) {
-    return "정보 없음"; // 기본값 설정
+    return "기관 문의"; // 기본값 설정
   }
   return product.value.mtrt_int.replace(/\n/g, "<br>")
 })
@@ -199,10 +199,11 @@ const formattedMtrtInt = computed(() => {
 // \n을 <br>로 변환
 const formattedEtcNote = computed(() => {
   if (!product.value || !product.value.etc_note) {
-    return "정보 없음"; // 기본값 설정
+    return "기관 문의"; // 기본값 설정
   }
   return product.value.etc_note.replace(/\n/g, "<br>")
 })
+
 
   </script>
   <style scoped>

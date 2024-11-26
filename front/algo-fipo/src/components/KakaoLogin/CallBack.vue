@@ -27,7 +27,7 @@ const processLogin = async () => {
 
     // 토큰 저장
     localStorage.setItem("key", token);
-    alert("로그인 성공!");
+    alert("로그인 성공!")
 
     // 메인 페이지로 이동
     router.push("/");
