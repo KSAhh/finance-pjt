@@ -210,13 +210,13 @@ def top_rate(request):
     # DepositProduct 관련 옵션
     deposit_options = (
         ProductOption.objects.filter(content_type=deposit_content_type)
-        .order_by("-intr_rate2")[:10]
+        .order_by("-intr_rate")[:10]
     )
 
     # SavingProduct 관련 옵션
     saving_options = (
         ProductOption.objects.filter(content_type=saving_content_type)
-        .order_by("-intr_rate2")[:10]
+        .order_by("-intr_rate")[:10]
     )
 
     # 직렬화
