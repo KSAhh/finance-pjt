@@ -18,6 +18,13 @@ export const useProductStore = defineStore("productStore", () => {
     etc: [],
   })
 
+  // Top-rate 상품
+  const topRates = ref({
+    deposits: [],
+    savings: [],
+  });
+
+
   const isLoading = ref(false)
   const error = ref(null)
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
@@ -88,5 +95,25 @@ export const useProductStore = defineStore("productStore", () => {
     })
     .catch((err) => console.log(err))
   }
-  return { products, isLoading, error, fetchProducts, userProducts, getUserProducts}
+
+    // Top-rate 데이터 가져오기
+  const fetchTopRates = async () => {
+    isLoading.value = true;
+    error.value = null;
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/v1/products/top-rate/`);
+      topRates.value = {
+        deposits: response.data.deposit_top_rates || [],
+        savings: response.data.saving_top_rates || [],
+      };
+    } catch (err) {
+      error.value = err.response ? err.response.data.message : "네트워크 오류";
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+
+  return { products, isLoading, error, fetchProducts, userProducts, getUserProducts, fetchTopRates, topRates}
 })

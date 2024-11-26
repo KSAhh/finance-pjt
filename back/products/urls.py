@@ -12,6 +12,6 @@ urlpatterns = [
     path('user/<int:product_pk>/', views.user_product_detail),   # 유저 상품 단일 조회, 수정, 삭제 
 
     # path('product-options/<str:fin_prdt_cd>/', views.product_options), # 옵션 조회
-    # path('top-rate/', views.top_rate), # 최고우대금리상품 조회
+    path('top-rate/', views.top_rate), # 최고우대금리상품 조회
 
 ]

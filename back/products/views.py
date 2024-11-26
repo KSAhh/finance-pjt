@@ -13,7 +13,7 @@ from rest_framework.authentication import TokenAuthentication
 
 
 from .models import DepositProduct, SavingProduct, ProductOption, UserProduct
-from .serializers import DepositSavingSerializer, ProductOptionSerializer, UserProductSerializer, DepositSavingDetailSerializer
+from .serializers import DepositSavingSerializer, ProductOptionSerializer, UserProductSerializer, DepositSavingDetailSerializer, ProductRecommendSeriazlier
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -197,18 +197,52 @@ def product_detail(request, product_pk, product_type):
 
 
 # 최고 우대 금리의 상품, 옵션 리스트 출력
+@api_view(["GET"])
+def top_rate(request):
+    """
+    DepositProduct와 SavingProduct 각각의 최고 우대금리(top rate) 기준 상위 5개의 옵션 반환.
+    """
+    # DepositProduct와 SavingProduct의 content_type 가져오기
+    deposit_content_type = ContentType.objects.get_for_model(DepositProduct)
+    saving_content_type = ContentType.objects.get_for_model(SavingProduct)
+
+
+    # DepositProduct 관련 옵션
+    deposit_options = (
+        ProductOption.objects.filter(content_type=deposit_content_type)
+        .order_by("-intr_rate2")[:10]
+    )
+
+    # SavingProduct 관련 옵션
+    saving_options = (
+        ProductOption.objects.filter(content_type=saving_content_type)
+        .order_by("-intr_rate2")[:10]
+    )
+
+    # 직렬화
+    deposit_serializer = ProductRecommendSeriazlier(deposit_options, many=True)
+    saving_serializer = ProductRecommendSeriazlier(saving_options, many=True)
+
+    return Response(
+        {
+            "deposit_top_rates": deposit_serializer.data,
+            "saving_top_rates": saving_serializer.data,
+        },
+        status=status.HTTP_200_OK,
+    )
+
 # @api_view(["GET"])
 # def top_rate(request):
 #     options = get_list_or_404(ProductOption)
-    
+#     print(options)
 #     top_option = max(options, key=lambda x: x.intr_rate2 or 0)
 #     top_product = top_option.product
 
 #     # 최고 우대금리 옵션을 가진 상품, 옵션 정보 반환
-#     product_serializer = ProductSerializer(top_product)
+#     product_serializer = ProductOptionSerializer(top_product)
 #     options_serializer = ProductOptionSerializer(top_option)
 #     return Response({
-#         "deposit_product" : product_serializer.data,
+#         "products" : product_serializer.data,
 #         "options": options_serializer.data
 #         }, status=status.HTTP_200_OK)
 
