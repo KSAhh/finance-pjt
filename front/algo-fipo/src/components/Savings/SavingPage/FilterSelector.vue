@@ -95,7 +95,7 @@ import { debounce } from "lodash";
 const props = defineProps({
   filters: { type: Object, required: true },
   periodOptions: { type: Array, required: true },
-  productTypes: { type: Object, required: true },
+  // productTypes: { type: Object, required: true },
   selectedCategory: { type: String, required: true },//이건 지우면안됨
   // preferences: { type: Array, default: () => [] },
   // selectedPreferences: { type: Array, default: () => [] },

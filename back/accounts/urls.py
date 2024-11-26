@@ -1,5 +1,8 @@
 from django.urls import path, include
 from .views import KakaoLogin, DeleteUserView, UpdateUserView
+from . import views
+
+
 app_name = 'accounts'
 
 urlpatterns = [

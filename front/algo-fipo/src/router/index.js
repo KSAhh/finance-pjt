@@ -6,10 +6,15 @@ import CallBack from "@/components/KakaoLogin/CallBack.vue";
 import SignUpView from "@/views/SignUpView.vue";
 import FindPasswordView from "@/views/FindPasswordView.vue";
 import SavingsPage from "@/views/SavingsPage.vue";
+import SavingDetail from "@/views/SavingDetail.vue";
+import JoinForm from "@/components/Savings/SavingPage/JoinForm.vue";
 import LoanPageView from "@/views/LoanPageView.vue";
 import MyPageView from "@/views/MyPageView.vue";
 import FAQView from "@/views/FAQView.vue";
 import CustomerSupportView from "@/views/CustomerSupportView.vue";
+import CustomerSupportDetailView from "@/views/CustomerSupportDetailView.vue";
+import CSListCreate from "@/components/CustomerService/CSListCreate.vue"
+import CustomerSupportEditView from "@/views/CustomerSupportEditView.vue"
 import BankMapView from "@/views/BankMapView.vue";
 import MyCommentsView from "@/views/MyCommentsView.vue";
 import MyFinancialProductView from "@/views/MyFinancialProductView.vue";
@@ -21,6 +26,7 @@ import FinanceInfoEdit from "@/components/MyInfoEdit/FinanceInfoEdit.vue";
 import DataAuthorization from "@/components/MyInfoEdit/DataAuthorization.vue";
 import Notifications from "@/components/MyInfoEdit/Notifications.vue";
 import AccountDeletion from "@/components/MyInfoEdit/AccountDeletion.vue";
+import ExchangeView from "@/views/ExchangeView.vue"
 
 
 const router = createRouter({
@@ -64,6 +70,17 @@ const router = createRouter({
       component: SavingsPage,
     },
     {
+      path: '/saving/:id',
+      name: 'SavingsDetail',
+      component: SavingDetail,
+    },
+    {
+      path: '/join',
+      name: 'JoinForm',
+      component: JoinForm,
+      meta: { requiresAuth: true }, // 로그인 필수 설정
+    },
+    {
       path: '/loans',
       name: 'LoanPage',
       component: LoanPageView,
@@ -83,6 +100,23 @@ const router = createRouter({
       path: '/cs',
       name: 'CustomerSupport',
       component: CustomerSupportView,
+    },
+    {
+      path: '/cs/:article_pk',
+      name: 'CustomerSupportDetail',
+      component: CustomerSupportDetailView,
+    },
+    {
+      path: '/cs/:article_pk/edit',
+      name: 'CustomerSupportEditView',
+      component: CustomerSupportEditView,
+      meta: {requiresAuth: true }, // 로그인 필요
+    },
+    {
+      path: '/cs/create',
+      name: 'CSListCreate',
+      component: CSListCreate,
+      meta: {requiresAuth: true }, // 로그인 필요
     },
     {
       path: '/bankmap',
@@ -113,42 +147,47 @@ const router = createRouter({
       component: MyInfomationEditView,
       meta: { requiresAuth: true }, // 인증 요구
     },
-      {
-        path: "/myinfoedit/contact-management",
-        name: "ContactManagement",
-        component: ContactManagement,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/password-edit",
-        name: "PasswordEdit",
-        component: PasswordEdit,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/finance-info-edit",
-        name: "FinanceInfoEdit",
-        component: FinanceInfoEdit,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/data-authorization",
-        name: "DataAuthorization",
-        component: DataAuthorization,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/notifications",
-        name: "Notifications",
-        component: Notifications,
-        meta: { requiresAuth: true },
-      },
-      {
-        path: "/myinfoedit/account-deletion",
-        name: "AccountDeletion",
-        component: AccountDeletion,
-        meta: { requiresAuth: true },
-      },
+    {
+      path: "/myinfoedit/contact-management",
+      name: "ContactManagement",
+      component: ContactManagement,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/password-edit",
+      name: "PasswordEdit",
+      component: PasswordEdit,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/finance-info-edit",
+      name: "FinanceInfoEdit",
+      component: FinanceInfoEdit,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/data-authorization",
+      name: "DataAuthorization",
+      component: DataAuthorization,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/notifications",
+      name: "Notifications",
+      component: Notifications,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/myinfoedit/account-deletion",
+      name: "AccountDeletion",
+      component: AccountDeletion,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/exchange-rate",
+      name: "ExchangeView",
+      component: ExchangeView,
+    },
 ]});
 
 router.beforeEach((to, from, next) => {

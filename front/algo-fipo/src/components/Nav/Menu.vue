@@ -1,5 +1,5 @@
 <template>
-  <ul class="hidden sm:flex text-base md:text-lg lg:text-xl tracking-wide whitespace-nowrap relative">
+  <ul class="hidden sm:flex text-base md:text-lg lg:text-xl tracking-wide whitespace-nowrap">
     <MenuItem
       v-for="(item, index) in menuItems"
       :key="index"
@@ -13,6 +13,7 @@
     />
   </ul>
 </template>
+
 
 <script setup>
 import { reactive, ref } from "vue";
@@ -37,11 +38,11 @@ const menuItems = reactive([
   },
   {
     label: "은행 지도",
-    dropdownContent: ["주변 은행 찾기", "상품 2", "상품 3"],
+    dropdownContent: ["주변 은행 찾기"],
   },
   {
     label: "환율",
-    dropdownContent: ["환율 상품 1", "환율 상품 2", "환율 상품 3"],
+    dropdownContent: ["환율 조회"],
   },
 ]);
 
@@ -84,16 +85,48 @@ const navigateToMainPage = (label) => {
     else if (label === "은행 지도") {
     router.push({ name: "BankMap"});
   }
+    else if (label === "환율") {
+    router.push({ name: "ExchangeView" })
+  }
 };
 </script>
 
 
 <style scoped>
+
+
 ul > li::before {
   content: "";
   position: absolute;
-  inset: -12px -8px; /* 위아래로 12px, 좌우로 8px 확장 */
+  inset: 0;
   z-index: -1;
-  background-color: transparent; /* 시각적 변경 없음 */
 }
+
+ul > li {
+  position: relative;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+
+ul > li::after {
+  content: "";
+  position: absolute;
+  bottom: 11px;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background-color: #0048e8;
+  transition: width 0.3s ease; 
+  transform: translateX(-50%);
+}
+
+ul > li:hover::after {
+  width: 70%;
+}
+
+
 </style>

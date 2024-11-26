@@ -59,8 +59,30 @@
   </script>
   
   <style scoped>
-  .filter-section {
+  /* .filter-section {
     margin-bottom: 20px;
+  } */
+
+  /* 기본 레이아웃 스타일 */
+  /* .bg-gray-50 {
+    background-color: #f9fafb;
   }
-  </style>
+
+  .max-w-5xl {
+    max-width: 80rem;
+  }
+
+  .shadow-lg {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .mt-10 {
+    margin-top: 2.5rem;
+  }
+
+  .mt-8 {
+    margin-top: 2rem;
+  } */
+
+</style>
   

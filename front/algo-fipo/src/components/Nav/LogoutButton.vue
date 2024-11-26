@@ -27,14 +27,28 @@ const logout = async () => {
 
 <style scoped>
 .logout-button {
-  background-color: #ff6b6b;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  background-color: white; /* 화려한 레드 색상 */
+  color: black;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 0.75rem 1rem;
+  border: 1px;
+  border-radius: 0.5rem;
   cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0.1, 0.1, 0.1, 0.1);
+  transition: background-color 0.3s ease;
 }
+
 .logout-button:hover {
-  background-color: #e63946;
+  background-color: black; 
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  color: white;
 }
+
+.logout-button:active {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 </style>

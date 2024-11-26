@@ -16,9 +16,7 @@
                 {{ nickname }}님의 마이페이지
               </h2>
               <ul class="text-sm text-gray-500 mt-1 whitespace-nowrap">
-                <li>답글이 작성되었습니다</li>
-                <li>문의내역 답변이 등록</li>
-                <li>기타 등등 알림집대성</li>
+                <li>알림이 없습니다</li>
               </ul>
             </div>
           </div>
@@ -47,8 +45,37 @@
         </div>
       </div>
   
-      <!-- 썸네일 리스트 -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+      
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+      <button
+        @click="goToMyFinancialProduct"
+        class="bg-gray-200 rounded-lg h-32 flex items-center justify-center text-xl font-bold hover:bg-gray-300"
+      >
+        내 금융상품
+      </button>
+      <button
+        @click="goToMyComments"
+        class="bg-gray-200 rounded-lg h-32 flex items-center justify-center text-xl font-bold hover:bg-gray-300"
+      >
+        내가 단 댓글
+      </button>
+      <button
+        @click="goToMyInquire"
+        class="bg-gray-200 rounded-lg h-32 flex items-center justify-center text-xl font-bold hover:bg-gray-300"
+      >
+        내 문의내역
+      </button>
+      <button
+        @click="goToMyInfo"
+        class="bg-gray-200 rounded-lg h-32 flex items-center justify-center text-xl font-bold hover:bg-gray-300"
+      >
+        회원정보수정
+      </button>
+    </div>
+
+
+    <!-- 썸네일 리스트 -->
+      <!-- <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
         <div
           v-for="n in 8"
           :key="n"
@@ -56,20 +83,21 @@
         >
           <span>썸네일</span>
         </div>
-      </div>
+      </div> -->
   
       <div class="mt-8">
-        <h3 class="font-bold text-lg mb-2">무슨무슨항목</h3>
+        <h3 class="font-bold text-lg mb-2">알림목록</h3>
         <ul class="divide-y divide-gray-300">
-          <li v-for="n in 12" :key="n" class="py-4 flex items-center text-sm">
+          <li v-for="n in 1" :key="n" class="py-4 flex items-center text-sm">
             <div class="w-8 h-8 bg-indigo-200 rounded-full flex items-center justify-center">
-              <span class="text-indigo-600 font-bold">A</span>
+              <span class="text-indigo-600 font-bold">!</span>
             </div>
-            <span class="ml-4">List item {{ n }}</span>
+            <span class="ml-4">알림이 없습니다.</span>
           </li>
         </ul>
       </div>
-    </div>
+  </div>
+
   </template>
   
   <script setup>
@@ -137,8 +165,6 @@ const goToMyInfo = () => {
       // 상태 업데이트
       nickname.value = newNickname;
       isEditing.value = false;
-  
-      alert('닉네임이 성공적으로 변경되었습니다.');
     } catch (error) {
       console.error('닉네임 변경 실패:', error.message);
       alert('닉네임 변경에 실패했습니다. 다시 시도해주세요.');
@@ -212,3 +238,13 @@ const goToMyInfo = () => {
     fetchUserData();
   });
   </script>
+
+<style scoped>
+  button {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+  }
+</style>

@@ -1,11 +1,12 @@
 <template>
     <div class="container mx-auto p-6 bg-white">
       <h1 class="text-2xl font-bold text-gray-900 mb-6">마이데이터 권한</h1>
-      <p>여기에 마이데이터 권한 내용을 작성하세요.</p>
+      <DataAutorizationDetail />
     </div>
   </template>
   
   <script setup>
+  import DataAutorizationDetail from '../mypage/DataAutorizationDetail.vue';
   </script>
   
   <style scoped>
