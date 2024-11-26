@@ -6,10 +6,13 @@
           :class="['bank-button', { active: bank.active }]"
           @click="toggleBank(bank.id)"
         >
-          <img :src="bank.logo" :alt="bank.name" />
+          <img :src="bank.logoSrc" :alt="bank.name" />
+
           <span>{{ bank.name }}</span>
         </button>
       </div>
+
+      
     </div>
   </template>
   
@@ -17,13 +20,28 @@
   import { reactive } from 'vue';
   import { defineEmits } from 'vue';
   import { banks as importedBanks } from '@/components/loan/loanpage/filterOptions.js';
-  
-  const emit = defineEmits(['bank-filter-changed']);
-  
-  // `importedBanks`는 불변 객체이므로, 각 은행에 `active` 속성을 추가하여 반응형으로 만듭니다.
+  import { useBankNameStore } from '@/stores/banknamestore';
+  import { computed, ref, onMounted } from 'vue';
+
+
+
+  // `importedBanks`는 불변 객체이므로, 각 은행에 `active` 속성을 추가하여 반응형으로 만듦
   const reactiveBanks = reactive(
-    importedBanks.map(bank => ({ ...bank, active: false }))
-  );
+    importedBanks.map(bank => ({ ...bank, active: false, logoSrc: null, }))
+  )
+
+  // 동적으로 이미지 로드
+  onMounted(async () => {
+    for (const bank of reactiveBanks) {
+      if (typeof bank.logo === 'function') {
+        const module = await bank.logo();
+        bank.logoSrc = module.default; // 이미지 경로를 logoSrc에 저장
+      }
+    }
+  });
+
+
+
   
   function toggleBank(id) {
     reactiveBanks.forEach(bank => {

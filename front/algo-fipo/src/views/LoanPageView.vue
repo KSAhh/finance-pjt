@@ -1,12 +1,18 @@
 <!-- src/views/LoanPageView.vue -->
 <template>
-    <div class="bg-gray-50 min-h-screen">
-      <!-- 필터 섹션 -->
-      <FilterSection class="max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-8 mt-10" @filter-changed="onFilterChanged" :initial-category="initialCategory" />
-  
-      <!-- 상품 목록 -->
+  <div class="bg-gray-50 min-h-screen flex flex-col items-center">
+    <!-- 필터 섹션 -->
+    <FilterSection
+      class="w-full max-w-5xl bg-white rounded-lg shadow-lg p-8 mt-10"
+      @filter-changed="onFilterChanged"
+      :initial-category="initialCategory"
+    />
+
+    <!-- 상품 목록 -->
+    <div class="w-full max-w-5xl mt-8">
       <ProductList :filters="selectedFilters" />
     </div>
+  </div>
   </template>
   
   <script setup>

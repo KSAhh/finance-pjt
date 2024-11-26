@@ -1,6 +1,6 @@
 <template>
   <!-- <div class="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-lg"> -->
-    <h2 class="text-2xl font-bold mb-6">기준 환율 차트
+    <h2 class="text-2xl font-bold mb-6">기준 환율 차트 (KRW)
       <p class="text-sm text-gray-500 mb-6">{{ store.exchanges[0]?.updated_at }} 기준</p>
     </h2>
     
@@ -56,18 +56,10 @@ const createChart = () => {
         x: {
           title: {
             display: true,
-            text: "통화 코드",
+            text: "국가",
           },
         },
-        y: {
-          title: {
-            display: true,
-            text: "기준 환율 (KRW)",
-          },
-          ticks: {
-            callback: (value) => value.toLocaleString(),
-          },
-        },
+        
       },
     },
   });
