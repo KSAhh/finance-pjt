@@ -37,3 +37,20 @@ const shouldShowLayout = computed(() => {
   position: relative;
 }
 </style>
+<style>
+/* Pretendard를 기본 폰트로 설정 */
+body {
+  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans KR', Arial, sans-serif;
+  line-height: 1.5;
+  color: #333; /* 기본 텍스트 색상 */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700; /* 제목은 Bold로 설정 */
+}
+
+a {
+  text-decoration: none;
+}
+
+</style>

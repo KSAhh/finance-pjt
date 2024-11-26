@@ -28,34 +28,35 @@
           <FilterSelector
           :filters="filters"
           :period-options="periodOptions"
-    :product-types="productTypes"
-    :selected-category="selectedCategory"
-    :interest-rate-types="interestRateTypes"
-    :join-methods="joinMethods"
-    @update-filters="updateFilters"
-    @update-preferences="updatePreferences"
-    />
+          :product-types="productTypes"
+          :selected-category="selectedCategory"
+          :interest-rate-types="interestRateTypes"
+          :join-methods="joinMethods"
+          @update-filters="updateFilters"
+          @update-preferences="updatePreferences"
+          />
   </div>
   <!-- :preferences="preferences"
   :selected-preferences="selectedPreferences" (위 필터섹션에서 제외)--> 
 
   
   <!-- 필터 버튼 -->
-  <div class="flex flex-col items-end space-y-2">
-          <button
-            @click="showFilterModal = true"
-            class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
-          >
-            필터 설정
-          </button>
-          <button
-            @click="resetFilters"
-            class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300"
-          >
-            필터 초기화
-          </button>
-        </div>
-      </div>
+ <div class="flex flex-col items-end space-y-2">
+    <button
+      @click="showFilterModal = true"
+      class="w-40 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-800 shadow-md transition duration-300"
+    >
+      필터 설정
+    </button>
+    <button
+      @click="resetFilters"
+      class="w-40 px-6 py-3 bg-gray-300 text-gray-800 font-semibold rounded-lg hover:bg-gray-400 shadow-md transition duration-300"
+    >
+      필터 초기화
+    </button>
+  </div>
+
+  </div>
 
       <!-- 필터 모달 -->
       <FilterModal
@@ -68,47 +69,45 @@
       />
 
       <!-- 선택된 필터 표시 -->
-      <SelectedFilters
-        v-if="activeFiltersWithBanks.length > 0"
-        :filters="activeFiltersWithBanks"
-        @remove-filter="removeFilter"
-        class="mt-6 border rounded-lg p-4 bg-gray-100"
-      />
+    <SelectedFilters
+      v-if="activeFiltersWithBanks.length > 0"
+      :filters="activeFiltersWithBanks"
+      @remove-filter="removeFilter"
+      class="mt-6 border rounded-lg p-4 bg-gray-100"
+    />
+
     <!-- 필터 및 정렬 옵션 버튼 -->
+    <div class="flex space-x-4 mt-6 mb-8">
+      <!-- 기본 저축금리순 -->
+      <button
+        @click="toggleSort('intr_rate')"
+        class="py-2 px-4 bg-gray-100 border rounded flex items-center bg-gray-300 hover:bg-gray-400 shadow-md transition duration-300"
+      >
+        기본 저축금리순
+        <span class="ml-2">
+          {{ sortState.intr_rate === 'desc' ? '▼' : '▲' }}
+        </span>
+      </button>
 
-    <div class="flex space-x-4">
-  <!-- 기본 저축금리순 -->
-  <button
-    @click="toggleSort('intr_rate')"
-    class="py-2 px-4 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 flex items-center"
-  >
-    기본 저축금리순
-    <span class="ml-2">
-      {{ sortState.intr_rate === 'desc' ? '▼' : '▲' }}
-    </span>
-  </button>
-
-  <!-- 최고 우대금리순 -->
-  <button
-    @click="toggleSort('intr_rate2')"
-    class="py-2 px-4 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 flex items-center"
-  >
-    최고 우대금리순
-    <span class="ml-2">
-      {{ sortState.intr_rate2 === 'asc' ? '▲' : sortState.intr_rate2 === 'desc' ? '▼' : '▲' }}
-    </span>
-  </button>
-</div>
+      <!-- 최고 우대금리순 -->
+      <button
+        @click="toggleSort('intr_rate2')"
+        class="py-2 px-4 bg-gray-100 border rounded flex items-center bg-gray-300 hover:bg-gray-400 shadow-md transition duration-300"
+      >
+        최고 우대금리순
+        <span class="ml-2">
+          {{ sortState.intr_rate2 === 'asc' ? '▲' : sortState.intr_rate2 === 'desc' ? '▼' : '▲' }}
+        </span>
+      </button>
+    </div>
 
 
       <!-- 상품 리스트 -->
       <ProductList
-    :products="sortedProducts"
-    :isLoading="productStore.isLoading"
-    v-model:currentPage="currentPage"
-    :itemsPerPage="itemsPerPage"
-    
-  />
+        :products="sortedProducts"
+        :isLoading="productStore.isLoading"
+        v-model:currentPage="currentPage"
+        :itemsPerPage="itemsPerPage" />
     </div>
   </div>
 </template>
@@ -127,7 +126,7 @@ import { useBankNameStore } from "@/stores/banknamestore";
 const route = useRoute();
 const router = useRouter();
 const currentPage = ref(1);
-const itemsPerPage = 5;
+const itemsPerPage = 6;
 // 은행 캐러셀 관련 선언
 const bankNameStore = useBankNameStore();
 const productStore = useProductStore();

@@ -1,41 +1,75 @@
 <template>
   <div>
-    <h2 class="text-xl font-semibold mb-4">상품 리스트</h2>
-    
+    <h2 class="text-2xl font-semibold mb-6 text-gray-800">상품 리스트</h2>
+
     <!-- 로딩 상태 -->
     <div v-if="isLoading" class="text-center py-6">
-      <p>상품 데이터를 불러오는 중입니다...</p>
+      <p class="text-lg text-gray-600">상품 데이터를 불러오는 중입니다...</p>
     </div>
-    
+
     <!-- 상품 데이터 -->
-    <ul v-else-if="products && products.length > 0" class="space-y-4">
+    <ul v-else-if="products && products.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <li
-      v-for="product in paginatedProducts"
-      :key="product.id"
-      class="border border-gray-300 rounded-lg p-4 shadow-sm"
-      @click="goToDetail(product.id)"
+        v-for="product in paginatedProducts"
+        :key="product.id"
+        class="border border-gray-200 rounded-lg p-6 shadow-md hover:shadow-lg hover:border-blue-400 transition duration-300 cursor-pointer"
+        @click="goToDetail(product.id)"
       >
-      <h4 class="font-medium text-lg">{{ product.fin_prdt_nm }}</h4>
-        <p class="text-sm text-gray-500">{{ product.kor_co_nm }}</p>
-        <p class="text-sm mt-2">가입 방식: {{ formattedJoinWay(product.join_way) }}</p>
-        <p class="text-sm">저축 금리 유형: {{ rateTypeSummary(product.options) }}</p>
-        <p class="text-sm">기본 금리: {{ product.options[0]?.intr_rate }}%</p>
-        <p class="text-sm">최고 우대금리: {{ maxInterestRate(product.options) }}%</p>
-        <p class="text-sm">저축 기간: {{ allSaveTerms(product.options) }}</p>
+        <h4 class="font-medium text-lg text-blue-700 hover:text-blue-900 transition duration-200">
+          {{ product.fin_prdt_nm }}
+        </h4>
+        <p class="text-sm text-gray-600">{{ product.kor_co_nm }}</p>
+        <p class="text-sm mt-2">
+          <span class="font-semibold text-gray-700">가입 방식:</span>
+          {{ formattedJoinWay(product.join_way) }}
+        </p>
+        <p class="text-sm">
+          <span class="font-semibold text-gray-700">저축 금리 유형:</span>
+          {{ rateTypeSummary(product.options) }}
+        </p>
+        <p class="text-sm">
+          <span class="font-semibold text-gray-700">기본 금리:</span>
+          {{ product.options[0]?.intr_rate }}%
+        </p>
+        <p class="text-sm">
+          <span class="font-semibold text-gray-700">최고 우대금리:</span>
+          {{ maxInterestRate(product.options) }}%
+        </p>
+        <p class="text-sm">
+          <span class="font-semibold text-gray-700">저축 기간:</span>
+          {{ allSaveTerms(product.options) }}
+        </p>
       </li>
     </ul>
 
     <!-- 데이터 없음 -->
-    <p v-else class="text-center text-gray-500 py-6">조회된 상품이 없습니다.</p>
+    <p v-else class="text-center text-gray-500 py-6">
+      조회된 상품이 없습니다.
+    </p>
 
     <!-- 페이지네이션 -->
-    <div class="flex items-center justify-center mt-6 space-x-4">
-      <button @click="prevPage" :disabled="currentPage === 1" class="py-2 px-4 border border-gray-300 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">이전</button>
-      <span>{{ currentPage }} / {{ totalPages }}</span>
-      <button @click="nextPage" :disabled="currentPage === totalPages" class="py-2 px-4 border border-gray-300 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">다음</button>
+    <div class="flex items-center justify-center mt-8 space-x-4">
+      <button
+        @click="prevPage"
+        :disabled="currentPage === 1"
+        class="py-2 px-4 border border-gray-300 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+      >
+        이전
+      </button>
+      <span class="font-medium text-gray-700">
+        {{ currentPage }} / {{ totalPages }}
+      </span>
+      <button
+        @click="nextPage"
+        :disabled="currentPage === totalPages"
+        class="py-2 px-4 border border-gray-300 rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+      >
+        다음
+      </button>
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { computed, defineProps, defineEmits, ref, watch } from 'vue';

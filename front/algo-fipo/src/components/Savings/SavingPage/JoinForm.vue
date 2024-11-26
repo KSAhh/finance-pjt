@@ -142,10 +142,12 @@ const submitForm = async () => {
 
 .btn-submit {
   padding: 0.5rem 1rem;
-  background: #4caf50;
+  background: black;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin:auto;
+  width: 100%;
 }
 </style>

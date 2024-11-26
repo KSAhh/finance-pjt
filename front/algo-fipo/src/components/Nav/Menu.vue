@@ -94,40 +94,6 @@ const navigateToMainPage = (label) => {
 
 <style scoped>
 
-/* ul > li::before {
-  content: "";
-  position: absolute;
-  inset: -12px -8px;
-  z-index: -1;
-  background-color: transparent;
-}
-ul > li {
-  position: relative;
-  overflow: hidden; 
-  font-weight: bold;
-}
-
-ul > li::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 0;
-  height: 2px;
-  background-color: #0048e8;
-  transition: all 0.3s ease; 
-  transform: translateX(-50%);
-}
-
-ul > li:hover::after {
-  width: 80%; 
-}
-
-ul > li {
-  padding: 0 10px;
-  cursor: pointer;
-  transition: color 0.3s ease;
-} */
 
 ul > li::before {
   content: "";
@@ -154,12 +120,12 @@ ul > li::after {
   width: 0;
   height: 2px;
   background-color: #0048e8;
-  transition: width 0.3s ease; /* left는 고정, width만 애니메이션 적용 */
+  transition: width 0.3s ease; 
   transform: translateX(-50%);
 }
 
 ul > li:hover::after {
-  width: 70%; /* 호버 시 밑줄 확장 */
+  width: 70%;
 }
 
 
