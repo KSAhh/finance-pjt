@@ -2,7 +2,7 @@
   <div class="w-full max-w-screen-2xl mx-auto p-6">
     <!-- Intro Section -->
     <section class="mb-12">
-      <div class="flex flex-col space-y-12 sm:space-y-16 md:space-y-20">
+      <div class="flex flex-col space-y-12 sm:space-y-16 md:space-y-10">
         <!-- 첫 번째 문장 -->
         <div
           class="shadow-text py-20 text-xl sm:text-2xl md:text-4xl lg:text-5xl font-thin text-left leading-loose lg:ml-12"
