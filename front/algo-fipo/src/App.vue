@@ -9,16 +9,16 @@
     </div>
 
     <!-- Footer -->
-    <footer v-if="shouldShowLayout" class="bg-gray-100 text-center py-4 text-base lg:text-lg tracking-wide">
-      우리 팀 정보
-    </footer>
+    <!-- 여기에 Foot 컴포넌트 넣는법 -->
+    <Foot />
   </div>
 </template>
 
 <script setup>
 import NavBar from "@/components/NavBar.vue";
 import { useRoute } from "vue-router";
-import { computed } from "vue";
+import { computed } from "vue"
+import Foot from "./components/Foot.vue";
 
 // 현재 라우트 가져오기
 const route = useRoute();
