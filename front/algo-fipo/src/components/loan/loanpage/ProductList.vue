@@ -24,8 +24,8 @@
   
   // 예시 상품 데이터 (실제 데이터는 API 호출 등을 통해 받아올 수 있음)
   const products = [
-    { id: 1, name: '상품 A', description: '설명 A', financialCompany: 'BNK경남은행' },
-    { id: 2, name: '상품 B', description: '설명 B', financialCompany: 'KB국민은행' },
+    { id: 1, name: '추천상품', description: '', financialCompany: 'BNK경남은행' },
+    // { id: 1, name: '상품명', description: '설명', financialCompany: 'BNK경남은행' },
     // ... 기타 상품 ...
   ];
   
