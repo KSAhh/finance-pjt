@@ -43,7 +43,7 @@ https://github.com/user-attachments/assets/501fc567-ab5c-4688-8932-1a557ad0df97
 ### 4. 환율계산기
 - 출국을 위해 필요한 환전 금액을 계산합니다.
 
-https://github.com/user-attachments/assets/95aa4d90-ef9d-4697-8bc1-d3d993a8ed63
+![image](https://github.com/user-attachments/assets/002f59f6-383f-4ec4-846c-bd0a79612342)
 
 ### 5. 근처 은행 지도
 - 검색 키워드 근처의 은행 지점을 검색합니다.
