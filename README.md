@@ -19,6 +19,16 @@
 
 https://github.com/user-attachments/assets/501fc567-ab5c-4688-8932-1a557ad0df97
 
+### 상품 추천 [마이데이터 미동의자]
+- 기본금리 기준 상위 10가지 상품
+
+![image](https://github.com/user-attachments/assets/e93c23fb-e539-476d-b613-b367b65376e0)
+
+![image](https://github.com/user-attachments/assets/38065152-b24f-40de-9328-d79f2d9e4349)
+
+### 상품 추천 [마이데이터 동의자]
+- 알고리즘 구현 완료
+
 ### 환율계산
 
 https://github.com/user-attachments/assets/95aa4d90-ef9d-4697-8bc1-d3d993a8ed63
@@ -187,7 +197,16 @@ finance-pjt/
 
 ## 📅 개발 일정
 **Branch History 기반 정리**
+
 ### 1주차
+- 24-11-11 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63641)
+- 24-11-12 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63645)
+- 24-11-13 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63662)
+- 24-11-14 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64087)
+- 24-11-15 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64444)
+- 24-11-17 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64478)
+
+
 - 프로젝트 구조 설계 및 초기 세팅
   - Django REST Framework와 Vue3를 기반으로 백엔드와 프론트엔드 분리
   - 초기 디렉터리 구조 구성
