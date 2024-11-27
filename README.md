@@ -35,7 +35,7 @@ https://github.com/user-attachments/assets/501fc567-ab5c-4688-8932-1a557ad0df97
 
 ### 환율계산
 
-https://github.com/user-attachments/assets/95aa4d90-ef9d-4697-8bc1-d3d993a8ed63
+![image](https://github.com/user-attachments/assets/002f59f6-383f-4ec4-846c-bd0a79612342)
 
 ### 근처 은행 지도
 
