@@ -176,6 +176,188 @@ finance-pjt/
   - 마이데이터 활용 비동의 → 기본금리 기반 상위 항목 추천
 
 ---
+### 추천 알고리즘 설계구조
+핵심목표 : 신뢰성 있는 과정을 거친 더미데이터 생성으로 초기 추천 또한 논리적인 흐름을 따를 수 있도록 한다.
+가정 : 
+본 사이트 가입유저 상호간의 유저는 마이데이터 공유 여부를 선택할 수 있다,
+더미데이터 유저들은 모두 합리적인 선택으로 상품을 선택한다.
+본 사이트는 직장인이 가입할 확률이 높다고 가정한다.
+
+더미데이터 생성 가정 : 
+
+1. 연령별 가입 유저 비율
+본 사이트는 사회초년생을 타게팅한 사이트이므로 가입 유저 비율 중 20대가 가장 많은 것이라 가정하며 연령별 비율은 다음과 같다.
+랜덤함수로 설정해 전체 총합에 대한 키 값의 비율로 연령이  확률적으로 생성된다.
+[20대 : 10, 30대 : 5, 40대 : 2, 50대 : 2, 60대 : 1]
+각 값은 임의로 설정한 값이다.
+
+2. 성별 비율 :
+5:5로 설정해 남녀간의 균형이 있도록 했다. 이는 신규 가입자가 성별에 따라 추천 시스템의 기능을 부족하게 이용하지 않게 하기 위함이다.
+
+```python
+# 나이, 성별 함수
+def generate_user_age_gender():
+    age_group_weights = [10, 5, 2, 2, 1]
+    age_group = random.choices([20, 30, 40, 50, 60], weights=age_group_weights, k=1)[0]
+    user_age = random.randint(age_group, age_group + 9)
+    user_gender = random.choice(["male", "female"])
+    return user_age, user_gender
+```
+3. 마이데이터 허용 여부
+마이데이터 허용 여부는 [1, 2, 3] 으로 나뉜다.
+각 값에 대한 설명:
+   ```1 = 마이데이터를 제공하고, 본 사이트 가입유저 중 1을 선택한 유저와의 가입상품 및 기타 금융정보를 공유한다.
+   2 = 마이데이터를 제공하고, 오직 본인의 마이데이터를 이용하며 금융정보를 공유하지 않는다.
+   3 = 마이데이터를 제공하지 않으며 기본 금융 상품 추천서비스 로직을 따른다.```
+
+```python
+# 마이데이터 허용여부 생성 함수
+def generate_data_consent():
+    return random.choices([1, 2, 3], weights=[6, 3, 1], k=1)[0]
+```
+
+4. 소득 및 지출 데이터 설정(최신데이터가 경향성을 증거할 수 없으리란 판단에 최근 1년간 데이터의 평균을 월평균 소득액으로 판단)
+가구주_연령별_가구당_월평균_가계수지__전국_1인이상__2023_4.2~2024_4.2을 참고해 연령대별 12개월 평균 소득을 설정,
+중간값과 평균값을 이용해 식을 설정해 표준편차를 설정, 
+동일한 기간의
+통계청 자료인 가구특성별_비목별_소비지출과 가구특성별_비목별_비소비지출값을 합산하여 지출 데이터로 활용
+
+5. 2023 가계금융복지조사 데이터를 참고해 연령대별 자산 데이터 설정. 해당 데이터에서 부채`여부`에 따라 순자산의 범위가 크게 줄어드는 것을 고려해서 설정.
+
+6. 소득의 극단값 고려
+소득 극단값이 존재할 것이고 이것은 매우 큰 편차로 있을 것이라고 가정해 로그 정규분포로 평균 소득을 생성하는 로직을 추가.
+또한 첫 달의 소득이 정해지면 나머지 11개월에 대한 표준편차가 줄어들도록 하여 현실성을 고려하도록 함.
+
+7. 잉여자본이 있는 사람들이 사이트를 이용할 것이라는 가정.
+지출은 소득의 90%를 초과할 수 없도록 설정하여 `재태크`를 목적으로 하는 사용자가 합리적인 선택을 위해 가입을 한다고 전제.
+
+8. 금융감독원 api 관련 가정
+`join_deny`가 1이 아니면 가입 조건이 있다. 이에 따라 `가입 제한`에 대해 설명하는 `join_member` 와 연관이 있을 것이라 가정
+
+
+### 더미데이터 생성 과정
+
+더미데이터 초기 생성 양식
+```python
+[
+    {
+        "age": 34,
+        "gender": "여성",
+        "monthly_income": 3168874,
+        "monthly_expense": 2752901,
+        "total_assets": 430956,
+        "가입상품": {
+            "가입예금": "",
+            "가입정기예금": "",
+            "가입적금": ""
+        },
+        "마이데이터허용여부": 1
+    },...{더 많은 유저들}]
+```
+**더미유저가 자신에게 최적의 상품을 골라 빈 문자열로 설정된 가입 상품을 추가한다**
+---이하 가입 과정---
+1. join_deny와 join_member를 통해 user가 가입 가능한 조건인지 파악.
+1-1. join_deny가 1이 아니면 join_member를 통해 그 조건이 각 유저에 해당하는지 파악한다.
+2. 데이터 구조 파악으로 정규표현식으로 및 반복문장 혹은 의미없는 값 1차 전처리.
+2-1. 전처리 과정에서 `토큰화`를 사용해 동일한 단어의 반복 횟수를 파악하여 전처리 진행
+2-2. 처리된 데이터에서 3가지 큰 영역으로 조건을 반환
+   1 - 연령 제한
+   2 - 직장인 여부
+   3 - 제한없음
+`해당 과정은 적절한 자동화 규칙을 찾을 수 없어 수동으로 진행.`
+3. 직장인이 가입했을거라는 가정으로 2는 무조건 가입 가능한 값으로 반환.
+4. 더미 유저의 age가 연령 제한을 통과하는지 확인하고, 통과하지 못한다면 해당 상품에 denyed_user 필드를 생성하고, 필드 값에 더미유저의 id 값을 추가.
+5.`ect_note`값으로 더미유저가 가입 가능한 상품인지 판단.
+5-1. 랜덤 생성된 월평균 소득을 균등화평균소득으로 변경(가구원 수를 고려한 변경)하고 지출을 뺄셈.
+5-2. 해당 규칙을 대해 groq API를 활용해 프롬프트를 작성해 `금액`관련 값만 남기도록 함.
+5-3. 금액 관련 단위 또한 맞추도록 요청.
+   savings에 대해 = "최소 월 납입금액"
+   deposits에 대해 = "최소 가입금액"
+   `기본적인 전처리가 된 데이터를 보내 응답의 정확성을 높이도록한다.`
+   json 파일을 청크단위로 groq API에 전송해 응답을 저장.
+   `프롬프트`:
+           당신은 금융 데이터를 분석하는 전문가입니다.
+        데이터 타입: '{data_type}'
+        이 메시지는 총 {total_chunks}개로 나뉜 청크 중 {current_index + 1}번째입니다.
+
+        지침:
+        1. 데이터 구조를 반드시 주어진 형식(deposits와 savings)으로 유지하세요.
+        2. '{data_type}' 데이터 처리 방법:
+        - 최소 납입금액은 '최소 납입금액' 키에 기록하세요.
+        - 추가로 중요한 정보는 '추가 정보' 키에 요약해서 기록하세요.
+        3. "금액"이라는 단어를 해석할 때 주의하세요:
+        - "최소"(minimum)나 "최대"(maximum)와 같은 수식어가 없을 경우, "이상"(at least) 또는 "이하"(at most)와 같은 문맥을 사용하여 판단하세요.
+        - 모든 금액은 반드시 대한민국 원(₩) 단위로 기록하세요.
+        4. 결과는 아래 JSON 형식으로 반환해야 합니다:
+        {{
+            "{data_type}": [
+                {{
+                    "id": "int",
+                    "최소 납입금액": "int",
+                    "최대 납입금액": "int (optional)",
+                    "추가 정보": "string (optional)"
+                }}
+            ]
+        }}
+        JSON 형식만 반환하세요. 추가 설명이나 주석은 포함하지 마세요.
+        """
+6. `5-1에서 반환된 값`을 해당 유저가 `운용가능한 자산`으로 설정.
+6-1. 운용가능한 자산 값은 savings에서 활용,
+   ```python
+# 사용자 denied_product 업데이트
+def update_user_denied_products(user_test, ect_note_file, user_denied_products):
+    for user_id, user_data in enumerate(user_test, start=1):
+        user_monthly_disposable_income = user_data["monthly_income"] - user_data["monthly_expense"]
+        user_total_assets = int(user_data["total_assets"] * 1000 * random.uniform(0.7, 0.9))  # 총자산에 랜덤 비율 적용
+
+        # 접근 불가 상품 업데이트
+        for category in ["savings", "deposits"]:
+            denied_ids = {prod_id for prod_id in user_denied_products[user_id - 1]["deny_product_id"].get(category, [])}
+
+            for product in ect_note_file[category]:
+                product_id = product["id"]
+
+                # 이미 접근 불가 상품에 포함된 경우 스킵
+                if product_id in denied_ids:
+                    continue
+
+                # "최소 월 납입금액" 조건 확인 (savings)
+                if category == "savings" and "최소 월 납입금액" in product and product["최소 월 납입금액"] is not None:
+                    if user_monthly_disposable_income < product["최소 월 납입금액"]:
+                        denied_ids.add(product_id)
+
+                # "최소 납입금액" 조건 확인 (deposits)
+                if category == "deposits" and "최소 납입금액" in product and product["최소 납입금액"] is not None:
+                    if user_total_assets < product["최소 납입금액"]:
+                        denied_ids.add(product_id)
+
+            # 업데이트된 denied_ids 저장
+            user_denied_products[user_id - 1]["deny_product_id"][category] = list(denied_ids)
+
+    return user_denied_products```
+    *해당 함수에 따라 상품 데이터에 접근 불가능한 더미유저 id 추가로 업데이트*
+
+    
+
+   
+
+
+
+
+
+본 사이트 신규 가입 유저에 대한 추천 로직 : 
+
+
+마이데이터 활용 동의시: 각 유저에 대해 마이데이터 허용 
+여부를 저장하고, 허용 유저 간에 가입한 상품
+
+마이데이터 활용 비동의시:
+
+더미데이터 생성과정:
+
+
+
+---
 
 ## 📅 개발 일지
 
@@ -209,6 +391,8 @@ finance-pjt/
 - 프론트 적용
 
 ---
+
+
 
 ## 🛠 이슈 관리
 초기 설정 문제: Vue3와 Tailwind CSS 연동 시 스타일 적용 문제 해결
