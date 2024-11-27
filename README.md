@@ -15,6 +15,10 @@
 
 ---
 
+### 메인페이지 및 회원기능
+
+![image](https://github.com/user-attachments/assets/607b46cb-937f-4cea-8383-f5d90a5cf9b1)
+
 ### 상품가입 및 가입상품 조회
 
 https://github.com/user-attachments/assets/501fc567-ab5c-4688-8932-1a557ad0df97
