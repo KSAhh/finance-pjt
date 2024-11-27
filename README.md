@@ -1,62 +1,74 @@
 # 💰 AlgoFiPo Project
 
 > **재테크를 효율적으로 관리할 수 있는 서비스**  
-> 결혼 후 자가 마련과 신혼여행을 준비하는 사용자들을 대상으로 예적금 금리비교, 환율 계산기, 근처 은행 검색, 그리고 사용자 맞춤형 금융 상품 추천 서비스를 제공합니다.
-
+> 결혼 후 **자가 마련**과 **신혼여행**을 준비하는 사용자들을 대상으로  
+> 예적금 금리비교, 환율 계산기, 근처 은행 검색, 그리고 사용자 맞춤형 금융 상품 추천 서비스를 제공합니다.
 
 ---
 
 ## 🚀 프로젝트 목표
-- 금융상품 데이터 기반 예금 및 적금 금리 비교 서비스 구성
-  유저의 마이데이터 기반 금융 추천 알고리즘 구성
-- 환율 정보 API를 활용한 환율 계산 서비스 및 차트 구성
-- 지도 API를 활용한 은행 검색 서비스 구성
-- 고객센터 서비스로 사용성 개선
+- 금융상품 데이터 기반 예금 및 적금 금리 비교 서비스 구성  
+- 유저의 마이데이터 기반 금융 추천 알고리즘 구성   
+- 환율 정보 API를 활용한 환율 계산 서비스 및 차트 구성  
+- 지도 API를 활용한 은행 검색 서비스 구성  
+- 고객센터 서비스로 사용성 개선  
 
 ---
 
-### 메인페이지 및 회원기능
+## 🛠 주요 기능
+
+
+### 1. 메인페이지 및 회원기능
+- 사용자 정보 및 마이데이터 동의여부를 관리할 수 있습니다.
 
 ![image](https://github.com/user-attachments/assets/607b46cb-937f-4cea-8383-f5d90a5cf9b1)
 
-### 상품가입 및 가입상품 조회
+### 2.상품가입 및 가입상품 조회
+- 예적금 금리 비교
+- 사용자가 선택한 금융사, 상품옵션에 맞는 상품을 조회합니다.
 
 https://github.com/user-attachments/assets/501fc567-ab5c-4688-8932-1a557ad0df97
 
-### 상품 추천 [마이데이터 미동의자]
+### 3-1.맞춤형 금융 상품 추천 [마이데이터 미동의자]
+- 금융상품 및 사용자 데이터를 기반으로 개인의 재정 상태에 맞는 금융 상품을 추천합니다.
 - 기본금리 기준 상위 10가지 상품
 
 ![image](https://github.com/user-attachments/assets/e93c23fb-e539-476d-b613-b367b65376e0)
 
 ![image](https://github.com/user-attachments/assets/38065152-b24f-40de-9328-d79f2d9e4349)
 
-### 상품 추천 [마이데이터 동의자]
+### 3-2. 맞춤형 금융 상품 추천 [마이데이터 동의자]
 - 알고리즘 구현 완료
 
-### 환율계산
+### 4. 환율계산기
+- 출국을 위해 필요한 환전 금액을 계산합니다.
 
 https://github.com/user-attachments/assets/95aa4d90-ef9d-4697-8bc1-d3d993a8ed63
 
-### 근처 은행 지도
+### 5. 근처 은행 지도
+- 검색 키워드 근처의 은행 지점을 검색합니다.
 
 https://github.com/user-attachments/assets/9b1a28f8-d9b1-49f6-8494-11e338fba79b
 
-### 고객센터 글 작성
+### 6. 고객센터
+   - 사용자 간의 질문, 리뷰 등을 공유할 수 있으며, 관리자의 답변을 제공받을 수 있습니다.
+
+### 6-1. 고객센터 글 작성
 
 https://github.com/user-attachments/assets/69ba0383-3f3a-47eb-afb1-c51a1c3c3433
 
-### 고객객센터 글 수정
+### 6-1. 고객객센터 글 수정
 
 https://github.com/user-attachments/assets/9d203b0e-8913-4f34-9ff8-bd55129ecc9d
 
-### 고객센터 댓글작성
+### 6-2. 고객센터 댓글작성
 
 https://github.com/user-attachments/assets/57ca6a89-642a-4c86-91a4-0b8f93efd3fe
 
-
+---
 
 ## 📅 개발기간
-**2024년 11월 18일 ~ 2024년 11월 26일**
+**2024년 11월 18일 ~ 2024년 11월 27일**
 
 ---
 
@@ -79,27 +91,6 @@ https://github.com/user-attachments/assets/57ca6a89-642a-4c86-91a4-0b8f93efd3fe
     </td>
   </tr>
 </table>
-
----
-
-## 🛠 주요 기능
-1. **예적금 금리 비교**  
-   - 사용자가 선택한 금융사, 상품옵션에 맞는 상품을 조회합니다.
-
-2. **환율 계산기**  
-   - 출국을 위해 필요한 환전 금액을 계산합니다.
-
-3. **근처 은행 검색**  
-   - 검색 키워드 근처의 은행 지점을 검색합니다.
-
-4. **맞춤형 금융 상품 추천**  
-   - 금융상품 및 사용자 데이터를 기반으로 개인의 재정 상태에 맞는 금융 상품을 추천합니다.
-
-5. **고객센터**  
-   - 사용자 간의 질문, 리뷰 등을 공유할 수 있으며, 관리자의 답변을 제공받을 수 있습니다.
-
-6. **프로필 관리**  
-   - 사용자 정보를 관리할 수 있습니다.
 
 ---
 
@@ -186,50 +177,36 @@ finance-pjt/
 
 ---
 
-## 📝 개발일지
-1주차 ()
-- 프로젝트 초기 세팅: Django, Vue3 환경 구축
-- API 연동: 금융감독원, 카카오 맵 API 테스트
-2주차 ()
-- 주요 기능 개발
-- 예적금 금리 비교, 환율 계산기
-- 알고리즘 로직 설계
-3주차 ()
-- 디자인 적용
-- 프론트 적용
-
-
-## 📅 개발 일정
-**Branch History 기반 정리**
+## 📅 개발 일지
 
 ### 1주차
-- 24-11-11 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63641)
-- 24-11-12 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63645)
-- 24-11-13 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63662)
-- 24-11-14 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64087)
-- 24-11-15 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64444)
-- 24-11-17 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64478)
-
-
 - 프로젝트 구조 설계 및 초기 세팅
   - Django REST Framework와 Vue3를 기반으로 백엔드와 프론트엔드 분리
   - 초기 디렉터리 구조 구성
+  - 24-11-11 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63641)
+  - 24-11-12 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63645)
+  - 24-11-13 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=63662)
+  - 24-11-14 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64087)
+  - 24-11-15 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64444)
 
 ### 2주차
 - 주요 기능 구현 착수
+  - API 연동: 금융감독원, 카카오 맵 API 테스트
   - 예적금 금리 비교 기능
   - 사용자 프로필 관리 기능
-
-### 3주차
 - 신혼여행 환율 계산기 개발
   - 한국수출입은행 환율 정보 API 연동
   - 환율 계산 로직 구현
+  - 알고리즘 로직 설계
+  - 24-11-17 일지 (https://github.com/users/KSAhh/projects/3/views/1?pane=info&statusUpdateId=64478)
 
-### 4주차
+### 3주차
+
 - 근처 은행 검색 및 금융 상품 추천 기능 추가
   - 카카오 맵 API를 활용하여 사용자 위치 기반 은행 검색
   - 알고리즘 기반 금융 상품 추천 로직 개발
-
+- 디자인 적용
+- 프론트 적용
 
 ---
 
@@ -240,8 +217,15 @@ API 호출 최적화: 다중 호출 문제를 Axios 인터셉터로 해결
 ---
 
 ## 🎓 배운점 및 느낀점
-김수아: Django REST Framework를 활용하여 데이터 API 설계 및 효율적인 상태 관리를 배웠습니다.
-백지원: Vue3와 Chart.js를 사용한 데이터 시각화 경험을 쌓을 수 있었습니다
+**김수아**
+> DB 및 API 설계 후 Django REST Framework로 전달할 데이터를 결정한 이후에, 실제 프론트에서 사용할 때 필요한 데이터와 상이한 면이 있어서 수정을 반복하였습니다. 설계, 개발, 분석을 반복하며 애자일 방법론에 대해 이해하게 되었습니다. 여기서 효율적인 자원 관리를 위해 데이터베이스를 정규화하는 것의 필요성을 느낄 수 있었습니다.
+> 또한 이메일 정규화, 비밀번호 해시화 등 커스텀하였습니다.
+> 프론트 작업을 수행하면서 유저 로그인 시 닉네임 필드를 출력하거나, 글 삭제이후 바로 글 목록에서 없애는 기능 등 JavaScript에서 비동기적으로 상태관리하는 방법에 대해 배웠습니다.
+> 팀원과 함께 진행해나가면서 위험관리 측면에서 부족한 점을 느꼈습니다. 업무에서 가장 중요한 점은 납기 및 고객에게 보여줄 수 있는 70%이상의 퀄리티라고 생각하는데 구현했던 결과물에 비해 표현이 아쉬워서 충분히 어필하지 못하였다고 생각합니다. 해서 아쉬웠던 점들은 보완할 예정입니다.
+
+
+백지원
+> Vue3와 Chart.js를 사용한 데이터 시각화 경험을 쌓을 수 있었습니다
 
 ---
 
