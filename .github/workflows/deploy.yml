@@ -1,0 +1,82 @@
+name: Deploy Django and Vue App
+
+on:
+  push:
+    branches:
+      - master  # master 브랜치에 푸시될 때 실행
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. 저장소에서 코드 체크아웃
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2. Python 환경 설정 및 백엔드 작업
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.9'
+
+    - name: Install backend dependencies
+      working-directory: ./back
+      run: pip install -r requirements.txt
+
+    - name: Set up backend environment variables
+      working-directory: ./back
+      env:
+        DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        FSS_API_KEY: ${{ secrets.FSS_API_KEY }}
+        KAKAO_API_KEY: ${{ secrets.KAKAO_API_KEY }}
+        KAKAO_JS_KEY: ${{ secrets.KAKAO_JS_KEY }}
+        KOREAEXIM_API_KEY: ${{ secrets.KOREAEXIM_API_KEY }}
+      run: |
+        echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+        echo "FSS_API_KEY=${{ secrets.FSS_API_KEY }}" >> .env
+        echo "KAKAO_API_KEY=${{ secrets.KAKAO_API_KEY }}" >> .env
+        echo "KAKAO_JS_KEY=${{ secrets.KAKAO_JS_KEY }}" >> .env
+        echo "KOREAEXIM_API_KEY=${{ secrets.KOREAEXIM_API_KEY }}" >> .env
+
+    - name: Run Django migrations
+      working-directory: ./back
+      run: python manage.py migrate
+
+    - name: Collect Django static files
+      working-directory: ./back
+      run: python manage.py collectstatic --noinput
+
+    - name: Run Django tests
+      working-directory: ./back
+      run: python manage.py test
+
+    # 3. Node.js 환경 설정 및 프론트엔드 작업
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install frontend dependencies
+      working-directory: ./front/algo-fipo
+      run: npm install
+
+    - name: Set up frontend environment variables
+      working-directory: ./front/algo-fipo
+      env:
+        VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+        VITE_KAKAO_API_KEY: ${{ secrets.VITE_KAKAO_API_KEY }}
+        VITE_KAKAO_JS_KEY: ${{ secrets.VITE_KAKAO_JS_KEY }}
+      run: |
+        echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" >> .env.local
+        echo "VITE_KAKAO_API_KEY=${{ secrets.VITE_KAKAO_API_KEY }}" >> .env.local
+        echo "VITE_KAKAO_JS_KEY=${{ secrets.VITE_KAKAO_JS_KEY }}" >> .env.local
+
+    - name: Build Vue frontend
+      working-directory: ./front/algo-fipo
+      run: npm run build
+
+    # 4. 배포 단계 (배포 진행 시 작성 예정)
+    - name: Deploy application
+      run: |
+        echo "Configure your server or cloud service."
