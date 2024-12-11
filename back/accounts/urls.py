@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import KakaoLogin, DeleteUserView, UpdateUserView
+from .views import KakaoLogin
 from . import views
 
 
@@ -7,8 +7,7 @@ app_name = 'accounts'
 
 urlpatterns = [
     path("signup/", include("dj_rest_auth.registration.urls")),         # 일반 회원가입 
-    path("delete/", DeleteUserView.as_view(), name="delete_user"),      # 일반 회원탈퇴
-    path("update/", UpdateUserView.as_view(), name="update_user"),      # 회원 정보수정
-    path("kakao/login/", KakaoLogin.as_view(), name="kakao_login"),     # 소셜 회원가입
-    path("assets/", views.assets), # 금융자산 등록
+    path("delete/", views.delete_user, name="delete_user"),             # 일반 회원탈퇴
+    path("kakao/login/", KakaoLogin.as_view(), name="kakao_login"),     # 카카오 소셜 회원가입/로그인
+    path("assets/", views.assets, name="assets"),                       # 금융 자산 등록
 ]

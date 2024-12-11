@@ -1,81 +1,81 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
-from django.shortcuts import get_list_or_404, get_object_or_404, render
+from django.shortcuts import get_object_or_404
 
-# 회원가입
+# 회원가입 관련
 from rest_framework.authtoken.models import Token
 from allauth.socialaccount.models import SocialAccount
 from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.kakao.views import KakaoOAuth2Adapter
 
-# 회원탈퇴/정보수정
+# 회원탈퇴 및 정보수정 관련
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from .serializers import UpdateUserSerializer, UserProfileSerializer
 from rest_framework.decorators import api_view, permission_classes
-
-from django.contrib.auth import get_user_model
+from .serializers import UserProfileSerializer
 
 from .models import UserProfile
-User = get_user_model()
+from django.contrib.auth import get_user_model
 
+User = get_user_model()
+temp_nickname_number = 0 # 유저명에 사용되는 임의값
 
 # 유저탈퇴
-class DeleteUserView(APIView):
-    permission_classes = [IsAuthenticated]
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_user(request):
+    """
+    사용자 계정 삭제 (회원 탈퇴 처리)
+    - 인증된 사용자만 요청 가능
+    """
+    user = request.user
+    user.delete()
+    return Response({"detail": "계정이 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
 
-    def delete(self, request):
-        user = request.user
-        user.delete()  # 계정을 완전히 삭제
-        return Response({"detail": "Account has been deleted."}, status=status.HTTP_204_NO_CONTENT)
-
-
-# 유저 정보 변경
-class UpdateUserView(generics.UpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = UpdateUserSerializer
-    http_method_names = ['patch'] # PATCH 메서드만 허용
-
-    def get_object(self):
-        return self.request.user  # 현재 로그인한 사용자
-
-
-temp_nickname_number = 0 # 유저명에 사용되는 임의값
 
 # 카카오 로그인
 class KakaoLogin(SocialLoginView):
+    """
+    카카오 소셜 로그인 및 회원가입 처리
+    - 기존 사용자가 있으면 로그인
+    - 없으면 신규 사용자 생성 후 로그인 처리
+    """
     adapter_class = KakaoOAuth2Adapter
 
     def post(self, request):
+        """
+        POST /accounts/kakao/login/
+        - 이메일과 닉네임(실명) 기반으로 사용자 계정 확인 및 처리
+        """
         email = request.data.get("email")
         nickname = request.data.get("nickname")
-        try:
-            # 기존에 가입된 유저와 쿼리해서 존재하면서, SocialAccount에도 존재하면 로그인
+
+        # 사용자 계정 확인
+        user_qs = User.objects.filter(email=email)
+
+        if user_qs.exists():
+            # 기존 사용자와 소셜 계정 확인
             user = User.objects.get(email=email)
             social_user = SocialAccount.objects.filter(user=user).first()
-            # 로그인
             if social_user:
-                # 이미 존재하는 사용자 -> 토큰 생성 또는 가져오기
+                # 기존 소셜 계정이 있는 경우: 로그인 성공 처리
                 token = Token.objects.filter(user=user)
                 token_data = token.values('key')
-                print(token.values('key'))
-                return Response({'key': token_data, "detail": "로그인 성공"}, status=status.HTTP_200_OK)
+                return Response({'key': token_data, "detail": "로그인 성공하였습니다."}, status=status.HTTP_200_OK)
             
-            # 동일한 이메일의 유저가 있지만, social계정이 아닐때 
             if social_user is None:
-                return Response({"detail": "동일한 이메일로 가입된 소셜 계정이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
+                # 동일한 이메일로 소셜계정이 아닌, 일반계정으로 가입했을 때 처리 
+                return Response({"detail": "동일한 이메일로 가입된 계정이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
             
-            # 소셜계정이 카카오가 아닌 다른 소셜계정으로 가입했을때
             if social_user.provider != "kakao":
+                # 타 소셜계정으로 가입했을 때 처리
                 return Response({"detail": "동일한 이메일로 타 소셜 계정에 가입되어 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
     
-        # 기존에 가입된 유저가 없으면 새로 가입
-        except User.DoesNotExist:
-            
+        else:
             # User Table에 계정 생성
             global temp_nickname_number
             new_user = User.objects.create(
-                nickname=f"나는유저{temp_nickname_number}",
+                nickname=f"유저별명{temp_nickname_number}",
                 email=email,
                 fullname=nickname,
             )
@@ -85,18 +85,25 @@ class KakaoLogin(SocialLoginView):
             SocialAccount.objects.create(user_id=new_user.id, provider='kakao')
 
             # 토큰 생성 - header로 전송
-            
             token = Token.objects.create(user=new_user)
             return Response({'key': token.key, "detail": "회원가입 성공"}, status=status.HTTP_201_CREATED)
 
+
 # 유저 금융자산
-@api_view(["GET", "PUT", "POST", "DELETE"])
+@api_view(["GET", "POST", "PUT", "DELETE"])
 @permission_classes([IsAuthenticated])
 def assets(request):
+    """
+    사용자 금융 자산 관리
+    - GET: 자산 조회
+    - POST: 자산 등록
+    - PUT: 자산 수정
+    - DELETE: 자산 삭제
+    """
 
     if request.method == "POST":
-        # 유저 정보 작성
         if UserProfile.objects.filter(user=request.user).exists():
+            # 이미 자산 정보가 등록되어 있는 경우
             return Response({"detail" : "이전에 작성된 프로필이 존재합니다."}, status=status.HTTP_400_BAD_REQUEST)
         
         serializer = UserProfileSerializer(data=request.data)
@@ -105,8 +112,8 @@ def assets(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     profile = get_object_or_404(UserProfile, user=request.user)
+
     if request.method == "GET":
-        # 유저 정보 조회
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
@@ -118,4 +125,4 @@ def assets(request):
 
     elif request.method == "DELETE":
         profile.delete()
-        return Response({"detail": "Successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "자산정보가 성공적으로 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
