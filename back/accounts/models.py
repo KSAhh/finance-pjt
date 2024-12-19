@@ -3,8 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from allauth.account.adapter import DefaultAccountAdapter
 from django.contrib.auth import get_user_model
 
-# from .managers import UserManager
-
 # 유저
 class User(AbstractUser):
     # 공통
@@ -20,19 +18,33 @@ class User(AbstractUser):
     # 소셜회원
     email = models.EmailField(null=True, blank=True, default=None)    # 이메일
 
-
     def __str__(self):
         return self.nickname if self.nickname else f"User({self.username})" # 닉네임이 없으면 로그인 ID 반환
 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE)
-    gender = models.CharField(max_length=10, choices=[("남", "Male"), ("여", "Female")]) # 성별
-    birth_date = models.DateField() # 출생일
-    monthly_income = models.IntegerField() # 월 평균 소득
-    monthly_expense = models.IntegerField() # 월 평균 소비
+    gender = models.CharField(max_length=10, choices=[("남", "Male"), ("여", "Female")])  # 성별
+    birth_date = models.DateField()  # 출생일
+    monthly_income = models.IntegerField()  # 월 평균 소득
+    monthly_expense = models.IntegerField()  # 월 평균 소비
     total_assets = models.IntegerField()  # 총 자산
-    is_mydata_consent = models.BooleanField(default=False) # 마이데이터 동의 여부
+    is_mydata_consent = models.BooleanField(default=False)  # 마이데이터 동의 여부
+
+    # 추가 필드
+    category_choice = models.IntegerField(
+        choices=[
+            (1, "정액적립식 복리"),
+            (2, "자유적립식 단리"),
+            (3, "정기예금 단리"),
+            (4, "정기예금 복리")
+        ],
+        null=True, blank=True, verbose_name="관심 카테고리"
+    )
+
+    def __str__(self):
+        return f"{self.user.username} - Profile"
+
 
 # allauth 유저 조회 - adapter 커스텀
 class CustomAccountAdapter(DefaultAccountAdapter):
@@ -49,6 +61,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         nickname = data.get("nickname")
         fullname = data.get("fullname")
         profile_image = data.get("profile_image")
+        category_choice = data.get("category_choice")
 
         user_email(user, email)
         user_username(user, username)
@@ -64,7 +77,10 @@ class CustomAccountAdapter(DefaultAccountAdapter):
             user.set_unusable_password()
         self.populate_username(request, user)
         if commit:
-            # Ability not to commit makes it easier to derive from
-            # this adapter by adding
             user.save()
+            # UserProfile 생성 및 category_choice 저장
+            UserProfile.objects.create(
+                user=user,
+                category_choice=category_choice
+            )
         return user
