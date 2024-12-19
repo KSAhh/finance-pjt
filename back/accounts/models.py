@@ -30,8 +30,19 @@ class UserProfile(models.Model):
     monthly_expense = models.IntegerField()  # 월 평균 소비
     total_assets = models.IntegerField()  # 총 자산
     is_mydata_consent = models.BooleanField(default=False)  # 마이데이터 동의 여부
-
-    # 추가 필드
+    job = models.CharField(
+        max_length=50,
+        choices=[
+            ("직장인", "Office Worker"),
+            ("자영업자", "Self-Employed"),
+            ("학생", "Student"),
+            ("무직", "Unemployed"),
+            ("기타", "Other"),
+        ],
+        null=True,
+        blank=True,
+        verbose_name="직업"
+    )
     category_choice = models.IntegerField(
         choices=[
             (1, "정액적립식 복리"),
@@ -44,6 +55,7 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - Profile"
+
 
 
 # allauth 유저 조회 - adapter 커스텀

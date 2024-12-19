@@ -118,11 +118,12 @@ AUTHENTICATION_BACKENDS = [
 # Custom User
 AUTH_USER_MODEL = "accounts.User"
 
+
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",  # CORS header
     "django.middleware.common.CommonMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -136,8 +137,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
 ]
+CORS_ALLOW_CREDENTIALS = True#
 
 ROOT_URLCONF = "algofipo_pjt.urls"
+
+
+
 
 TEMPLATES = [
     {

@@ -8,23 +8,59 @@ from django.contrib.auth.hashers import make_password
 from .models import UserProfile
 
 UserModel = get_user_model()
-
-# 회원가입 필드
 class CustomRegisterSerializer(RegisterSerializer):
     # 필드 추가
     nickname = serializers.CharField(required=True, allow_blank=False, max_length=10)
     fullname = serializers.CharField(required=True, allow_blank=False, max_length=50)
     profile_image = serializers.ImageField(required=False)
+    job = serializers.ChoiceField(
+        choices=[
+            ("직장인", "Office Worker"),
+            ("자영업자", "Self-Employed"),
+            ("학생", "Student"),
+            ("무직", "Unemployed"),
+            ("기타", "Other"),
+        ],
+        required=True,
+    )
     
     # 생성
     def get_cleaned_data(self):
         return {
-            'username' : self.validated_data.get('username', ''),
-            'password1' : self.validated_data.get('password1', ''),
-            'nickname' : self.validated_data.get('nickname', ''),        
-            'fullname' : self.validated_data.get('fullname', ''),        
-            'profile_image' : self.validated_data.get('profile_image', ''),        
+            'username': self.validated_data.get('username', ''),
+            'password1': self.validated_data.get('password1', ''),
+            'nickname': self.validated_data.get('nickname', ''),
+            'fullname': self.validated_data.get('fullname', ''),
+            'profile_image': self.validated_data.get('profile_image', ''),
+            'job': self.validated_data.get('job', ''),
         }
+    
+    # 사용자 저장
+    def save(self, request):
+        user = super().save(request)
+        job = self.validated_data.get('job', '')
+        UserProfile.objects.create(
+            user=user,
+            job=job,
+        )
+        return user
+
+# # 회원가입 필드
+# class CustomRegisterSerializer(RegisterSerializer):
+#     # 필드 추가
+#     nickname = serializers.CharField(required=True, allow_blank=False, max_length=10)
+#     fullname = serializers.CharField(required=True, allow_blank=False, max_length=50)
+#     profile_image = serializers.ImageField(required=False)
+    
+#     # 생성
+#     def get_cleaned_data(self):
+#         return {
+#             'username' : self.validated_data.get('username', ''),
+#             'password1' : self.validated_data.get('password1', ''),
+#             'nickname' : self.validated_data.get('nickname', ''),        
+#             'fullname' : self.validated_data.get('fullname', ''),        
+#             'profile_image' : self.validated_data.get('profile_image', ''),        
+#         }
     
     # 닉네임 중복방지
     # def validate_nickname(self, value):

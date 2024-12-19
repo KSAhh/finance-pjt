@@ -119,3 +119,33 @@ def assets(request):
     elif request.method == "DELETE":
         profile.delete()
         return Response({"detail": "Successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
+    
+
+from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
+def check_id(request):
+    if request.method == "POST":
+        try:
+            # JSON 요청 데이터 읽기
+            data = json.loads(request.body)
+            username = data.get("username", "")
+
+            # 아이디 중복 여부 확인
+            is_duplicate = User.objects.filter(username=username).exists()
+            return JsonResponse({"is_duplicate": is_duplicate}, status=200)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=400)
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
+
+def get_csrf_token(request):
+    return JsonResponse({'csrfToken': get_token(request)})

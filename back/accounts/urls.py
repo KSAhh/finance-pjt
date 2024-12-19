@@ -11,4 +11,6 @@ urlpatterns = [
     path("update/", UpdateUserView.as_view(), name="update_user"),      # 회원 정보수정
     path("kakao/login/", KakaoLogin.as_view(), name="kakao_login"),     # 소셜 회원가입
     path("assets/", views.assets), # 금융자산 등록
+    path("check-id/", views.check_id, name="check_id"), #아이디 중복 체크
+    path('get-csrf-token/', views.get_csrf_token, name='get_csrf_token'),
 ]
