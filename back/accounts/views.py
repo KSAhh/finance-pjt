@@ -1,6 +1,6 @@
 from rest_framework import status, generics
 from rest_framework.response import Response
-from django.shortcuts import get_list_or_404, get_object_or_404, render
+from django.shortcuts import get_object_or_404
 
 # 회원가입
 from rest_framework.authtoken.models import Token
@@ -17,8 +17,15 @@ from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import get_user_model
 
 from .models import UserProfile
-User = get_user_model()
 
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from django.middleware.csrf import get_token
+from django.utils import timezone
+import uuid
+
+User = get_user_model()
 
 # 유저탈퇴
 class DeleteUserView(APIView):
@@ -26,91 +33,91 @@ class DeleteUserView(APIView):
 
     def delete(self, request):
         user = request.user
-        user.delete()  # 계정을 완전히 삭제
-        return Response({"detail": "Account has been deleted."}, status=status.HTTP_204_NO_CONTENT)
+        # Soft Deletion
+        user.deleted_at = timezone.now()
+        user.is_active = False
+        user.save()
+        return Response({"detail": "Account has been deactivated."}, status=status.HTTP_200_OK)
 
 
 # 유저 정보 변경
 class UpdateUserView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UpdateUserSerializer
-    http_method_names = ['patch'] # PATCH 메서드만 허용
+    http_method_names = ['patch']
 
     def get_object(self):
-        return self.request.user  # 현재 로그인한 사용자
+        return self.request.user
 
+    def patch(self, request, *args, **kwargs):
+        user_serializer = self.get_serializer(instance=self.get_object(), data=request.data, partial=True)
+        user_serializer.is_valid(raise_exception=True)
+        user_serializer.save()
 
-temp_nickname_number = 0 # 유저명에 사용되는 임의값
+        # UserProfile 업데이트
+        profile_serializer = UserProfileSerializer(instance=request.user.profile, data=request.data, partial=True)
+        profile_serializer.is_valid(raise_exception=True)
+        profile_serializer.save()
+
+        return Response({
+            "user": user_serializer.data,
+            "profile": profile_serializer.data
+        }, status=status.HTTP_200_OK)
+
 
 # 카카오 로그인
 class KakaoLogin(SocialLoginView):
     adapter_class = KakaoOAuth2Adapter
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         email = request.data.get("email")
         nickname = request.data.get("nickname")
+
+        if not email or not nickname:
+            return Response({"detail": "이메일과 닉네임은 필수입니다."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            # 기존에 가입된 유저와 쿼리해서 존재하면서, SocialAccount에도 존재하면 로그인
             user = User.objects.get(email=email)
-            social_user = SocialAccount.objects.filter(user=user).first()
-            # 로그인
+            social_user = SocialAccount.objects.filter(user=user, provider='kakao').first()
             if social_user:
-                # 이미 존재하는 사용자 -> 토큰 생성 또는 가져오기
-                token = Token.objects.filter(user=user)
-                token_data = token.values('key')
-                print(token.values('key'))
-                return Response({'key': token_data, "detail": "로그인 성공"}, status=status.HTTP_200_OK)
-            
-            # 동일한 이메일의 유저가 있지만, social계정이 아닐때 
-            if social_user is None:
-                return Response({"detail": "동일한 이메일로 가입된 소셜 계정이 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # 소셜계정이 카카오가 아닌 다른 소셜계정으로 가입했을때
-            if social_user.provider != "kakao":
-                return Response({"detail": "동일한 이메일로 타 소셜 계정에 가입되어 있습니다."}, status=status.HTTP_400_BAD_REQUEST)
-    
-        # 기존에 가입된 유저가 없으면 새로 가입
+                token, created = Token.objects.get_or_create(user=user)
+                return Response({'key': token.key, "detail": "로그인 성공"}, status=status.HTTP_200_OK)
+
+            if SocialAccount.objects.filter(user=user).exclude(provider='kakao').exists():
+                return Response({"detail": "동일한 이메일로 다른 소셜 계정이 존재합니다."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 소셜 계정이 없을 때
+            return Response({"detail": "소셜 계정이 연결되지 않았습니다."}, status=status.HTTP_400_BAD_REQUEST)
+
         except User.DoesNotExist:
-            
-            # User Table에 계정 생성
-            global temp_nickname_number
+            # 새로운 사용자 생성
+            unique_nickname = f"나는유저{uuid.uuid4().hex[:8]}"
             new_user = User.objects.create(
-                nickname=f"나는유저{temp_nickname_number}",
+                nickname=unique_nickname,
                 email=email,
                 fullname=nickname,
             )
-            temp_nickname_number += 1
+            new_user.set_unusable_password()
+            new_user.save()
 
-            # Social Account Table에 계정 생성
-            SocialAccount.objects.create(user_id=new_user.id, provider='kakao')
+            SocialAccount.objects.create(user=new_user, provider='kakao')
 
-            # 토큰 생성 - header로 전송
-            
             token = Token.objects.create(user=new_user)
             return Response({'key': token.key, "detail": "회원가입 성공"}, status=status.HTTP_201_CREATED)
 
+
 # 유저 금융자산
-@api_view(["GET", "PUT", "POST", "DELETE"])
+@api_view(["GET", "PATCH", "DELETE"])
 @permission_classes([IsAuthenticated])
 def assets(request):
-
-    if request.method == "POST":
-        # 유저 정보 작성
-        if UserProfile.objects.filter(user=request.user).exists():
-            return Response({"detail" : "이전에 작성된 프로필이 존재합니다."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer = UserProfileSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
     profile = get_object_or_404(UserProfile, user=request.user)
+
     if request.method == "GET":
         # 유저 정보 조회
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
-    elif request.method == "PUT":
+    elif request.method in ["PATCH", "PUT"]:
         serializer = UserProfileSerializer(profile, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -119,33 +126,21 @@ def assets(request):
     elif request.method == "DELETE":
         profile.delete()
         return Response({"detail": "Successfully deleted."}, status=status.HTTP_204_NO_CONTENT)
-    
 
-from django.http import JsonResponse
-from django.contrib.auth import get_user_model
 
-User = get_user_model()
-
-from django.views.decorators.csrf import csrf_exempt
-import json
-
-@csrf_exempt
+@api_view(['POST'])
 def check_id(request):
-    if request.method == "POST":
-        try:
-            # JSON 요청 데이터 읽기
-            data = json.loads(request.body)
-            username = data.get("username", "")
+    try:
+        username = request.data.get("username", "")
+        if not username:
+            return Response({"error": "Username is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # 아이디 중복 여부 확인
-            is_duplicate = User.objects.filter(username=username).exists()
-            return JsonResponse({"is_duplicate": is_duplicate}, status=200)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-    return JsonResponse({"error": "Invalid request"}, status=400)
+        is_duplicate = User.objects.filter(username=username).exists()
+        return Response({"is_duplicate": is_duplicate}, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-from django.middleware.csrf import get_token
-from django.http import JsonResponse
 
-def get_csrf_token(request):
-    return JsonResponse({'csrfToken': get_token(request)})
+@api_view(['GET'])
+def get_csrf_token_view(request):
+    return Response({'csrfToken': get_token(request)}, status=status.HTTP_200_OK)

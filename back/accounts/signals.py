@@ -11,3 +11,14 @@ from django.conf import settings                    # 토큰 설정 불러오기
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+from django.contrib.auth import get_user_model
+from .models import UserProfile
+
+User = get_user_model()
+
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+    instance.profile.save()

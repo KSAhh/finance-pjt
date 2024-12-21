@@ -140,6 +140,10 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True#
 
 ROOT_URLCONF = "algofipo_pjt.urls"
+# CSRF 관련 설정
+CSRF_COOKIE_NAME = "csrftoken"  # CSRF 토큰이 저장될 쿠키 이름
+CSRF_COOKIE_HTTPONLY = False  # JavaScript에서 쿠키에 접근할 수 있도록 False로 설정
+CSRF_COOKIE_SECURE = False  # HTTPS 환경에서만 쿠키를 사용할지 여부 (개발 중에는 False)
 
 
 
