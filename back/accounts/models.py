@@ -5,6 +5,8 @@ from django.contrib.auth import get_user_model
 
 # 유저 모델
 class User(AbstractUser):
+    first_name = None  # Django 기본 필드 제거
+    last_name = None   # Django 기본 필드 제거
     # 공통 필드
     nickname = models.CharField(max_length=10)  # 별명
     fullname = models.CharField(max_length=50)  # 실명
@@ -26,7 +28,7 @@ from django.contrib.auth import get_user_model
 class UserProfile(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='profile')
     gender = models.CharField(max_length=10, choices=[("남", "Male"), ("여", "Female")])  # 성별
-    birth_date = models.DateField()  # 출생일
+    birth_date = models.DateField(null=False, blank=True)  # 출생일
     monthly_income = models.DecimalField(max_digits=15, decimal_places=2)  # 월 평균 소득
     monthly_expense = models.DecimalField(max_digits=15, decimal_places=2)  # 월 평균 소비
     total_assets = models.DecimalField(max_digits=15, decimal_places=2)  # 총 자산
@@ -113,25 +115,16 @@ class UserProfile(models.Model):
 #         return f"{self.user.username} - Profile"
 
 
-from allauth.account.adapter import DefaultAccountAdapter
+
+from .models import UserProfile
 
 class CustomAccountAdapter(DefaultAccountAdapter):
     def save_user(self, request, user, form, commit=True):
         data = form.cleaned_data
-        email = data.get("email")
-        username = data.get("username")
-        nickname = data.get("nickname")
-        fullname = data.get("fullname")
-        profile_image = data.get("profile_image")
-        
-        user.email = email
-        user.username = username
-        if nickname:
-            user.nickname = nickname
-        if fullname:
-            user.fullname = fullname
-        if profile_image:
-            user.profile_image = profile_image
+        user.email = data.get("email")
+        user.username = data.get("username")
+        user.nickname = data.get("nickname", "")
+        user.fullname = data.get("fullname", "")
         if "password1" in data:
             user.set_password(data["password1"])
         else:
@@ -139,8 +132,29 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         self.populate_username(request, user)
         if commit:
             user.save()
-            # UserProfile은 시그널을 통해 자동 생성되므로 별도 생성 불필요
+            # UserProfile 생성/업데이트
+            UserProfile.objects.update_or_create(
+                user=user,
+                defaults={
+                    "birth_date": data.get("birth_date"),
+                    "gender": data.get("gender"),
+                    "monthly_income": data.get("monthly_income"),
+                    "monthly_expense": data.get("monthly_expense"),
+                    "total_assets": data.get("total_assets"),
+                    "job": data.get("job"),
+                    "category_choice": data.get("category_choice"),
+                    "has_main_bank": data.get("has_main_bank"),
+                    "change_bank": data.get("change_bank"),
+                    "max_contract_months": data.get("max_contract_months"),
+                    "interest_in_event": data.get("interest_in_event"),
+                    "deposit_min": data.get("deposit_min"),
+                    "deposit_max": data.get("deposit_max"),
+                    "saving_min": data.get("saving_min"),
+                    "saving_max": data.get("saving_max"),
+                },
+            )
         return user
+
 
 
 

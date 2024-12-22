@@ -8,6 +8,13 @@ from .models import UserProfile
 
 UserModel = get_user_model()
 
+from rest_framework import serializers
+from dj_rest_auth.registration.serializers import RegisterSerializer
+from django.contrib.auth import get_user_model
+from .models import UserProfile
+
+UserModel = get_user_model()
+
 class CustomRegisterSerializer(RegisterSerializer):
     # User 모델 필드
     nickname = serializers.CharField(required=True, allow_blank=False, max_length=10)
@@ -19,7 +26,7 @@ class CustomRegisterSerializer(RegisterSerializer):
         choices=[("남", "Male"), ("여", "Female")],
         required=True
     )
-    birth_date = serializers.DateField(required=True)
+    birth_date = serializers.DateField(required=True)  # 출생일 필수
     monthly_income = serializers.DecimalField(max_digits=15, decimal_places=2, required=True)
     monthly_expense = serializers.DecimalField(max_digits=15, decimal_places=2, required=True)
     total_assets = serializers.DecimalField(max_digits=15, decimal_places=2, required=True)
@@ -52,60 +59,75 @@ class CustomRegisterSerializer(RegisterSerializer):
     deposit_max = serializers.DecimalField(max_digits=15, decimal_places=2, required=False, allow_null=True)
     saving_min = serializers.DecimalField(max_digits=15, decimal_places=2, required=False, allow_null=True)
     saving_max = serializers.DecimalField(max_digits=15, decimal_places=2, required=False, allow_null=True)
-    
+
+    def validate_birth_date(self, value):
+        """birth_date가 누락되었거나 유효하지 않을 경우 검증"""
+        if not value:
+            raise serializers.ValidationError("출생일은 필수 입력 항목입니다.")
+        return value
+
     def get_cleaned_data(self):
+        """User 및 UserProfile 데이터를 반환"""
         data = super().get_cleaned_data()
-        data['nickname'] = self.validated_data.get('nickname', '')
-        data['fullname'] = self.validated_data.get('fullname', '')
-        data['profile_image'] = self.validated_data.get('profile_image', None)
-        # UserProfile 필드 추가
-        data['gender'] = self.validated_data.get('gender', None)
-        data['birth_date'] = self.validated_data.get('birth_date', None)
-        data['monthly_income'] = self.validated_data.get('monthly_income', None)
-        data['monthly_expense'] = self.validated_data.get('monthly_expense', None)
-        data['total_assets'] = self.validated_data.get('total_assets', None)
-        data['is_mydata_consent'] = self.validated_data.get('is_mydata_consent', False)
-        data['job'] = self.validated_data.get('job', None)
-        data['category_choice'] = self.validated_data.get('category_choice', None)
-        data['has_main_bank'] = self.validated_data.get('has_main_bank', None)
-        data['change_bank'] = self.validated_data.get('change_bank', None)
-        data['max_contract_months'] = self.validated_data.get('max_contract_months', None)
-        data['interest_in_event'] = self.validated_data.get('interest_in_event', None)
-        data['deposit_min'] = self.validated_data.get('deposit_min', None)
-        data['deposit_max'] = self.validated_data.get('deposit_max', None)
-        data['saving_min'] = self.validated_data.get('saving_min', None)
-        data['saving_max'] = self.validated_data.get('saving_max', None)
+        data.update({
+            'nickname': self.validated_data.get('nickname', ''),
+            'fullname': self.validated_data.get('fullname', ''),
+            'profile_image': self.validated_data.get('profile_image', None),
+            'gender': self.validated_data.get('gender', None),
+            'birth_date': self.validated_data.get('birth_date', None),
+            'monthly_income': self.validated_data.get('monthly_income', None),
+            'monthly_expense': self.validated_data.get('monthly_expense', None),
+            'total_assets': self.validated_data.get('total_assets', None),
+            'is_mydata_consent': self.validated_data.get('is_mydata_consent', False),
+            'job': self.validated_data.get('job', None),
+            'category_choice': self.validated_data.get('category_choice', None),
+            'has_main_bank': self.validated_data.get('has_main_bank', None),
+            'change_bank': self.validated_data.get('change_bank', None),
+            'max_contract_months': self.validated_data.get('max_contract_months', None),
+            'interest_in_event': self.validated_data.get('interest_in_event', None),
+            'deposit_min': self.validated_data.get('deposit_min', None),
+            'deposit_max': self.validated_data.get('deposit_max', None),
+            'saving_min': self.validated_data.get('saving_min', None),
+            'saving_max': self.validated_data.get('saving_max', None),
+        })
         return data
-    
+
     def save(self, request):
-        user = super().save(request)
-        user.nickname = self.validated_data.get('nickname')
-        user.fullname = self.validated_data.get('fullname')
-        if self.validated_data.get('profile_image'):
-            user.profile_image = self.validated_data.get('profile_image')
-        user.save()
-    
-        # UserProfile 업데이트
-        profile = user.profile
-        profile.gender = self.validated_data.get('gender')
-        profile.birth_date = self.validated_data.get('birth_date')
-        profile.monthly_income = self.validated_data.get('monthly_income')
-        profile.monthly_expense = self.validated_data.get('monthly_expense')
-        profile.total_assets = self.validated_data.get('total_assets')
-        profile.is_mydata_consent = self.validated_data.get('is_mydata_consent', False)
-        profile.job = self.validated_data.get('job')
-        profile.category_choice = self.validated_data.get('category_choice')
-        profile.has_main_bank = self.validated_data.get('has_main_bank')
-        profile.change_bank = self.validated_data.get('change_bank')
-        profile.max_contract_months = self.validated_data.get('max_contract_months')
-        profile.interest_in_event = self.validated_data.get('interest_in_event')
-        profile.deposit_min = self.validated_data.get('deposit_min')
-        profile.deposit_max = self.validated_data.get('deposit_max')
-        profile.saving_min = self.validated_data.get('saving_min')
-        profile.saving_max = self.validated_data.get('saving_max')
-        profile.save()
-        
-        return user
+        try:
+            user = super().save(request)
+            user.nickname = self.validated_data.get('nickname')
+            user.fullname = self.validated_data.get('fullname')
+            if self.validated_data.get('profile_image'):
+                user.profile_image = self.validated_data.get('profile_image')
+            user.save()
+
+            # UserProfile 업데이트
+            profile, created = UserProfile.objects.update_or_create(
+                user=user,
+                defaults={
+                    "birth_date": self.validated_data.get('birth_date'),
+                    "gender": self.validated_data.get('gender'),
+                    "monthly_income": self.validated_data.get('monthly_income'),
+                    "monthly_expense": self.validated_data.get('monthly_expense'),
+                    "total_assets": self.validated_data.get('total_assets'),
+                    "is_mydata_consent": self.validated_data.get('is_mydata_consent', False),
+                    "job": self.validated_data.get('job'),
+                    "category_choice": self.validated_data.get('category_choice'),
+                    "has_main_bank": self.validated_data.get('has_main_bank'),
+                    "change_bank": self.validated_data.get('change_bank'),
+                    "max_contract_months": self.validated_data.get('max_contract_months'),
+                    "interest_in_event": self.validated_data.get('interest_in_event'),
+                    "deposit_min": self.validated_data.get('deposit_min'),
+                    "deposit_max": self.validated_data.get('deposit_max'),
+                    "saving_min": self.validated_data.get('saving_min'),
+                    "saving_max": self.validated_data.get('saving_max'),
+                },
+            )
+            print(f"Profile saved: {profile}, Created: {created}")  # 디버깅용 로그
+            return user
+
+        except Exception as e:
+            raise serializers.ValidationError(f"오류 발생: {str(e)}")
 
 # 유저 정보 조회 시리얼라이저
 class CustomUserDetailsSerializer(UserDetailsSerializer):

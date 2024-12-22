@@ -115,6 +115,12 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend', # allauth authentication
 ]
 
+# 이메일 검증 임시 비활성화화
+ACCOUNT_EMAIL_VERIFICATION = "none"  # 이메일 확인 비활성화
+ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필드 요구 여부
+
+
+
 # Custom User
 AUTH_USER_MODEL = "accounts.User"
 
@@ -143,8 +149,11 @@ ROOT_URLCONF = "algofipo_pjt.urls"
 # CSRF 관련 설정
 CSRF_COOKIE_NAME = "csrftoken"  # CSRF 토큰이 저장될 쿠키 이름
 CSRF_COOKIE_HTTPONLY = False  # JavaScript에서 쿠키에 접근할 수 있도록 False로 설정
+CSRF_COOKIE_PATH = "/"
+CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = False  # HTTPS 환경에서만 쿠키를 사용할지 여부 (개발 중에는 False)
-
+CSRF_COOKIE_HTTPONLY = False  # Vue에서는 일반적으로 접근 가능해야 함
+CSRF_USE_SESSIONS = False
 
 
 
