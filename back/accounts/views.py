@@ -27,6 +27,23 @@ import uuid
 
 User = get_user_model()
 
+# 설문조사 데이터 저장 API
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def submit_survey(request):
+    user = request.user
+    data = request.data
+
+    # partial=True로 부분 업데이트 허용
+    from .serializers import UserProfileSerializer
+    serializer = UserProfileSerializer(data=data, partial=True)
+    if serializer.is_valid():
+        UserProfile.objects.update_or_create(user=user, defaults=serializer.validated_data)
+        return Response({"detail": "설문조사가 성공적으로 저장되었습니다."}, status=201)
+    return Response(serializer.errors, status=400)
+
+
+
 # 유저탈퇴
 class DeleteUserView(APIView):
     permission_classes = [IsAuthenticated]
@@ -64,46 +81,135 @@ class UpdateUserView(generics.UpdateAPIView):
             "profile": profile_serializer.data
         }, status=status.HTTP_200_OK)
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.contrib.auth import get_user_model
+from .models import UserProfile
 
-# 카카오 로그인
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def check_survey_status(request):
+    user = request.user
+    user_profile = UserProfile.objects.filter(user=user).first()
+
+    required_fields = [
+        "gender", "birth_date", "monthly_income", "monthly_expense",
+        "total_assets", "is_mydata_consent", "job", "category_choice",
+        "has_main_bank", "change_bank", "max_contract_months",
+        "interest_in_event", "deposit_min", "deposit_max",
+        "saving_min", "saving_max",
+    ]
+
+    print("DEBUG: check_survey_status called")
+    print("DEBUG: user =", user.username, " / user_profile exists =", bool(user_profile))
+
+    if not user_profile:
+        print("DEBUG: user_profile does not exist. All fields are considered missing.")
+        return Response({
+            "requires_survey": True,
+            "message": "설문조사를 진행해주세요.",
+            "missing_fields": required_fields,
+        }, status=200)
+
+    missing_fields = []
+
+    # 모든 필드값 찍어보기
+    print("DEBUG: Current profile field values:")
+    for fld in required_fields:
+        print(f"   {fld} =", getattr(user_profile, fld, None))
+
+    for field in required_fields:
+        value = getattr(user_profile, field, None)
+
+        # 1) 숫자(Decimal, Integer) 필드: 0은 정상, None은 누락
+        if field in [
+            "monthly_income", "monthly_expense", "total_assets",
+            "deposit_min", "deposit_max", "saving_min", "saving_max"
+        ]:
+            if value is None:
+                missing_fields.append(field)
+
+        # 2) Boolean 필드: None이면 누락, False는 정상 입력
+        elif field in [
+            "is_mydata_consent", "has_main_bank", "change_bank", "interest_in_event"
+        ]:
+            if value is None:
+                missing_fields.append(field)
+
+        # 3) 나머지(문자, 날짜 등): if not value => 누락
+        else:
+            if not value:  # "", None, False 모두 누락
+                missing_fields.append(field)
+
+    print("DEBUG: computed missing_fields ->", missing_fields)
+
+    if missing_fields:
+        print("DEBUG: requires_survey = True (fields missing)")
+        return Response({
+            "requires_survey": True,
+            "message": "설문조사를 진행해주세요.",
+            "missing_fields": missing_fields,
+        }, status=200)
+
+    print("DEBUG: requires_survey = False (no missing fields)")
+    return Response({"requires_survey": False}, status=200)
+
+
+
 class KakaoLogin(SocialLoginView):
     adapter_class = KakaoOAuth2Adapter
 
     def post(self, request, *args, **kwargs):
-        email = request.data.get("email")
-        nickname = request.data.get("nickname")
-
-        if not email or not nickname:
-            return Response({"detail": "이메일과 닉네임은 필수입니다."}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
-            user = User.objects.get(email=email)
-            social_user = SocialAccount.objects.filter(user=user, provider='kakao').first()
-            if social_user:
+            email = request.data.get("email")
+            nickname = request.data.get("nickname")
+
+            # 기존 유저 확인
+            user = User.objects.filter(email=email).first()
+
+            if user:
+                # 닉네임이 비어 있으면 fullname으로 대체
+                if not user.nickname or user.nickname.strip() == "":
+                    if user.fullname and user.fullname.strip() != "":
+                        user.nickname = user.fullname
+                        user.save()
+
+                # 토큰 생성(기존 유저)
                 token, created = Token.objects.get_or_create(user=user)
-                return Response({'key': token.key, "detail": "로그인 성공"}, status=status.HTTP_200_OK)
+                return Response({
+                    "is_existing_user": True,
+                    "token": token.key,
+                    "detail": "로그인에 성공했습니다.",
+                }, status=status.HTTP_200_OK)
 
-            if SocialAccount.objects.filter(user=user).exclude(provider='kakao').exists():
-                return Response({"detail": "동일한 이메일로 다른 소셜 계정이 존재합니다."}, status=status.HTTP_400_BAD_REQUEST)
-
-            # 소셜 계정이 없을 때
-            return Response({"detail": "소셜 계정이 연결되지 않았습니다."}, status=status.HTTP_400_BAD_REQUEST)
-
-        except User.DoesNotExist:
-            # 새로운 사용자 생성
-            unique_nickname = f"나는유저{uuid.uuid4().hex[:8]}"
-            new_user = User.objects.create(
-                nickname=unique_nickname,
+            # 신규 유저 생성
+            temp_user = User.objects.create(
                 email=email,
                 fullname=nickname,
+                nickname=nickname,
+                username=f"kakao_{uuid.uuid4().hex[:8]}"
             )
-            new_user.set_unusable_password()
-            new_user.save()
+            temp_user.set_unusable_password()
+            temp_user.save()
 
-            SocialAccount.objects.create(user=new_user, provider='kakao')
+            # 신규 유저도 토큰 발급
+            new_token = Token.objects.create(user=temp_user)
 
-            token = Token.objects.create(user=new_user)
-            return Response({'key': token.key, "detail": "회원가입 성공"}, status=status.HTTP_201_CREATED)
+            return Response({
+                "is_existing_user": False,
+                "token": new_token.key,
+                "email": temp_user.email,
+                "nickname": temp_user.nickname,
+                "detail": "새 계정이 생성되었습니다.",
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                "detail": f"요청 처리 중 오류가 발생했습니다: {str(e)}"
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
 
 # 유저 금융자산
